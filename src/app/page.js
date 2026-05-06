@@ -5,13 +5,23 @@ import './globals.css';
 
 // --- Components ---
 function RealProductSearch() {
-  const [products, setProducts] = useState([]);
+  const [keyword, setKeyword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [keyword, setKeyword] = useState('ASMR');
+  const [products, setProducts] = useState([]);
   const [service, setService] = useState('digital');
   const [sort, setSort] = useState('-date');
 
+  const popularTags = ['巨乳', '人妻', '素人', '女子校生', 'NTR', '拘束', 'M男', 'VR'];
+
+  const addTag = (tag) => {
+    setKeyword(prev => prev ? `${prev} ${tag}` : tag);
+  };
+
   const searchProducts = async () => {
+    if (!keyword.trim()) {
+      alert('検索キーワードを入力してください。');
+      return;
+    }
     setLoading(true);
     try {
       // 検索パラメータの構築
@@ -33,10 +43,6 @@ function RealProductSearch() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    searchProducts();
-  }, []);
-
   return (
     <div className="glass-panel animate-fade-in" style={{ marginBottom: '3rem' }}>
       <h2 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -46,14 +52,14 @@ function RealProductSearch() {
         キーワードだけでなく、サービス種別や並び順を指定してDMM Web APIからリアルタイム検索を行います。
       </p>
       
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem', background: 'rgba(255,255,255,0.4)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem', background: 'rgba(255,255,255,0.4)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
         <div style={{ flex: '1 1 300px' }}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>キーワード</label>
           <input 
             type="text" 
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="例: ASMR, 同人誌, メイド" 
+            placeholder="キーワード (例: シチュエーション、プレイ内容、女優名など)" 
             style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem' }}
           />
         </div>
@@ -82,6 +88,19 @@ function RealProductSearch() {
             {loading ? '検索中...' : '絞り込み検索 ✨'}
           </button>
         </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>人気のタグ:</span>
+        {popularTags.map(tag => (
+          <button 
+            key={tag} 
+            onClick={() => addTag(tag)}
+            style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '0.3rem 0.8rem', fontSize: '0.85rem', cursor: 'pointer' }}
+          >
+            {tag} +
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-2">
@@ -116,12 +135,21 @@ function RealProductSearch() {
 function RealActressSearch() {
   const [actresses, setActresses] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [keyword, setKeyword] = useState('波多野');
+  const [keyword, setKeyword] = useState('');
+  const [bust, setBust] = useState('');
+  const [waist, setWaist] = useState('');
+  const [hip, setHip] = useState('');
 
   const searchActresses = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/dmm/actress?keyword=${encodeURIComponent(keyword)}&hits=6&sort=name`);
+      let url = `/api/dmm/actress?hits=6&sort=name`;
+      if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+      if (bust) url += `&bust=${encodeURIComponent(bust)}`;
+      if (waist) url += `&waist=${encodeURIComponent(waist)}`;
+      if (hip) url += `&hip=${encodeURIComponent(hip)}`;
+
+      const res = await fetch(url);
       const data = await res.json();
       if (data && data.result && data.result.actress) {
         setActresses(data.result.actress);
@@ -140,18 +168,42 @@ function RealActressSearch() {
         👩 女優データベース検索ツール
       </h2>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-        名前やキーワードから女優情報を検索し、プロフィール画像や生年月日、出演作品一覧へのリンクを即座に表示します。
+        名前での検索に加え、スリーサイズ（B/W/H）を指定した詳細な絞り込みが可能です。理想のスタイルの女優を発見できます。
       </p>
       
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         <input 
           type="text" 
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="女優名 (ひらがな、漢字など)" 
-          style={{ flex: 1, padding: '0.8rem 1.2rem', borderRadius: '50px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem' }}
+          style={{ flex: 2, minWidth: '200px', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem' }}
         />
-        <button className="btn btn-primary" onClick={searchActresses} disabled={loading} style={{ padding: '0.8rem 2rem' }}>
+        <input 
+          type="number" 
+          value={bust}
+          onChange={(e) => setBust(e.target.value)}
+          placeholder="バスト (例: 90)" 
+          style={{ flex: 1, minWidth: '100px', padding: '0.8rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none' }}
+        />
+        <input 
+          type="number" 
+          value={waist}
+          onChange={(e) => setWaist(e.target.value)}
+          placeholder="ウエスト (例: 60)" 
+          style={{ flex: 1, minWidth: '100px', padding: '0.8rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none' }}
+        />
+        <input 
+          type="number" 
+          value={hip}
+          onChange={(e) => setHip(e.target.value)}
+          placeholder="ヒップ (例: 88)" 
+          style={{ flex: 1, minWidth: '100px', padding: '0.8rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none' }}
+        />
+      </div>
+      
+      <div style={{ textAlign: 'right', marginBottom: '2rem' }}>
+        <button className="btn btn-primary" onClick={searchActresses} disabled={loading} style={{ padding: '0.8rem 3rem' }}>
           {loading ? '検索中...' : '検索する ✨'}
         </button>
       </div>
