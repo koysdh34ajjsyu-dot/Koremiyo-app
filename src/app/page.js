@@ -194,9 +194,9 @@ function DmmToolsPage() {
 
 function DlsiteBlogPage() {
   const categories = [
-    { title: 'R18 フィクション', tags: ['同人誌', 'CG集', 'ゲーム'], color: '#ff758c' },
-    { title: 'マニアック (スク水)', tags: ['スクール水着', 'フェティッシュ'], color: '#84b6f4' },
-    { title: '全年齢 ASMR', tags: ['耳舐め', '音声作品', '癒やし'], color: '#b088f9' }
+    { title: 'フェ◯チオが好きな方はこちら！！', desc: '管理者オススメの同人作品を紹介しています。', color: '#ff758c' },
+    { title: 'スクール水着が好きな方はこちら！！', desc: '管理者オススメの同人作品を紹介しています。', color: '#84b6f4' },
+    { title: '全年齢 ASMR', desc: '癒やしを求める方向けの音声作品レビュー', color: '#b088f9' }
   ];
 
   return (
@@ -209,14 +209,10 @@ function DlsiteBlogPage() {
       <div className="grid grid-cols-3" style={{ marginBottom: '3rem' }}>
         {categories.map((cat, idx) => (
           <div key={idx} className="glass-panel" style={{ textAlign: 'center', borderColor: `rgba(${parseInt(cat.color.slice(1,3),16)}, ${parseInt(cat.color.slice(3,5),16)}, ${parseInt(cat.color.slice(5,7),16)}, 0.3)` }}>
-            <h3 style={{ color: cat.color, marginBottom: '1rem' }}>{cat.title}</h3>
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {cat.tags.map(tag => (
-                <span key={tag} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.8rem' }}>
-                  {tag}
-                </span>
-              ))}
-            </div>
+            <h3 style={{ color: cat.color, marginBottom: '1rem', fontSize: '1.1rem' }}>{cat.title}</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
+              {cat.desc}
+            </p>
           </div>
         ))}
       </div>
@@ -231,6 +227,33 @@ function DlsiteBlogPage() {
               <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>究極の癒やし体験！耳舐め音声作品レビュー #{item}</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 独自の切り口による熱量のあるレビュー文。シナリオの深さや音質のクリアさなど、実用性を含めて徹底的に解説します...
+              </p>
+              <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>記事を読む</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DmmBlogPage() {
+  return (
+    <div className="container animate-fade-in">
+      <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
+        <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>DMM作品レビューブログ</h1>
+        <p style={{ color: 'var(--text-secondary)' }}>FANZA/DMMの注目作品や名作を独自の視点で徹底レビュー</p>
+      </div>
+
+      <div className="grid grid-cols-2">
+        {[1, 2, 3, 4].map(item => (
+          <div key={item} className="glass-panel" style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem' }}>
+            <div style={{ width: '120px', height: '120px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', flexShrink: 0 }}></div>
+            <div>
+              <span style={{ color: 'var(--primary-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>FANZA動画</span>
+              <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>超おすすめ！今月絶対に見るべき作品まとめ #{item}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                今回はFANZAで人気のあのジャンルから、個人的に最高だと思った作品をピックアップしました。映像のクオリティや演出が...
               </p>
               <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>記事を読む</button>
             </div>
@@ -356,7 +379,7 @@ function DlsiteAdmin() {
       </h2>
       <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
         <div className="glass-panel delay-1">
-          <h3 style={{ marginBottom: '1.5rem' }}>新規記事作成</h3>
+          <h3 style={{ marginBottom: '1.5rem' }}>新規記事作成 (DLsite)</h3>
           <input type="text" placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
           <textarea placeholder="情熱的なレビューをここに記述..." style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
           <button className="btn btn-primary">記事を公開する</button>
@@ -365,10 +388,37 @@ function DlsiteAdmin() {
           <div>
             <h3 style={{ marginBottom: '0.5rem', fontSize: '1.1rem' }}>カテゴリ</h3>
             <select style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '2px solid var(--border-color)' }}>
-              <option>R18 フィクション</option>
-              <option>マニアック (スク水)</option>
+              <option>フェ◯チオが好きな方はこちら！！</option>
+              <option>スクール水着が好きな方はこちら！！</option>
               <option>全年齢 ASMR</option>
             </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DmmBlogAdmin() {
+  return (
+    <div className="animate-fade-in">
+      <h2 style={{ marginBottom: '2rem', borderBottom: '3px solid var(--primary-color)', paddingBottom: '0.5rem', display: 'inline-block' }}>
+        ✍️ DMMブログ 記事投稿・管理
+      </h2>
+      <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
+        <div className="glass-panel delay-1">
+          <h3 style={{ marginBottom: '1.5rem' }}>新規記事作成 (DMM)</h3>
+          <input type="text" placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
+          <textarea placeholder="FANZA作品のレビューをここに記述..." style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
+          <button className="btn btn-primary">記事を公開する</button>
+        </div>
+        <div className="glass-panel delay-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div>
+            <h3 style={{ marginBottom: '0.5rem', fontSize: '1.1rem' }}>連携商品ID (DMM)</h3>
+            <input type="text" placeholder="例: snis00123" style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '2px solid var(--border-color)', outline: 'none' }} />
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+              商品IDを入力すると、記事の下部に自動でアフィリエイトリンクと商品画像が生成されます。
+            </p>
           </div>
         </div>
       </div>
@@ -388,10 +438,14 @@ function AdminDashboard() {
     return (
       <div className="container animate-fade-in" style={{ marginTop: '2rem' }}>
         <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>管理者ダッシュボード</h1>
-        <div className="grid grid-cols-2">
+        <div className="grid grid-cols-3">
           <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dmm')}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🛠</div>
             <h2 style={{ marginBottom: '1rem' }}>DMMツール管理</h2>
+          </div>
+          <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dmm-blog')}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📖</div>
+            <h2 style={{ marginBottom: '1rem' }}>DMMブログ投稿</h2>
           </div>
           <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dlsite')}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✍️</div>
@@ -409,6 +463,7 @@ function AdminDashboard() {
       </div>
       {adminMode === 'dmm' && <DmmAdmin />}
       {adminMode === 'dlsite' && <DlsiteAdmin />}
+      {adminMode === 'dmm-blog' && <DmmBlogAdmin />}
     </div>
   );
 }
@@ -426,6 +481,7 @@ export default function Page() {
         <div className="nav-links">
           <a className={`nav-link ${currentPage === 'top' ? 'active' : ''}`} onClick={() => setCurrentPage('top')}>ホーム</a>
           <a className={`nav-link ${currentPage === 'dmm' ? 'active' : ''}`} onClick={() => setCurrentPage('dmm')}>DMMツール</a>
+          <a className={`nav-link ${currentPage === 'dmm-blog' ? 'active' : ''}`} onClick={() => setCurrentPage('dmm-blog')}>DMMブログ</a>
           <a className={`nav-link ${currentPage === 'dlsite' ? 'active' : ''}`} onClick={() => setCurrentPage('dlsite')}>DLsiteブログ</a>
           <a className={`nav-link ${currentPage === 'admin' ? 'active' : ''}`} onClick={() => setCurrentPage('admin')} style={{ marginLeft: '1rem', background: 'var(--secondary-color)', color: 'white' }}>管理者 🔒</a>
         </div>
@@ -434,6 +490,7 @@ export default function Page() {
       <main style={{ flex: 1, padding: '2rem 0' }}>
         {currentPage === 'top' && <TopPage navigateTo={setCurrentPage} />}
         {currentPage === 'dmm' && <DmmToolsPage />}
+        {currentPage === 'dmm-blog' && <DmmBlogPage />}
         {currentPage === 'dlsite' && <DlsiteBlogPage />}
         {currentPage === 'admin' && <AdminDashboard />}
       </main>
