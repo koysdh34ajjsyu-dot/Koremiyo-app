@@ -241,8 +241,31 @@ function DlsiteBlogPage() {
   );
 }
 
+import { supabase } from '../lib/supabase';
+
 // --- Admin Components ---
 function AdminLogin({ onLogin }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      alert('ログインに失敗しました。メールアドレスかパスワードが間違っています。');
+      console.error(error);
+    } else if (data.session) {
+      onLogin(true);
+    }
+  };
+
   return (
     <div className="container animate-fade-in" style={{ maxWidth: '500px', marginTop: '4rem' }}>
       <div className="glass-panel" style={{ textAlign: 'center' }}>
@@ -250,17 +273,21 @@ function AdminLogin({ onLogin }) {
         <h2 style={{ marginBottom: '2rem' }}>管理者ログイン</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <input 
-            type="text" 
-            placeholder="ユーザー名 (admin)" 
+            type="email" 
+            placeholder="メールアドレス" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             style={{ padding: '1rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none' }}
           />
           <input 
             type="password" 
-            placeholder="パスワード (1234)" 
+            placeholder="パスワード" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             style={{ padding: '1rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none' }}
           />
-          <button className="btn btn-primary" onClick={() => onLogin(true)}>
-            ログイン
+          <button className="btn btn-primary" onClick={handleLogin} disabled={loading}>
+            {loading ? '認証中...' : 'セキュアログイン'}
           </button>
         </div>
       </div>
