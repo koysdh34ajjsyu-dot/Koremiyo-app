@@ -243,8 +243,8 @@ function TrendingAnalyticsDashboard() {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      // ランキング上位30件を取得して分析
-      const res = await fetch('/api/dmm/product?sort=rank&hits=30');
+      // ランキング上位30件を取得して分析 (site=FANZAを追加)
+      const res = await fetch('/api/dmm/product?site=FANZA&sort=rank&hits=30');
       const data = await res.json();
       
       if (data && data.result && data.result.items) {
