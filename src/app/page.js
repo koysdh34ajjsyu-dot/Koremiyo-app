@@ -236,6 +236,111 @@ function RealActressSearch() {
   );
 }
 
+function TrendingAnalyticsDashboard() {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchAnalytics = async () => {
+    setLoading(true);
+    try {
+      // ランキング上位30件を取得して分析
+      const res = await fetch('/api/dmm/product?sort=rank&hits=30');
+      const data = await res.json();
+      
+      if (data && data.result && data.result.items) {
+        const items = data.result.items;
+        
+        let totalPrice = 0;
+        const genreCounts = {};
+        const makerCounts = {};
+        
+        items.forEach(item => {
+          totalPrice += parseInt(item.prices?.price || 0);
+          
+          if (item.iteminfo?.genre) {
+            item.iteminfo.genre.forEach(g => {
+              genreCounts[g.name] = (genreCounts[g.name] || 0) + 1;
+            });
+          }
+          if (item.iteminfo?.maker) {
+            item.iteminfo.maker.forEach(m => {
+              makerCounts[m.name] = (makerCounts[m.name] || 0) + 1;
+            });
+          }
+        });
+
+        // ソートしてトップ5を取得
+        const topGenres = Object.entries(genreCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+        const topMakers = Object.entries(makerCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+
+        setStats({
+          avgPrice: Math.round(totalPrice / items.length),
+          topGenres,
+          topMakers
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="glass-panel animate-fade-in" style={{ marginBottom: '3rem' }}>
+      <h2 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        📈 トレンドデータ分析ダッシュボード
+      </h2>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+        現在の人気ランキング上位30作品のデータをリアルタイム解析し、今最も熱いジャンルやメーカーの傾向を可視化します。
+      </p>
+      
+      {!stats && !loading && (
+        <button className="btn btn-primary" onClick={fetchAnalytics} style={{ padding: '0.8rem 2rem' }}>
+          トレンドデータを解析する ✨
+        </button>
+      )}
+
+      {loading && <p style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>データを解析中...</p>}
+
+      {stats && (
+        <div className="grid grid-cols-3" style={{ marginTop: '2rem' }}>
+          <div style={{ background: 'rgba(255,255,255,0.4)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>人気作品の平均価格</h3>
+            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+              ¥{stats.avgPrice.toLocaleString()}
+            </div>
+            <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: 'var(--text-secondary)' }}>上位30作品から算出</p>
+          </div>
+          
+          <div style={{ background: 'rgba(255,255,255,0.4)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+            <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1rem', textAlign: 'center' }}>🔥 急上昇ジャンル TOP5</h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.9rem' }}>
+              {stats.topGenres.map((g, i) => (
+                <li key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', borderBottom: '1px dashed rgba(0,0,0,0.1)', paddingBottom: '0.3rem' }}>
+                  <span>{i+1}. {g[0]}</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{g[1]} 作品</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div style={{ background: 'rgba(255,255,255,0.4)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+            <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1rem', textAlign: 'center' }}>🏆 人気メーカー TOP5</h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.9rem' }}>
+              {stats.topMakers.map((m, i) => (
+                <li key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', borderBottom: '1px dashed rgba(0,0,0,0.1)', paddingBottom: '0.3rem' }}>
+                  <span>{i+1}. {m[0]}</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{m[1]} 作品</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // --- Pages ---
 function TopPage({ navigateTo }) {
   return (
@@ -285,42 +390,22 @@ function TopPage({ navigateTo }) {
 }
 
 function DmmToolsPage() {
-  const tools = [
-    { id: 1, title: '商品検索・フィルタリング', desc: 'ジャンル×メーカーの複合検索や女優プロフィールからの精巧な作品検索。' },
-    { id: 2, title: '価格トラッキング', desc: '過去の価格変動グラフと、希望価格を下回った際の値下げ通知（Discord/LINE）。' },
-    { id: 3, title: 'データ分析ダッシュボード', desc: 'ジャンル別商品数推移やメーカー別レビュー評価ランキングの可視化。' },
-    { id: 4, title: '新作通知 Bot', desc: 'お気に入り女優・メーカーの新作や特定ジャンルの新着アラート自動通知。' },
-    { id: 5, title: 'カスタムメルマガ', desc: '詳細な嗜好設定に基づいたパーソナライズされた商品レコメンドの定期配信。' },
-    { id: 6, title: '自動更新レビュー', desc: 'APIから自動的に最新商品を取得し、アフィリエイトリンク付きで表示するメディア。' }
-  ];
-
   return (
     <div className="container animate-fade-in">
-      <div style={{ marginBottom: '3rem' }}>
+      <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
         <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>DMMツールポータル</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>APIを活用した強力なアフィリエイト支援ツール群</p>
+        <p style={{ color: 'var(--text-secondary)' }}>あなたにぴったりの作品や情報を見つけるための、強力な検索・分析ツール群</p>
       </div>
 
       <RealProductSearch />
       <RealActressSearch />
+      <TrendingAnalyticsDashboard />
 
-      <h2 style={{ marginBottom: '1.5rem' }}>開発予定の機能一覧</h2>
-      <div className="grid grid-cols-3">
-        {tools.map((tool, index) => (
-          <div key={tool.id} className={`glass-panel delay-${(index % 3) + 1}`} style={{ padding: '1.5rem' }}>
-            <div style={{ 
-              width: '45px', height: '45px', borderRadius: '50%', 
-              background: 'var(--border-color)', display: 'flex', 
-              alignItems: 'center', justifyContent: 'center', marginBottom: '1rem',
-              color: 'var(--primary-hover)', fontWeight: '900', fontSize: '1.2rem'
-            }}>
-              0{tool.id}
-            </div>
-            <h3 style={{ marginBottom: '0.75rem' }}>{tool.title}</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>{tool.desc}</p>
-            <button className="btn btn-outline" style={{ width: '100%', padding: '0.5rem', fontSize: '0.9rem' }}>ツールを開く</button>
-          </div>
-        ))}
+      <h2 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', color: 'var(--text-secondary)' }}>🚀 近日公開予定のツール</h2>
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', opacity: 0.7, marginBottom: '2rem' }}>
+        <span style={{ background: 'var(--glass-bg)', padding: '0.5rem 1.2rem', borderRadius: '50px', fontSize: '0.9rem', border: '1px solid var(--border-color)' }}>📉 セール・価格トラッキング</span>
+        <span style={{ background: 'var(--glass-bg)', padding: '0.5rem 1.2rem', borderRadius: '50px', fontSize: '0.9rem', border: '1px solid var(--border-color)' }}>🤖 おすすめ作品自動生成AI</span>
+        <span style={{ background: 'var(--glass-bg)', padding: '0.5rem 1.2rem', borderRadius: '50px', fontSize: '0.9rem', border: '1px solid var(--border-color)' }}>📱 ユーザーお気に入り保存機能</span>
       </div>
     </div>
   );
