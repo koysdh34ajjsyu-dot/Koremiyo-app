@@ -371,7 +371,7 @@ function TopPage({ navigateTo }) {
   );
 }
 
-function DmmToolsPage() {
+function DmmToolsPage({ navigateTo }) {
   return (
     <div className="container animate-fade-in">
       <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
@@ -379,9 +379,23 @@ function DmmToolsPage() {
         <p style={{ color: 'var(--text-secondary)' }}>FANZA・DMM APIを活用した商品検索・女優データベース・トレンド分析など、強力な検索・分析ツール群</p>
       </div>
 
-      <RealProductSearch />
-      <RealActressSearch />
-      <TrendingAnalyticsDashboard />
+      <div className="grid grid-cols-3" style={{ marginBottom: '3rem' }}>
+        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => navigateTo('dmm-product-search')}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>商品検索ツール</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>各種条件でDMM/FANZAの商品を柔軟に検索・抽出</p>
+        </div>
+        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => navigateTo('dmm-actress-search')}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👩</div>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>女優データベース検索</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>名前や詳細なプロフィールから女優情報を検索</p>
+        </div>
+        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => navigateTo('dmm-trending')}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📈</div>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>トレンド分析ダッシュボード</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>人気キーワードやジャンルの傾向をグラフで可視化</p>
+        </div>
+      </div>
 
       <h2 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', color: 'var(--text-secondary)' }}>🚀 近日公開予定のツール</h2>
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', opacity: 0.7, marginBottom: '2rem' }}>
@@ -843,7 +857,27 @@ export default function Page() {
 
       <main style={{ flex: 1, padding: '2rem 0' }}>
         {currentPage === 'top' && <TopPage navigateTo={setCurrentPage} />}
-        {currentPage === 'dmm' && <DmmToolsPage />}
+        {currentPage === 'dmm' && <DmmToolsPage navigateTo={setCurrentPage} />}
+        
+        {currentPage === 'dmm-product-search' && (
+          <div className="container animate-fade-in">
+             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
+             <RealProductSearch />
+          </div>
+        )}
+        {currentPage === 'dmm-actress-search' && (
+          <div className="container animate-fade-in">
+             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
+             <RealActressSearch />
+          </div>
+        )}
+        {currentPage === 'dmm-trending' && (
+          <div className="container animate-fade-in">
+             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
+             <TrendingAnalyticsDashboard />
+          </div>
+        )}
+
         {currentPage === 'dmm-blog' && <DmmBlogPage articles={dmmArticles} />}
         {currentPage === 'dlsite' && <DlsiteBlogPage articles={dlsiteArticles} />}
         {currentPage === 'admin' && <AdminDashboard dlsiteArticles={dlsiteArticles} setDlsiteArticles={setDlsiteArticles} dmmArticles={dmmArticles} setDmmArticles={setDmmArticles} />}
