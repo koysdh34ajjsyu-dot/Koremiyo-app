@@ -580,8 +580,47 @@ function DmmAdmin() {
 }
 
 function DlsiteAdmin() {
+  const [articles, setArticles] = useState([
+    { id: 1, title: 'マニア必見！至高のスク水同人CG集', content: 'フェティッシュな描写がたまらない逸品。<br/><br/><div style="padding:10px;background:#f0f0f0;border-radius:8px;">ここにアフィリエイトのバナーHTMLなどをそのまま貼り付け可能です。</div>', category: 'スクール水着が好きな方はこちら！！' }
+  ]);
+  const [editingId, setEditingId] = useState(null);
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [category, setCategory] = useState('フェ◯チオが好きな方はこちら！！');
   const [showPreview, setShowPreview] = useState(false);
+
+  const handleSave = () => {
+    if (!title || !content) return alert('タイトルと本文を入力してください');
+    if (editingId) {
+      setArticles(articles.map(a => a.id === editingId ? { ...a, title, content, category } : a));
+    } else {
+      setArticles([...articles, { id: Date.now(), title, content, category }]);
+    }
+    handleCancel();
+    alert('保存しました！');
+  };
+
+  const handleEdit = (article) => {
+    setEditingId(article.id);
+    setTitle(article.title);
+    setContent(article.content);
+    setCategory(article.category);
+    setShowPreview(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = (id) => {
+    if(window.confirm('この記事を削除しますか？')) {
+      setArticles(articles.filter(a => a.id !== id));
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setTitle('');
+    setContent('');
+    setShowPreview(false);
+  };
 
   return (
     <div className="animate-fade-in">
@@ -591,12 +630,12 @@ function DlsiteAdmin() {
       <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
         <div className="glass-panel delay-1">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3 style={{ margin: 0 }}>新規記事作成 (DLsite)</h3>
+            <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DLsite)' : '新規記事作成 (DLsite)'}</h3>
             <button className="btn btn-outline" onClick={() => setShowPreview(!showPreview)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
               {showPreview ? 'エディタに戻る' : 'HTMLプレビューを表示'}
             </button>
           </div>
-          <input type="text" placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
+          <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
           
           {showPreview ? (
             <div style={{ width: '100%', border: '2px dashed var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#fff', marginBottom: '1rem' }} dangerouslySetInnerHTML={{ __html: content || '<p style="color:#aaa">プレビュー表示エリア（HTMLがレンダリングされます）</p>' }} />
@@ -604,12 +643,15 @@ function DlsiteAdmin() {
             <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="情熱的なレビューをここに記述... (アフィリエイト用HTMLコードをそのまま貼り付け可能です)" style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
           )}
 
-          <button className="btn btn-primary">記事を公開する</button>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button className="btn btn-primary" onClick={handleSave}>{editingId ? '変更を保存する' : '記事を公開する'}</button>
+            {editingId && <button className="btn btn-outline" onClick={handleCancel}>キャンセル</button>}
+          </div>
         </div>
         <div className="glass-panel delay-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div>
             <h3 style={{ marginBottom: '0.5rem', fontSize: '1.1rem' }}>カテゴリ</h3>
-            <select style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '2px solid var(--border-color)' }}>
+            <select value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '2px solid var(--border-color)' }}>
               <option>フェ◯チオが好きな方はこちら！！</option>
               <option>スクール水着が好きな方はこちら！！</option>
               <option>全年齢 ASMR</option>
@@ -617,13 +659,70 @@ function DlsiteAdmin() {
           </div>
         </div>
       </div>
+
+      <h3 style={{ marginTop: '3rem', marginBottom: '1.5rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem' }}>過去の記事一覧</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {articles.map(article => (
+          <div key={article.id} className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
+            <div>
+              <span style={{ fontSize: '0.8rem', color: 'var(--accent-color)', fontWeight: 'bold' }}>{article.category}</span>
+              <h4 style={{ margin: '0.3rem 0 0 0', fontSize: '1.1rem' }}>{article.title}</h4>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn btn-primary" onClick={() => handleEdit(article)} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>編集</button>
+              <button className="btn btn-outline" onClick={() => handleDelete(article.id)} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', color: 'red', borderColor: 'red' }}>削除</button>
+            </div>
+          </div>
+        ))}
+        {articles.length === 0 && <p style={{ color: 'var(--text-secondary)' }}>投稿された記事はありません。</p>}
+      </div>
     </div>
   );
 }
 
 function DmmBlogAdmin() {
+  const [articles, setArticles] = useState([
+    { id: 1, title: '超おすすめ！今月絶対に見るべき作品まとめ', content: '今回はFANZAで人気のあのジャンルから、個人的に最高だと思った作品をピックアップしました。<br/><br/><a href="#" style="display:inline-block;padding:10px;border:1px solid #ddd;border-radius:8px;"><img src="https://pics.dmm.com/af/web_service/com_88_35.gif" alt="DMMアフィリエイト" /></a>', dmmId: 'snis00123' }
+  ]);
+  const [editingId, setEditingId] = useState(null);
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [dmmId, setDmmId] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+
+  const handleSave = () => {
+    if (!title || !content) return alert('タイトルと本文を入力してください');
+    if (editingId) {
+      setArticles(articles.map(a => a.id === editingId ? { ...a, title, content, dmmId } : a));
+    } else {
+      setArticles([...articles, { id: Date.now(), title, content, dmmId }]);
+    }
+    handleCancel();
+    alert('保存しました！');
+  };
+
+  const handleEdit = (article) => {
+    setEditingId(article.id);
+    setTitle(article.title);
+    setContent(article.content);
+    setDmmId(article.dmmId || '');
+    setShowPreview(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = (id) => {
+    if(window.confirm('この記事を削除しますか？')) {
+      setArticles(articles.filter(a => a.id !== id));
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setTitle('');
+    setContent('');
+    setDmmId('');
+    setShowPreview(false);
+  };
 
   return (
     <div className="animate-fade-in">
@@ -633,12 +732,12 @@ function DmmBlogAdmin() {
       <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
         <div className="glass-panel delay-1">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3 style={{ margin: 0 }}>新規記事作成 (DMM)</h3>
+            <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DMM)' : '新規記事作成 (DMM)'}</h3>
             <button className="btn btn-outline" onClick={() => setShowPreview(!showPreview)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
               {showPreview ? 'エディタに戻る' : 'HTMLプレビューを表示'}
             </button>
           </div>
-          <input type="text" placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
+          <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
           
           {showPreview ? (
             <div style={{ width: '100%', border: '2px dashed var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#fff', marginBottom: '1rem' }} dangerouslySetInnerHTML={{ __html: content || '<p style="color:#aaa">プレビュー表示エリア（HTMLがレンダリングされます）</p>' }} />
@@ -646,17 +745,37 @@ function DmmBlogAdmin() {
             <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="FANZA作品のレビューをここに記述... (アフィリエイト用HTMLコードをそのまま貼り付け可能です)" style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
           )}
 
-          <button className="btn btn-primary">記事を公開する</button>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button className="btn btn-primary" onClick={handleSave}>{editingId ? '変更を保存する' : '記事を公開する'}</button>
+            {editingId && <button className="btn btn-outline" onClick={handleCancel}>キャンセル</button>}
+          </div>
         </div>
         <div className="glass-panel delay-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div>
             <h3 style={{ marginBottom: '0.5rem', fontSize: '1.1rem' }}>連携商品ID (DMM)</h3>
-            <input type="text" placeholder="例: snis00123" style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '2px solid var(--border-color)', outline: 'none' }} />
+            <input type="text" value={dmmId} onChange={e => setDmmId(e.target.value)} placeholder="例: snis00123" style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '2px solid var(--border-color)', outline: 'none' }} />
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
               商品IDを入力すると、記事の下部に自動でアフィリエイトリンクと商品画像が生成されます。
             </p>
           </div>
         </div>
+      </div>
+
+      <h3 style={{ marginTop: '3rem', marginBottom: '1.5rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem' }}>過去の記事一覧</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {articles.map(article => (
+          <div key={article.id} className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
+            <div>
+              <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 'bold' }}>FANZA動画</span>
+              <h4 style={{ margin: '0.3rem 0 0 0', fontSize: '1.1rem' }}>{article.title}</h4>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn btn-primary" onClick={() => handleEdit(article)} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>編集</button>
+              <button className="btn btn-outline" onClick={() => handleDelete(article.id)} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', color: 'red', borderColor: 'red' }}>削除</button>
+            </div>
+          </div>
+        ))}
+        {articles.length === 0 && <p style={{ color: 'var(--text-secondary)' }}>投稿された記事はありません。</p>}
       </div>
     </div>
   );
