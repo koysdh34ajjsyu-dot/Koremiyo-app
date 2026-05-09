@@ -393,16 +393,11 @@ function DmmToolsPage() {
   );
 }
 
-function DlsiteBlogPage() {
+function DlsiteBlogPage({ articles = [] }) {
   const categories = [
     { title: 'フェ◯チオが好きな方はこちら！！', desc: 'フェラ・フェラチオ好きへ管理者オススメのDLsite同人作品を紹介。フェラ音声・フェラ同人を厳選！', color: '#ff758c' },
     { title: 'スクール水着が好きな方はこちら！！', desc: 'スク水・スクール水着エロ好きへ管理者オススメのDLsite同人作品を紹介。スク水エロCG・音声を厳選！', color: '#84b6f4' },
     { title: '全年齢 ASMR', desc: '癒やしを求める方向けの音声作品レビュー', color: '#b088f9' }
-  ];
-
-  const mockArticles = [
-    { id: 1, tag: 'ASMR', title: '究極の癒やし体験！耳舐め音声作品レビュー', contentHTML: '独自の切り口による熱量のあるレビュー文。<br/>実用性を含めて徹底的に解説します。<br/><br/><a href="#" style="color:var(--primary-hover);font-weight:bold;">👉 アフィリエイトリンク（HTMLデモ）</a>' },
-    { id: 2, tag: 'スク水', title: 'マニア必見！至高のスク水同人CG集', contentHTML: 'フェティッシュな描写がたまらない逸品。<br/><br/><div style="padding:10px;background:#f0f0f0;border-radius:8px;">ここにアフィリエイトのバナーHTMLなどをそのまま貼り付け可能です。</div>' }
   ];
 
   return (
@@ -425,30 +420,27 @@ function DlsiteBlogPage() {
 
       <h2 style={{ marginBottom: '1.5rem' }}>最新のレビュー</h2>
       <div className="grid grid-cols-2">
-        {mockArticles.map(item => (
+        {articles.map(item => (
           <div key={item.id} className="glass-panel" style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem' }}>
             <div style={{ width: '120px', height: '120px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', flexShrink: 0 }}></div>
             <div style={{ flex: 1 }}>
-              <span style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>{item.tag}</span>
+              <span style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>{item.category || item.tag}</span>
               <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>{item.title}</h3>
               <div 
                 style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}
-                dangerouslySetInnerHTML={{ __html: item.contentHTML }}
+                dangerouslySetInnerHTML={{ __html: item.content || item.contentHTML }}
               />
               <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>記事を読む</button>
             </div>
           </div>
         ))}
+        {articles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
       </div>
     </div>
   );
 }
 
-function DmmBlogPage() {
-  const mockArticles = [
-    { id: 1, title: '超おすすめ！今月絶対に見るべき作品まとめ', contentHTML: '今回はFANZAで人気のあのジャンルから、個人的に最高だと思った作品をピックアップしました。<br/><br/><a href="#" style="display:inline-block;padding:10px;border:1px solid #ddd;border-radius:8px;"><img src="https://pics.dmm.com/af/web_service/com_88_35.gif" alt="DMMアフィリエイト" /></a>' }
-  ];
-
+function DmmBlogPage({ articles = [] }) {
   return (
     <div className="container animate-fade-in">
       <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
@@ -457,7 +449,7 @@ function DmmBlogPage() {
       </div>
 
       <div className="grid grid-cols-2">
-        {mockArticles.map(item => (
+        {articles.map(item => (
           <div key={item.id} className="glass-panel" style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem' }}>
             <div style={{ width: '120px', height: '120px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', flexShrink: 0 }}></div>
             <div style={{ flex: 1 }}>
@@ -465,12 +457,13 @@ function DmmBlogPage() {
               <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>{item.title}</h3>
               <div 
                 style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}
-                dangerouslySetInnerHTML={{ __html: item.contentHTML }}
+                dangerouslySetInnerHTML={{ __html: item.content || item.contentHTML }}
               />
               <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>記事を読む</button>
             </div>
           </div>
         ))}
+        {articles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
       </div>
     </div>
   );
@@ -583,10 +576,7 @@ function DmmAdmin() {
   );
 }
 
-function DlsiteAdmin() {
-  const [articles, setArticles] = useState([
-    { id: 1, title: 'マニア必見！至高のスク水同人CG集', content: 'フェティッシュな描写がたまらない逸品。<br/><br/><div style="padding:10px;background:#f0f0f0;border-radius:8px;">ここにアフィリエイトのバナーHTMLなどをそのまま貼り付け可能です。</div>', category: 'スクール水着が好きな方はこちら！！' }
-  ]);
+function DlsiteAdmin({ articles, setArticles }) {
   const [editingId, setEditingId] = useState(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -684,10 +674,7 @@ function DlsiteAdmin() {
   );
 }
 
-function DmmBlogAdmin() {
-  const [articles, setArticles] = useState([
-    { id: 1, title: '超おすすめ！今月絶対に見るべき作品まとめ', content: '今回はFANZAで人気のあのジャンルから、個人的に最高だと思った作品をピックアップしました。<br/><br/><a href="#" style="display:inline-block;padding:10px;border:1px solid #ddd;border-radius:8px;"><img src="https://pics.dmm.com/af/web_service/com_88_35.gif" alt="DMMアフィリエイト" /></a>', dmmId: 'snis00123' }
-  ]);
+function DmmBlogAdmin({ articles, setArticles }) {
   const [editingId, setEditingId] = useState(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -785,7 +772,7 @@ function DmmBlogAdmin() {
   );
 }
 
-function AdminDashboard() {
+function AdminDashboard({ dlsiteArticles, setDlsiteArticles, dmmArticles, setDmmArticles }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [adminMode, setAdminMode] = useState(null);
 
@@ -821,8 +808,8 @@ function AdminDashboard() {
         <button className="btn btn-outline" onClick={() => setAdminMode(null)}>← ダッシュボード選択に戻る</button>
       </div>
       {adminMode === 'dmm' && <DmmAdmin />}
-      {adminMode === 'dlsite' && <DlsiteAdmin />}
-      {adminMode === 'dmm-blog' && <DmmBlogAdmin />}
+      {adminMode === 'dlsite' && <DlsiteAdmin articles={dlsiteArticles} setArticles={setDlsiteArticles} />}
+      {adminMode === 'dmm-blog' && <DmmBlogAdmin articles={dmmArticles} setArticles={setDmmArticles} />}
     </div>
   );
 }
@@ -830,6 +817,14 @@ function AdminDashboard() {
 // --- App Root ---
 export default function Page() {
   const [currentPage, setCurrentPage] = useState('top');
+  
+  // ブログ記事の共有ステート (バックエンド連携まではインメモリで保持)
+  const [dlsiteArticles, setDlsiteArticles] = useState([
+    { id: 1, title: 'マニア必見！至高のスク水同人CG集', content: 'フェティッシュな描写がたまらない逸品。<br/><br/><div style="padding:10px;background:#f0f0f0;border-radius:8px;">ここにアフィリエイトのバナーHTMLなどをそのまま貼り付け可能です。</div>', category: 'スクール水着が好きな方はこちら！！' }
+  ]);
+  const [dmmArticles, setDmmArticles] = useState([
+    { id: 1, title: '超おすすめ！今月絶対に見るべき作品まとめ', content: '今回はFANZAで人気のあのジャンルから、個人的に最高だと思った作品をピックアップしました。<br/><br/><a href="#" style="display:inline-block;padding:10px;border:1px solid #ddd;border-radius:8px;"><img src="https://pics.dmm.com/af/web_service/com_88_35.gif" alt="DMMアフィリエイト" /></a>', dmmId: 'snis00123' }
+  ]);
 
   return (
     <>
@@ -849,9 +844,9 @@ export default function Page() {
       <main style={{ flex: 1, padding: '2rem 0' }}>
         {currentPage === 'top' && <TopPage navigateTo={setCurrentPage} />}
         {currentPage === 'dmm' && <DmmToolsPage />}
-        {currentPage === 'dmm-blog' && <DmmBlogPage />}
-        {currentPage === 'dlsite' && <DlsiteBlogPage />}
-        {currentPage === 'admin' && <AdminDashboard />}
+        {currentPage === 'dmm-blog' && <DmmBlogPage articles={dmmArticles} />}
+        {currentPage === 'dlsite' && <DlsiteBlogPage articles={dlsiteArticles} />}
+        {currentPage === 'admin' && <AdminDashboard dlsiteArticles={dlsiteArticles} setDlsiteArticles={setDlsiteArticles} dmmArticles={dmmArticles} setDmmArticles={setDmmArticles} />}
       </main>
       
       <footer style={{ padding: '2rem', textAlign: 'center', borderTop: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
