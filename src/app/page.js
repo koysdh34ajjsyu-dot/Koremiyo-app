@@ -325,18 +325,22 @@ function TopPage({ navigateTo }) {
     <div className="container animate-fade-in">
       <div style={{ textAlign: 'center', marginBottom: '4rem', marginTop: '2rem' }}>
         <h1 className="text-gradient" style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-          次、コレ見よ<br/>(DMMツール＆DLsiteブログポータル）
+          次、コレ見よ
         </h1>
-        <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
-          ニッチな創作作品をもっと身近にしたい、あなたに高機能なツールと作品紹介ブログを提供します。
+        <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto 1rem', lineHeight: '1.8' }}>
+          <strong>音声作品・フェラ・スク水（スクール水着）</strong>などのオススメ同人作品を厳選レビュー。<br/>
+          DLsite・FANZA・DMMから管理者イチオシの作品を紹介するブログポータル＆<strong>DMMツール・FANZAツール</strong>を提供します。
+        </p>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', opacity: 0.7 }}>
+          ※ 本サイトは18歳以上の方を対象としたアダルトコンテンツを含みます。
         </p>
       </div>
 
       <div className="grid grid-cols-3">
         <div className="glass-panel delay-1">
-          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>🛠 DMMツール</h2>
+          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>🛠 DMMツール / FANZAツール</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
-            APIを駆使した商品・女優検索、データ分析など、アフィリエイト活動を強力にサポートするツール群。
+            FANZA・DMM APIを活用した高度な商品検索・女優データベース検索・トレンド分析ツール群。
           </p>
           <button className="btn btn-primary" onClick={() => navigateTo('dmm')} style={{ width: '100%' }}>
             ツールを使う →
@@ -344,9 +348,9 @@ function TopPage({ navigateTo }) {
         </div>
 
         <div className="glass-panel delay-2">
-          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>📖 DMMブログ</h2>
+          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>📖 DMMブログ / FANZAレビュー</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
-            FANZA・DMMの注目作品や名作を、独自の視点で熱量高く徹底レビューした記事のポータル。
+            FANZA・DMMのオススメ動画作品を管理者が熱量込めて徹底レビュー。新作・人気作を随時更新。
           </p>
           <button className="btn btn-outline" onClick={() => navigateTo('dmm-blog')} style={{ width: '100%' }}>
             DMMブログへ →
@@ -354,9 +358,9 @@ function TopPage({ navigateTo }) {
         </div>
 
         <div className="glass-panel delay-3">
-          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>✍️ DLsiteブログ</h2>
+          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>✍️ DLsiteブログ / 音声・同人レビュー</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
-            同人誌や音声作品など、ニッチなフェティッシュに深く刺さるマニアックなレビューを展開。
+            <strong>フェラ音声・スク水エロ・スクール水着</strong>などDLsiteオススメ作品を管理者がマニアックにレビュー。
           </p>
           <button className="btn btn-outline" onClick={() => navigateTo('dlsite')} style={{ width: '100%' }}>
             DLsiteブログへ →
@@ -371,8 +375,8 @@ function DmmToolsPage() {
   return (
     <div className="container animate-fade-in">
       <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>DMMツールポータル</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>あなたにぴったりの作品や情報を見つけるための、強力な検索・分析ツール群</p>
+        <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>DMMツール / FANZAツール ポータル</h1>
+        <p style={{ color: 'var(--text-secondary)' }}>FANZA・DMM APIを活用した商品検索・女優データベース・トレンド分析など、強力な検索・分析ツール群</p>
       </div>
 
       <RealProductSearch />
@@ -391,8 +395,8 @@ function DmmToolsPage() {
 
 function DlsiteBlogPage() {
   const categories = [
-    { title: 'フェ◯チオが好きな方はこちら！！', desc: '管理者オススメの同人作品を紹介しています。', color: '#ff758c' },
-    { title: 'スクール水着が好きな方はこちら！！', desc: '管理者オススメの同人作品を紹介しています。', color: '#84b6f4' },
+    { title: 'フェ◯チオが好きな方はこちら！！', desc: 'フェラ・フェラチオ好きへ管理者オススメのDLsite同人作品を紹介。フェラ音声・フェラ同人を厳選！', color: '#ff758c' },
+    { title: 'スクール水着が好きな方はこちら！！', desc: 'スク水・スクール水着エロ好きへ管理者オススメのDLsite同人作品を紹介。スク水エロCG・音声を厳選！', color: '#84b6f4' },
     { title: '全年齢 ASMR', desc: '癒やしを求める方向けの音声作品レビュー', color: '#b088f9' }
   ];
 
