@@ -11,7 +11,11 @@ function RealProductSearch() {
   const [service, setService] = useState('digital');
   const [sort, setSort] = useState('-date');
 
-  const popularTags = ['巨乳', '人妻', '素人', '女子校生', 'NTR', '拘束', 'M男', 'VR'];
+  const popularTags = [
+    '巨乳', '爆乳', '微乳', 'スレンダー', 'ぽっちゃり', 
+    '人妻', '素人', '女子校生', 'ギャル', 'お姉さん',
+    'NTR', '拘束', 'ハードコア', 'VR'
+  ];
 
   const addTag = (tag) => {
     setKeyword(prev => prev ? `${prev} ${tag}` : tag);
@@ -136,18 +140,16 @@ function RealActressSearch() {
   const [actresses, setActresses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
-  const [bust, setBust] = useState('');
-  const [waist, setWaist] = useState('');
-  const [hip, setHip] = useState('');
 
   const searchActresses = async () => {
+    if (!keyword) {
+      alert('検索キーワードを入力してください。');
+      return;
+    }
     setLoading(true);
     try {
       let url = `/api/dmm/actress?hits=6&sort=name`;
       if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
-      if (bust) url += `&bust=${encodeURIComponent(bust)}`;
-      if (waist) url += `&waist=${encodeURIComponent(waist)}`;
-      if (hip) url += `&hip=${encodeURIComponent(hip)}`;
 
       const res = await fetch(url);
       const data = await res.json();
@@ -168,42 +170,18 @@ function RealActressSearch() {
         👩 女優データベース検索ツール
       </h2>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-        名前での検索に加え、スリーサイズ（B/W/H）を指定した詳細な絞り込みが可能です。理想のスタイルの女優を発見できます。
+        女優の名前やキーワードを入力して、プロフィール画像や出演作品一覧へのリンクを即座に表示します。
       </p>
       
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
         <input 
           type="text" 
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="女優名 (ひらがな、漢字など)" 
-          style={{ flex: 2, minWidth: '200px', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem' }}
+          style={{ flex: 1, padding: '0.8rem 1.2rem', borderRadius: '50px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem' }}
         />
-        <input 
-          type="number" 
-          value={bust}
-          onChange={(e) => setBust(e.target.value)}
-          placeholder="バスト (例: 90)" 
-          style={{ flex: 1, minWidth: '100px', padding: '0.8rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none' }}
-        />
-        <input 
-          type="number" 
-          value={waist}
-          onChange={(e) => setWaist(e.target.value)}
-          placeholder="ウエスト (例: 60)" 
-          style={{ flex: 1, minWidth: '100px', padding: '0.8rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none' }}
-        />
-        <input 
-          type="number" 
-          value={hip}
-          onChange={(e) => setHip(e.target.value)}
-          placeholder="ヒップ (例: 88)" 
-          style={{ flex: 1, minWidth: '100px', padding: '0.8rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none' }}
-        />
-      </div>
-      
-      <div style={{ textAlign: 'right', marginBottom: '2rem' }}>
-        <button className="btn btn-primary" onClick={searchActresses} disabled={loading} style={{ padding: '0.8rem 3rem' }}>
+        <button className="btn btn-primary" onClick={searchActresses} disabled={loading} style={{ padding: '0.8rem 2rem' }}>
           {loading ? '検索中...' : '検索する ✨'}
         </button>
       </div>
@@ -418,6 +396,11 @@ function DlsiteBlogPage() {
     { title: '全年齢 ASMR', desc: '癒やしを求める方向けの音声作品レビュー', color: '#b088f9' }
   ];
 
+  const mockArticles = [
+    { id: 1, tag: 'ASMR', title: '究極の癒やし体験！耳舐め音声作品レビュー', contentHTML: '独自の切り口による熱量のあるレビュー文。<br/>実用性を含めて徹底的に解説します。<br/><br/><a href="#" style="color:var(--primary-hover);font-weight:bold;">👉 アフィリエイトリンク（HTMLデモ）</a>' },
+    { id: 2, tag: 'スク水', title: 'マニア必見！至高のスク水同人CG集', contentHTML: 'フェティッシュな描写がたまらない逸品。<br/><br/><div style="padding:10px;background:#f0f0f0;border-radius:8px;">ここにアフィリエイトのバナーHTMLなどをそのまま貼り付け可能です。</div>' }
+  ];
+
   return (
     <div className="container animate-fade-in">
       <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
@@ -438,15 +421,16 @@ function DlsiteBlogPage() {
 
       <h2 style={{ marginBottom: '1.5rem' }}>最新のレビュー</h2>
       <div className="grid grid-cols-2">
-        {[1, 2, 3, 4].map(item => (
-          <div key={item} className="glass-panel" style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem' }}>
+        {mockArticles.map(item => (
+          <div key={item.id} className="glass-panel" style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem' }}>
             <div style={{ width: '120px', height: '120px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', flexShrink: 0 }}></div>
-            <div>
-              <span style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>ASMR</span>
-              <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>究極の癒やし体験！耳舐め音声作品レビュー #{item}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                独自の切り口による熱量のあるレビュー文。シナリオの深さや音質のクリアさなど、実用性を含めて徹底的に解説します...
-              </p>
+            <div style={{ flex: 1 }}>
+              <span style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>{item.tag}</span>
+              <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>{item.title}</h3>
+              <div 
+                style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}
+                dangerouslySetInnerHTML={{ __html: item.contentHTML }}
+              />
               <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>記事を読む</button>
             </div>
           </div>
@@ -457,6 +441,10 @@ function DlsiteBlogPage() {
 }
 
 function DmmBlogPage() {
+  const mockArticles = [
+    { id: 1, title: '超おすすめ！今月絶対に見るべき作品まとめ', contentHTML: '今回はFANZAで人気のあのジャンルから、個人的に最高だと思った作品をピックアップしました。<br/><br/><a href="#" style="display:inline-block;padding:10px;border:1px solid #ddd;border-radius:8px;"><img src="https://pics.dmm.com/af/web_service/com_88_35.gif" alt="DMMアフィリエイト" /></a>' }
+  ];
+
   return (
     <div className="container animate-fade-in">
       <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
@@ -465,15 +453,16 @@ function DmmBlogPage() {
       </div>
 
       <div className="grid grid-cols-2">
-        {[1, 2, 3, 4].map(item => (
-          <div key={item} className="glass-panel" style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem' }}>
+        {mockArticles.map(item => (
+          <div key={item.id} className="glass-panel" style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem' }}>
             <div style={{ width: '120px', height: '120px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', flexShrink: 0 }}></div>
-            <div>
+            <div style={{ flex: 1 }}>
               <span style={{ color: 'var(--primary-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>FANZA動画</span>
-              <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>超おすすめ！今月絶対に見るべき作品まとめ #{item}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                今回はFANZAで人気のあのジャンルから、個人的に最高だと思った作品をピックアップしました。映像のクオリティや演出が...
-              </p>
+              <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>{item.title}</h3>
+              <div 
+                style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}
+                dangerouslySetInnerHTML={{ __html: item.contentHTML }}
+              />
               <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>記事を読む</button>
             </div>
           </div>
@@ -591,6 +580,9 @@ function DmmAdmin() {
 }
 
 function DlsiteAdmin() {
+  const [content, setContent] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+
   return (
     <div className="animate-fade-in">
       <h2 style={{ marginBottom: '2rem', borderBottom: '3px solid var(--primary-color)', paddingBottom: '0.5rem', display: 'inline-block' }}>
@@ -598,9 +590,20 @@ function DlsiteAdmin() {
       </h2>
       <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
         <div className="glass-panel delay-1">
-          <h3 style={{ marginBottom: '1.5rem' }}>新規記事作成 (DLsite)</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h3 style={{ margin: 0 }}>新規記事作成 (DLsite)</h3>
+            <button className="btn btn-outline" onClick={() => setShowPreview(!showPreview)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
+              {showPreview ? 'エディタに戻る' : 'HTMLプレビューを表示'}
+            </button>
+          </div>
           <input type="text" placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
-          <textarea placeholder="情熱的なレビューをここに記述..." style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
+          
+          {showPreview ? (
+            <div style={{ width: '100%', border: '2px dashed var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#fff', marginBottom: '1rem' }} dangerouslySetInnerHTML={{ __html: content || '<p style="color:#aaa">プレビュー表示エリア（HTMLがレンダリングされます）</p>' }} />
+          ) : (
+            <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="情熱的なレビューをここに記述... (アフィリエイト用HTMLコードをそのまま貼り付け可能です)" style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
+          )}
+
           <button className="btn btn-primary">記事を公開する</button>
         </div>
         <div className="glass-panel delay-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -619,6 +622,9 @@ function DlsiteAdmin() {
 }
 
 function DmmBlogAdmin() {
+  const [content, setContent] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+
   return (
     <div className="animate-fade-in">
       <h2 style={{ marginBottom: '2rem', borderBottom: '3px solid var(--primary-color)', paddingBottom: '0.5rem', display: 'inline-block' }}>
@@ -626,9 +632,20 @@ function DmmBlogAdmin() {
       </h2>
       <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
         <div className="glass-panel delay-1">
-          <h3 style={{ marginBottom: '1.5rem' }}>新規記事作成 (DMM)</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h3 style={{ margin: 0 }}>新規記事作成 (DMM)</h3>
+            <button className="btn btn-outline" onClick={() => setShowPreview(!showPreview)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
+              {showPreview ? 'エディタに戻る' : 'HTMLプレビューを表示'}
+            </button>
+          </div>
           <input type="text" placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
-          <textarea placeholder="FANZA作品のレビューをここに記述..." style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
+          
+          {showPreview ? (
+            <div style={{ width: '100%', border: '2px dashed var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#fff', marginBottom: '1rem' }} dangerouslySetInnerHTML={{ __html: content || '<p style="color:#aaa">プレビュー表示エリア（HTMLがレンダリングされます）</p>' }} />
+          ) : (
+            <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="FANZA作品のレビューをここに記述... (アフィリエイト用HTMLコードをそのまま貼り付け可能です)" style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
+          )}
+
           <button className="btn btn-primary">記事を公開する</button>
         </div>
         <div className="glass-panel delay-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
