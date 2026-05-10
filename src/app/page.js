@@ -4,6 +4,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import './globals.css';
 
+// --- Utilities ---
+const extractThumbnail = (html) => {
+  if (!html) return null;
+  const match = html.match(/<img[^>]+src="([^">]+)"/);
+  return match ? match[1] : null;
+};
+
 // --- Components ---
 function RealProductSearch() {
   const [keyword, setKeyword] = useState('');
@@ -470,14 +477,23 @@ function DlsiteBlogPage({ articles = [] }) {
 
       <h2 style={{ marginBottom: '1.5rem' }}>{activeCategory ? `「${activeCategory}」のレビュー` : '最新のレビュー'}</h2>
       <div className="grid grid-cols-3" style={{ gap: '2rem' }}>
-        {filteredArticles.map(item => (
-          <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ width: '100%', height: '160px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', marginBottom: '1rem' }}></div>
-            <span style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>{item.category || item.tag}</span>
-            <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem', flexGrow: 1 }}>{item.title}</h3>
-            <button className="btn btn-primary" onClick={() => setSelectedArticle(item)} style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem' }}>記事を読む</button>
-          </div>
-        ))}
+        {filteredArticles.map(item => {
+          const thumbUrl = extractThumbnail(item.content || item.contentHTML);
+          return (
+            <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+              {thumbUrl ? (
+                <div style={{ width: '100%', height: '160px', marginBottom: '1rem', overflow: 'hidden', borderRadius: '8px' }}>
+                  <img src={thumbUrl} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ) : (
+                <div style={{ width: '100%', height: '160px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', marginBottom: '1rem' }}></div>
+              )}
+              <span style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>{item.category || item.tag}</span>
+              <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem', flexGrow: 1 }}>{item.title}</h3>
+              <button className="btn btn-primary" onClick={() => setSelectedArticle(item)} style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem' }}>記事を読む</button>
+            </div>
+          );
+        })}
         {filteredArticles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
       </div>
     </div>
@@ -511,14 +527,23 @@ function DmmBlogPage({ articles = [] }) {
       </div>
 
       <div className="grid grid-cols-3" style={{ gap: '2rem' }}>
-        {articles.map(item => (
-          <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ width: '100%', height: '160px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', marginBottom: '1rem' }}></div>
-            <span style={{ color: 'var(--primary-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>FANZA動画</span>
-            <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem', flexGrow: 1 }}>{item.title}</h3>
-            <button className="btn btn-primary" onClick={() => setSelectedArticle(item)} style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem' }}>記事を読む</button>
-          </div>
-        ))}
+        {articles.map(item => {
+          const thumbUrl = extractThumbnail(item.content || item.contentHTML);
+          return (
+            <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+              {thumbUrl ? (
+                <div style={{ width: '100%', height: '160px', marginBottom: '1rem', overflow: 'hidden', borderRadius: '8px' }}>
+                  <img src={thumbUrl} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ) : (
+                <div style={{ width: '100%', height: '160px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', marginBottom: '1rem' }}></div>
+              )}
+              <span style={{ color: 'var(--primary-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>FANZA動画</span>
+              <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem', flexGrow: 1 }}>{item.title}</h3>
+              <button className="btn btn-primary" onClick={() => setSelectedArticle(item)} style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem' }}>記事を読む</button>
+            </div>
+          );
+        })}
         {articles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
       </div>
     </div>
