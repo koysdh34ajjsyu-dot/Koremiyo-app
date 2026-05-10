@@ -603,10 +603,10 @@ function DlsiteAdmin({ articles, refreshPosts }) {
     
     if (editingId) {
       const { error } = await supabase.from('posts').update({ title, content, category }).eq('id', editingId);
-      if (error) { alert('更新に失敗しました'); console.error(error); }
+      if (error) { alert('更新に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     } else {
       const { error } = await supabase.from('posts').insert([{ site: 'dlsite', title, content, category }]);
-      if (error) { alert('保存に失敗しました'); console.error(error); }
+      if (error) { alert('保存に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     }
     
     if (refreshPosts) await refreshPosts();
@@ -715,10 +715,10 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
 
     if (editingId) {
       const { error } = await supabase.from('posts').update({ title, content, dmm_id: dmmId }).eq('id', editingId);
-      if (error) { alert('更新に失敗しました'); console.error(error); }
+      if (error) { alert('更新に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     } else {
       const { error } = await supabase.from('posts').insert([{ site: 'dmm', title, content, dmm_id: dmmId }]);
-      if (error) { alert('保存に失敗しました'); console.error(error); }
+      if (error) { alert('保存に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     }
     
     if (refreshPosts) await refreshPosts();
