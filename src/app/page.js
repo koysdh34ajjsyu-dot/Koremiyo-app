@@ -409,11 +409,32 @@ function DmmToolsPage({ navigateTo }) {
 }
 
 function DlsiteBlogPage({ articles = [] }) {
+  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [activeCategory, setActiveCategory] = useState(null);
+
   const categories = [
     { title: 'フェ◯チオが好きな方はこちら！！', desc: 'フェラ・フェラチオ好きへ管理者オススメのDLsite同人作品を紹介。フェラ音声・フェラ同人を厳選！', color: '#ff758c' },
     { title: 'スクール水着が好きな方はこちら！！', desc: 'スク水・スクール水着エロ好きへ管理者オススメのDLsite同人作品を紹介。スク水エロCG・音声を厳選！', color: '#84b6f4' },
     { title: '全年齢 ASMR', desc: '癒やしを求める方向けの音声作品レビュー', color: '#b088f9' }
   ];
+
+  if (selectedArticle) {
+    return (
+      <div className="container animate-fade-in" style={{ maxWidth: '800px' }}>
+        <button className="btn btn-outline" onClick={() => setSelectedArticle(null)} style={{ marginBottom: '2rem' }}>← 記事一覧に戻る</button>
+        <div className="glass-panel" style={{ padding: '3rem' }}>
+          <span style={{ color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: 'bold' }}>{selectedArticle.category || selectedArticle.tag}</span>
+          <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
+          <div 
+            style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
+            dangerouslySetInnerHTML={{ __html: selectedArticle.content || selectedArticle.contentHTML }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const filteredArticles = activeCategory ? articles.filter(a => a.category === activeCategory) : articles;
 
   return (
     <div className="container animate-fade-in">
@@ -423,39 +444,65 @@ function DlsiteBlogPage({ articles = [] }) {
       </div>
 
       <div className="grid grid-cols-3" style={{ marginBottom: '3rem' }}>
-        {categories.map((cat, idx) => (
-          <div key={idx} className="glass-panel" style={{ textAlign: 'center', borderColor: `rgba(${parseInt(cat.color.slice(1,3),16)}, ${parseInt(cat.color.slice(3,5),16)}, ${parseInt(cat.color.slice(5,7),16)}, 0.3)` }}>
-            <h3 style={{ color: cat.color, marginBottom: '1rem', fontSize: '1.1rem' }}>{cat.title}</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
-              {cat.desc}
-            </p>
-          </div>
-        ))}
+        {categories.map((cat, idx) => {
+          const isActive = activeCategory === cat.title;
+          return (
+            <div 
+              key={idx} 
+              className="glass-panel hover-card" 
+              onClick={() => setActiveCategory(isActive ? null : cat.title)}
+              style={{ 
+                textAlign: 'center', 
+                cursor: 'pointer',
+                borderColor: isActive ? cat.color : `rgba(${parseInt(cat.color.slice(1,3),16)}, ${parseInt(cat.color.slice(3,5),16)}, ${parseInt(cat.color.slice(5,7),16)}, 0.3)`,
+                background: isActive ? `rgba(${parseInt(cat.color.slice(1,3),16)}, ${parseInt(cat.color.slice(3,5),16)}, ${parseInt(cat.color.slice(5,7),16)}, 0.1)` : 'var(--glass-bg)',
+                transform: isActive ? 'translateY(-5px)' : 'none'
+              }}
+            >
+              <h3 style={{ color: cat.color, marginBottom: '1rem', fontSize: '1.1rem' }}>{cat.title}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                {cat.desc}
+              </p>
+            </div>
+          );
+        })}
       </div>
 
-      <h2 style={{ marginBottom: '1.5rem' }}>最新のレビュー</h2>
-      <div className="grid grid-cols-2">
-        {articles.map(item => (
-          <div key={item.id} className="glass-panel" style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem' }}>
-            <div style={{ width: '120px', height: '120px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', flexShrink: 0 }}></div>
-            <div style={{ flex: 1 }}>
-              <span style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>{item.category || item.tag}</span>
-              <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>{item.title}</h3>
-              <div 
-                style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}
-                dangerouslySetInnerHTML={{ __html: item.content || item.contentHTML }}
-              />
-              <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>記事を読む</button>
-            </div>
+      <h2 style={{ marginBottom: '1.5rem' }}>{activeCategory ? `「${activeCategory}」のレビュー` : '最新のレビュー'}</h2>
+      <div className="grid grid-cols-3" style={{ gap: '2rem' }}>
+        {filteredArticles.map(item => (
+          <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ width: '100%', height: '160px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', marginBottom: '1rem' }}></div>
+            <span style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>{item.category || item.tag}</span>
+            <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem', flexGrow: 1 }}>{item.title}</h3>
+            <button className="btn btn-primary" onClick={() => setSelectedArticle(item)} style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem' }}>記事を読む</button>
           </div>
         ))}
-        {articles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
+        {filteredArticles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
       </div>
     </div>
   );
 }
 
 function DmmBlogPage({ articles = [] }) {
+  const [selectedArticle, setSelectedArticle] = useState(null);
+
+  if (selectedArticle) {
+    return (
+      <div className="container animate-fade-in" style={{ maxWidth: '800px' }}>
+        <button className="btn btn-outline" onClick={() => setSelectedArticle(null)} style={{ marginBottom: '2rem' }}>← 記事一覧に戻る</button>
+        <div className="glass-panel" style={{ padding: '3rem' }}>
+          <span style={{ color: 'var(--primary-color)', fontSize: '0.9rem', fontWeight: 'bold' }}>FANZA動画</span>
+          <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
+          <div 
+            style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
+            dangerouslySetInnerHTML={{ __html: selectedArticle.content || selectedArticle.contentHTML }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container animate-fade-in">
       <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
@@ -463,19 +510,13 @@ function DmmBlogPage({ articles = [] }) {
         <p style={{ color: 'var(--text-secondary)' }}>FANZA/DMMの注目作品や名作を独自の視点で徹底レビュー</p>
       </div>
 
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-3" style={{ gap: '2rem' }}>
         {articles.map(item => (
-          <div key={item.id} className="glass-panel" style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem' }}>
-            <div style={{ width: '120px', height: '120px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', flexShrink: 0 }}></div>
-            <div style={{ flex: 1 }}>
-              <span style={{ color: 'var(--primary-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>FANZA動画</span>
-              <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>{item.title}</h3>
-              <div 
-                style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}
-                dangerouslySetInnerHTML={{ __html: item.content || item.contentHTML }}
-              />
-              <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>記事を読む</button>
-            </div>
+          <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ width: '100%', height: '160px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', marginBottom: '1rem' }}></div>
+            <span style={{ color: 'var(--primary-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>FANZA動画</span>
+            <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem', flexGrow: 1 }}>{item.title}</h3>
+            <button className="btn btn-primary" onClick={() => setSelectedArticle(item)} style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem' }}>記事を読む</button>
           </div>
         ))}
         {articles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
