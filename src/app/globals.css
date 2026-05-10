@@ -235,10 +235,13 @@ h1, h2, h3 {
   word-wrap: break-word;
 }
 .article-content img,
-.article-content iframe,
 .article-content video,
 .article-content audio {
   max-width: 100% !important;
   height: auto !important;
+  border-radius: 8px;
+}
+.article-content iframe {
+  max-width: 100% !important;
   border-radius: 8px;
 }
