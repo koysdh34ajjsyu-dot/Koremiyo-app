@@ -228,3 +228,17 @@ h1, h2, h3 {
     font-size: 2rem !important;
   }
 }
+
+/* Article Content Constraints */
+.article-content {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.article-content img,
+.article-content iframe,
+.article-content video,
+.article-content audio {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 8px;
+}

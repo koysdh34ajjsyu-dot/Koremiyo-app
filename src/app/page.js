@@ -433,6 +433,7 @@ function DlsiteBlogPage({ articles = [] }) {
           <span style={{ color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: 'bold' }}>{selectedArticle.category || selectedArticle.tag}</span>
           <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
           <div 
+            className="article-content"
             style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
             dangerouslySetInnerHTML={{ __html: selectedArticle.content || selectedArticle.contentHTML }}
           />
@@ -511,6 +512,7 @@ function DmmBlogPage({ articles = [] }) {
           <span style={{ color: 'var(--primary-color)', fontSize: '0.9rem', fontWeight: 'bold' }}>FANZA動画</span>
           <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
           <div 
+            className="article-content"
             style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
             dangerouslySetInnerHTML={{ __html: selectedArticle.content || selectedArticle.contentHTML }}
           />
