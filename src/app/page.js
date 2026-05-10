@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import './globals.css';
 
 // --- Components ---
@@ -483,8 +484,6 @@ function DmmBlogPage({ articles = [] }) {
   );
 }
 
-import { supabase } from '../lib/supabase';
-
 // --- Admin Components ---
 function AdminLogin({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -590,21 +589,29 @@ function DmmAdmin() {
   );
 }
 
-function DlsiteAdmin({ articles, setArticles }) {
+function DlsiteAdmin({ articles, refreshPosts }) {
   const [editingId, setEditingId] = useState(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('フェ◯チオが好きな方はこちら！！');
   const [showPreview, setShowPreview] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title || !content) return alert('タイトルと本文を入力してください');
+    setLoading(true);
+    
     if (editingId) {
-      setArticles(articles.map(a => a.id === editingId ? { ...a, title, content, category } : a));
+      const { error } = await supabase.from('posts').update({ title, content, category }).eq('id', editingId);
+      if (error) { alert('更新に失敗しました'); console.error(error); }
     } else {
-      setArticles([...articles, { id: Date.now(), title, content, category }]);
+      const { error } = await supabase.from('posts').insert([{ site: 'dlsite', title, content, category }]);
+      if (error) { alert('保存に失敗しました'); console.error(error); }
     }
+    
+    if (refreshPosts) await refreshPosts();
     handleCancel();
+    setLoading(false);
     alert('保存しました！');
   };
 
@@ -617,9 +624,15 @@ function DlsiteAdmin({ articles, setArticles }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if(window.confirm('この記事を削除しますか？')) {
-      setArticles(articles.filter(a => a.id !== id));
+      const { error } = await supabase.from('posts').delete().eq('id', id);
+      if (error) {
+        alert('削除に失敗しました');
+        console.error(error);
+      } else {
+        if (refreshPosts) await refreshPosts();
+      }
     }
   };
 
@@ -652,8 +665,8 @@ function DlsiteAdmin({ articles, setArticles }) {
           )}
 
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button className="btn btn-primary" onClick={handleSave}>{editingId ? '変更を保存する' : '記事を公開する'}</button>
-            {editingId && <button className="btn btn-outline" onClick={handleCancel}>キャンセル</button>}
+            <button className="btn btn-primary" onClick={handleSave} disabled={loading}>{loading ? '保存中...' : (editingId ? '変更を保存する' : '記事を公開する')}</button>
+            {editingId && <button className="btn btn-outline" onClick={handleCancel} disabled={loading}>キャンセル</button>}
           </div>
         </div>
         <div className="glass-panel delay-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -688,21 +701,29 @@ function DlsiteAdmin({ articles, setArticles }) {
   );
 }
 
-function DmmBlogAdmin({ articles, setArticles }) {
+function DmmBlogAdmin({ articles, refreshPosts }) {
   const [editingId, setEditingId] = useState(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [dmmId, setDmmId] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title || !content) return alert('タイトルと本文を入力してください');
+    setLoading(true);
+
     if (editingId) {
-      setArticles(articles.map(a => a.id === editingId ? { ...a, title, content, dmmId } : a));
+      const { error } = await supabase.from('posts').update({ title, content, dmm_id: dmmId }).eq('id', editingId);
+      if (error) { alert('更新に失敗しました'); console.error(error); }
     } else {
-      setArticles([...articles, { id: Date.now(), title, content, dmmId }]);
+      const { error } = await supabase.from('posts').insert([{ site: 'dmm', title, content, dmm_id: dmmId }]);
+      if (error) { alert('保存に失敗しました'); console.error(error); }
     }
+    
+    if (refreshPosts) await refreshPosts();
     handleCancel();
+    setLoading(false);
     alert('保存しました！');
   };
 
@@ -751,8 +772,8 @@ function DmmBlogAdmin({ articles, setArticles }) {
           )}
 
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button className="btn btn-primary" onClick={handleSave}>{editingId ? '変更を保存する' : '記事を公開する'}</button>
-            {editingId && <button className="btn btn-outline" onClick={handleCancel}>キャンセル</button>}
+            <button className="btn btn-primary" onClick={handleSave} disabled={loading}>{loading ? '保存中...' : (editingId ? '変更を保存する' : '記事を公開する')}</button>
+            {editingId && <button className="btn btn-outline" onClick={handleCancel} disabled={loading}>キャンセル</button>}
           </div>
         </div>
         <div className="glass-panel delay-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -786,7 +807,7 @@ function DmmBlogAdmin({ articles, setArticles }) {
   );
 }
 
-function AdminDashboard({ dlsiteArticles, setDlsiteArticles, dmmArticles, setDmmArticles }) {
+function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [adminMode, setAdminMode] = useState(null);
 
@@ -822,8 +843,8 @@ function AdminDashboard({ dlsiteArticles, setDlsiteArticles, dmmArticles, setDmm
         <button className="btn btn-outline" onClick={() => setAdminMode(null)}>← ダッシュボード選択に戻る</button>
       </div>
       {adminMode === 'dmm' && <DmmAdmin />}
-      {adminMode === 'dlsite' && <DlsiteAdmin articles={dlsiteArticles} setArticles={setDlsiteArticles} />}
-      {adminMode === 'dmm-blog' && <DmmBlogAdmin articles={dmmArticles} setArticles={setDmmArticles} />}
+      {adminMode === 'dlsite' && <DlsiteAdmin articles={dlsiteArticles} refreshPosts={refreshPosts} />}
+      {adminMode === 'dmm-blog' && <DmmBlogAdmin articles={dmmArticles} refreshPosts={refreshPosts} />}
     </div>
   );
 }
@@ -832,13 +853,28 @@ function AdminDashboard({ dlsiteArticles, setDlsiteArticles, dmmArticles, setDmm
 export default function Page() {
   const [currentPage, setCurrentPage] = useState('top');
   
-  // ブログ記事の共有ステート (バックエンド連携まではインメモリで保持)
-  const [dlsiteArticles, setDlsiteArticles] = useState([
-    { id: 1, title: 'マニア必見！至高のスク水同人CG集', content: 'フェティッシュな描写がたまらない逸品。<br/><br/><div style="padding:10px;background:#f0f0f0;border-radius:8px;">ここにアフィリエイトのバナーHTMLなどをそのまま貼り付け可能です。</div>', category: 'スクール水着が好きな方はこちら！！' }
-  ]);
-  const [dmmArticles, setDmmArticles] = useState([
-    { id: 1, title: '超おすすめ！今月絶対に見るべき作品まとめ', content: '今回はFANZAで人気のあのジャンルから、個人的に最高だと思った作品をピックアップしました。<br/><br/><a href="#" style="display:inline-block;padding:10px;border:1px solid #ddd;border-radius:8px;"><img src="https://pics.dmm.com/af/web_service/com_88_35.gif" alt="DMMアフィリエイト" /></a>', dmmId: 'snis00123' }
-  ]);
+  // ブログ記事のステート (Supabase連携)
+  const [dlsiteArticles, setDlsiteArticles] = useState([]);
+  const [dmmArticles, setDmmArticles] = useState([]);
+
+  const fetchPosts = async () => {
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .order('id', { ascending: false });
+    
+    if (data) {
+      setDlsiteArticles(data.filter(post => post.site === 'dlsite'));
+      setDmmArticles(data.filter(post => post.site === 'dmm'));
+    }
+    if (error) {
+      console.error('Failed to fetch posts:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   return (
     <>
@@ -880,7 +916,7 @@ export default function Page() {
 
         {currentPage === 'dmm-blog' && <DmmBlogPage articles={dmmArticles} />}
         {currentPage === 'dlsite' && <DlsiteBlogPage articles={dlsiteArticles} />}
-        {currentPage === 'admin' && <AdminDashboard dlsiteArticles={dlsiteArticles} setDlsiteArticles={setDlsiteArticles} dmmArticles={dmmArticles} setDmmArticles={setDmmArticles} />}
+        {currentPage === 'admin' && <AdminDashboard dlsiteArticles={dlsiteArticles} dmmArticles={dmmArticles} refreshPosts={fetchPosts} />}
       </main>
       
       <footer style={{ padding: '2rem', textAlign: 'center', borderTop: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
