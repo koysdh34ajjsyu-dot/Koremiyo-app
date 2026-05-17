@@ -504,17 +504,56 @@ function DlsiteBlogPage({ articles = [] }) {
 function DmmBlogPage({ articles = [] }) {
   const [selectedArticle, setSelectedArticle] = useState(null);
 
+  const renderCampaign = (contentRaw) => {
+    let campaign = null;
+    let cleanContent = contentRaw || '';
+    const match = cleanContent.match(/<!--CAMPAIGN:(.*?)-->/);
+    if (match) {
+      try { campaign = JSON.parse(match[1]); } catch(e){}
+      cleanContent = cleanContent.replace(/<!--CAMPAIGN:.*?-->\n?/g, '');
+    }
+    
+    let showCampaign = false;
+    if (campaign && campaign.discountExpiry) {
+      const expiryDate = new Date(`${campaign.discountExpiry}T23:59:59`);
+      const now = new Date();
+      if (now <= expiryDate) {
+        showCampaign = true;
+      }
+    }
+    return { campaign, showCampaign, cleanContent };
+  };
+
   if (selectedArticle) {
+    const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
+
     return (
       <div className="container animate-fade-in" style={{ maxWidth: '800px' }}>
         <button className="btn btn-outline" onClick={() => setSelectedArticle(null)} style={{ marginBottom: '2rem' }}>← 記事一覧に戻る</button>
         <div className="glass-panel" style={{ padding: '3rem' }}>
           <span style={{ color: 'var(--primary-color)', fontSize: '0.9rem', fontWeight: 'bold' }}>FANZA動画</span>
           <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
+          
+          {showCampaign && (
+            <div style={{ background: 'var(--glass-bg)', border: '2px solid #ff758c', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: 'linear-gradient(90deg, #ff758c, #ff7eb3)' }}></div>
+              <h4 style={{ color: '#ff758c', margin: '0 0 1rem 0', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                🔥 期間限定キャンペーン実施中！
+              </h4>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.5rem', marginBottom: '1rem' }}>
+                <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '1.2rem' }}>{campaign.originalPrice}円</span>
+                <span style={{ color: '#ff0033', fontSize: '2.5rem', fontWeight: '900', lineHeight: '1', textShadow: '0 2px 4px rgba(255,0,51,0.2)' }}>{campaign.discountPrice}円</span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 'bold', background: 'rgba(255,117,140,0.1)', display: 'inline-block', padding: '0.4rem 1rem', borderRadius: '50px' }}>
+                ⏰ 割引期限: <span style={{ color: '#e63946' }}>{new Date(campaign.discountExpiry).toLocaleDateString('ja-JP')} 23:59 まで</span>
+              </p>
+            </div>
+          )}
+
           <div 
             className="article-content"
             style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
-            dangerouslySetInnerHTML={{ __html: selectedArticle.content || selectedArticle.contentHTML }}
+            dangerouslySetInnerHTML={{ __html: cleanContent }}
           />
         </div>
       </div>
@@ -531,8 +570,15 @@ function DmmBlogPage({ articles = [] }) {
       <div className="grid grid-cols-3" style={{ gap: '2rem' }}>
         {articles.map(item => {
           const thumbUrl = extractThumbnail(item.content || item.contentHTML);
+          const { showCampaign } = renderCampaign(item.content || item.contentHTML);
+
           return (
-            <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+            <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+              {showCampaign && (
+                <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'linear-gradient(45deg, #ff0033, #ff758c)', color: 'white', padding: '0.4rem 1rem', borderRadius: '50px', fontWeight: 'bold', fontSize: '0.8rem', boxShadow: '0 4px 10px rgba(255,0,51,0.3)', zIndex: 10 }}>
+                  🔥 キャンペーン中
+                </div>
+              )}
               {thumbUrl ? (
                 <div style={{ width: '100%', height: '160px', marginBottom: '1rem', overflow: 'hidden', borderRadius: '8px' }}>
                   <img src={thumbUrl} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -777,15 +823,34 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
   const [showPreview, setShowPreview] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // キャンペーン設定用ステート
+  const [campaignEnabled, setCampaignEnabled] = useState(false);
+  const [originalPrice, setOriginalPrice] = useState('');
+  const [discountPrice, setDiscountPrice] = useState('');
+  const [discountExpiry, setDiscountExpiry] = useState('');
+
   const handleSave = async () => {
     if (!title || !content) return alert('タイトルと本文を入力してください');
+    
+    // キャンペーン情報の埋め込み処理
+    let finalContent = content;
+    if (campaignEnabled) {
+      if (!originalPrice || !discountPrice || !discountExpiry) {
+        return alert('キャンペーンの元金額、割引金額、期限をすべて入力してください');
+      }
+      const campData = { originalPrice, discountPrice, discountExpiry };
+      finalContent = `<!--CAMPAIGN:${JSON.stringify(campData)}-->\n` + content.replace(/<!--CAMPAIGN:.*?-->\n?/g, '');
+    } else {
+      finalContent = content.replace(/<!--CAMPAIGN:.*?-->\n?/g, '');
+    }
+
     setLoading(true);
 
     if (editingId) {
-      const { error } = await supabase.from('posts').update({ title, content, dmm_id: dmmId }).eq('id', editingId);
+      const { error } = await supabase.from('posts').update({ title, content: finalContent, dmm_id: dmmId }).eq('id', editingId);
       if (error) { alert('更新に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     } else {
-      const { error } = await supabase.from('posts').insert([{ site: 'dmm', title, content, dmm_id: dmmId }]);
+      const { error } = await supabase.from('posts').insert([{ site: 'dmm', title, content: finalContent, dmm_id: dmmId }]);
       if (error) { alert('保存に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     }
     
@@ -798,15 +863,42 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
   const handleEdit = (article) => {
     setEditingId(article.id);
     setTitle(article.title);
-    setContent(article.content);
-    setDmmId(article.dmmId || '');
+    setDmmId(article.dmmId || article.dmm_id || '');
     setShowPreview(false);
+
+    // キャンペーン情報の復元
+    const match = (article.content || '').match(/<!--CAMPAIGN:(.*?)-->/);
+    if (match) {
+      try {
+        const camp = JSON.parse(match[1]);
+        setCampaignEnabled(true);
+        setOriginalPrice(camp.originalPrice || '');
+        setDiscountPrice(camp.discountPrice || '');
+        setDiscountExpiry(camp.discountExpiry || '');
+        setContent((article.content || '').replace(/<!--CAMPAIGN:.*?-->\n?/g, ''));
+      } catch(e) {
+        setContent(article.content);
+      }
+    } else {
+      setCampaignEnabled(false);
+      setOriginalPrice('');
+      setDiscountPrice('');
+      setDiscountExpiry('');
+      setContent(article.content || '');
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if(window.confirm('この記事を削除しますか？')) {
-      setArticles(articles.filter(a => a.id !== id));
+      const { error } = await supabase.from('posts').delete().eq('id', id);
+      if (error) {
+        alert('削除に失敗しました');
+        console.error(error);
+      } else {
+        if (refreshPosts) await refreshPosts();
+      }
     }
   };
 
