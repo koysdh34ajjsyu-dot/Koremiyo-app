@@ -944,6 +944,33 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
               商品IDを入力すると、記事の下部に自動でアフィリエイトリンクと商品画像が生成されます。
             </p>
           </div>
+
+          <div style={{ padding: '1rem', background: 'rgba(255, 117, 140, 0.05)', borderRadius: '12px', border: '1px solid rgba(255, 117, 140, 0.3)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold', cursor: 'pointer', marginBottom: campaignEnabled ? '1rem' : '0' }}>
+              <input type="checkbox" checked={campaignEnabled} onChange={e => setCampaignEnabled(e.target.checked)} style={{ transform: 'scale(1.2)' }} />
+              🔥 キャンペーン情報を追加する
+            </label>
+            
+            {campaignEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>元金額 (円)</div>
+                  <input type="number" value={originalPrice} onChange={e => setOriginalPrice(e.target.value)} placeholder="例: 4980" style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>割引後の金額 (円)</div>
+                  <input type="number" value={discountPrice} onChange={e => setDiscountPrice(e.target.value)} placeholder="例: 500" style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>割引の終了日</div>
+                  <input type="date" value={discountExpiry} onChange={e => setDiscountExpiry(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }} />
+                </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.5rem 0 0 0' }}>
+                  ※指定した終了日の23:59を過ぎると、キャンペーン表示は自動的に非表示になります。
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
