@@ -415,6 +415,26 @@ function DmmToolsPage({ navigateTo }) {
   );
 }
 
+const renderCampaign = (contentRaw) => {
+  let campaign = null;
+  let cleanContent = contentRaw || '';
+  const match = cleanContent.match(/<!--CAMPAIGN:(.*?)-->/);
+  if (match) {
+    try { campaign = JSON.parse(match[1]); } catch(e){}
+    cleanContent = cleanContent.replace(/<!--CAMPAIGN:.*?-->\n?/g, '');
+  }
+  
+  let showCampaign = false;
+  if (campaign && campaign.discountExpiry) {
+    const expiryDate = new Date(`${campaign.discountExpiry}T23:59:59`);
+    const now = new Date();
+    if (now <= expiryDate) {
+      showCampaign = true;
+    }
+  }
+  return { campaign, showCampaign, cleanContent };
+};
+
 function DlsiteBlogPage({ articles = [] }) {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
@@ -426,16 +446,35 @@ function DlsiteBlogPage({ articles = [] }) {
   ];
 
   if (selectedArticle) {
+    const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
+
     return (
       <div className="container animate-fade-in" style={{ maxWidth: '800px' }}>
         <button className="btn btn-outline" onClick={() => setSelectedArticle(null)} style={{ marginBottom: '2rem' }}>← 記事一覧に戻る</button>
         <div className="glass-panel" style={{ padding: '3rem' }}>
           <span style={{ color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: 'bold' }}>{selectedArticle.category || selectedArticle.tag}</span>
           <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
+          
+          {showCampaign && (
+            <div style={{ background: 'var(--glass-bg)', border: '2px solid #84b6f4', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: 'linear-gradient(90deg, #84b6f4, #b088f9)' }}></div>
+              <h4 style={{ color: '#84b6f4', margin: '0 0 1rem 0', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                🔥 期間限定キャンペーン実施中！
+              </h4>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.5rem', marginBottom: '1rem' }}>
+                <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '1.2rem' }}>{campaign.originalPrice}円</span>
+                <span style={{ color: '#84b6f4', fontSize: '2.5rem', fontWeight: '900', lineHeight: '1', textShadow: '0 2px 4px rgba(132,182,244,0.2)' }}>{campaign.discountPrice}円</span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 'bold', background: 'rgba(132,182,244,0.1)', display: 'inline-block', padding: '0.4rem 1rem', borderRadius: '50px' }}>
+                ⏰ 割引期限: <span style={{ color: '#b088f9' }}>{new Date(campaign.discountExpiry).toLocaleDateString('ja-JP')} 23:59 まで</span>
+              </p>
+            </div>
+          )}
+
           <div 
             className="article-content"
             style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
-            dangerouslySetInnerHTML={{ __html: selectedArticle.content || selectedArticle.contentHTML }}
+            dangerouslySetInnerHTML={{ __html: cleanContent }}
           />
         </div>
       </div>
@@ -480,8 +519,15 @@ function DlsiteBlogPage({ articles = [] }) {
       <div className="grid grid-cols-3" style={{ gap: '2rem' }}>
         {filteredArticles.map(item => {
           const thumbUrl = extractThumbnail(item.content || item.contentHTML);
+          const { showCampaign } = renderCampaign(item.content || item.contentHTML);
+
           return (
-            <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+            <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+              {showCampaign && (
+                <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'linear-gradient(45deg, #84b6f4, #b088f9)', color: 'white', padding: '0.4rem 1rem', borderRadius: '50px', fontWeight: 'bold', fontSize: '0.8rem', boxShadow: '0 4px 10px rgba(132,182,244,0.3)', zIndex: 10 }}>
+                  🔥 キャンペーン中
+                </div>
+              )}
               {thumbUrl ? (
                 <div style={{ width: '100%', height: '160px', marginBottom: '1rem', overflow: 'hidden', borderRadius: '8px' }}>
                   <img src={thumbUrl} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -503,26 +549,6 @@ function DlsiteBlogPage({ articles = [] }) {
 
 function DmmBlogPage({ articles = [] }) {
   const [selectedArticle, setSelectedArticle] = useState(null);
-
-  const renderCampaign = (contentRaw) => {
-    let campaign = null;
-    let cleanContent = contentRaw || '';
-    const match = cleanContent.match(/<!--CAMPAIGN:(.*?)-->/);
-    if (match) {
-      try { campaign = JSON.parse(match[1]); } catch(e){}
-      cleanContent = cleanContent.replace(/<!--CAMPAIGN:.*?-->\n?/g, '');
-    }
-    
-    let showCampaign = false;
-    if (campaign && campaign.discountExpiry) {
-      const expiryDate = new Date(`${campaign.discountExpiry}T23:59:59`);
-      const now = new Date();
-      if (now <= expiryDate) {
-        showCampaign = true;
-      }
-    }
-    return { campaign, showCampaign, cleanContent };
-  };
 
   if (selectedArticle) {
     const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
@@ -711,15 +737,34 @@ function DlsiteAdmin({ articles, refreshPosts }) {
   const [showPreview, setShowPreview] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // キャンペーン設定用ステート
+  const [campaignEnabled, setCampaignEnabled] = useState(false);
+  const [originalPrice, setOriginalPrice] = useState('');
+  const [discountPrice, setDiscountPrice] = useState('');
+  const [discountExpiry, setDiscountExpiry] = useState('');
+
   const handleSave = async () => {
     if (!title || !content) return alert('タイトルと本文を入力してください');
+    
+    // キャンペーン情報の埋め込み処理
+    let finalContent = content;
+    if (campaignEnabled) {
+      if (!originalPrice || !discountPrice || !discountExpiry) {
+        return alert('キャンペーンの元金額、割引金額、期限をすべて入力してください');
+      }
+      const campData = { originalPrice, discountPrice, discountExpiry };
+      finalContent = `<!--CAMPAIGN:${JSON.stringify(campData)}-->\n` + content.replace(/<!--CAMPAIGN:.*?-->\n?/g, '');
+    } else {
+      finalContent = content.replace(/<!--CAMPAIGN:.*?-->\n?/g, '');
+    }
+
     setLoading(true);
     
     if (editingId) {
-      const { error } = await supabase.from('posts').update({ title, content, category }).eq('id', editingId);
+      const { error } = await supabase.from('posts').update({ title, content: finalContent, category }).eq('id', editingId);
       if (error) { alert('更新に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     } else {
-      const { error } = await supabase.from('posts').insert([{ site: 'dlsite', title, content, category }]);
+      const { error } = await supabase.from('posts').insert([{ site: 'dlsite', title, content: finalContent, category }]);
       if (error) { alert('保存に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     }
     
@@ -732,9 +777,30 @@ function DlsiteAdmin({ articles, refreshPosts }) {
   const handleEdit = (article) => {
     setEditingId(article.id);
     setTitle(article.title);
-    setContent(article.content);
-    setCategory(article.category);
+    setCategory(article.category || 'フェ◯チオが好きな方はこちら！！');
     setShowPreview(false);
+    
+    // キャンペーン情報の復元
+    const match = (article.content || '').match(/<!--CAMPAIGN:(.*?)-->/);
+    if (match) {
+      try {
+        const camp = JSON.parse(match[1]);
+        setCampaignEnabled(true);
+        setOriginalPrice(camp.originalPrice || '');
+        setDiscountPrice(camp.discountPrice || '');
+        setDiscountExpiry(camp.discountExpiry || '');
+        setContent((article.content || '').replace(/<!--CAMPAIGN:.*?-->\n?/g, ''));
+      } catch(e) {
+        setContent(article.content);
+      }
+    } else {
+      setCampaignEnabled(false);
+      setOriginalPrice('');
+      setDiscountPrice('');
+      setDiscountExpiry('');
+      setContent(article.content || '');
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -791,6 +857,33 @@ function DlsiteAdmin({ articles, refreshPosts }) {
               <option>スクール水着が好きな方はこちら！！</option>
               <option>全年齢 ASMR</option>
             </select>
+          </div>
+
+          <div style={{ padding: '1rem', background: 'rgba(132, 182, 244, 0.05)', borderRadius: '12px', border: '1px solid rgba(132, 182, 244, 0.3)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold', cursor: 'pointer', marginBottom: campaignEnabled ? '1rem' : '0' }}>
+              <input type="checkbox" checked={campaignEnabled} onChange={e => setCampaignEnabled(e.target.checked)} style={{ transform: 'scale(1.2)' }} />
+              🔥 キャンペーン情報を追加する
+            </label>
+            
+            {campaignEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>元金額 (円)</div>
+                  <input type="number" value={originalPrice} onChange={e => setOriginalPrice(e.target.value)} placeholder="例: 4980" style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>割引後の金額 (円)</div>
+                  <input type="number" value={discountPrice} onChange={e => setDiscountPrice(e.target.value)} placeholder="例: 500" style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>割引の終了日</div>
+                  <input type="date" value={discountExpiry} onChange={e => setDiscountExpiry(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }} />
+                </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.5rem 0 0 0' }}>
+                  ※指定した終了日の23:59を過ぎると、自動的に非表示になります。
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
