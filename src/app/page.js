@@ -29,25 +29,68 @@ function RealProductSearch() {
     setKeyword(prev => prev ? `${prev} ${tag}` : tag);
   };
 
-  const searchProducts = async () => {
-    if (!keyword.trim()) {
-      alert('検索キーワードを入力してください。');
-      return;
-    }
-    setLoading(true);
-    try {
-      // 検索パラメータの構築
-      let apiUrl = `/api/dmm/product?site=FANZA&keyword=${encodeURIComponent(keyword)}&hits=10&sort=${sort}`;
-      if (service !== 'all') {
-        apiUrl += `&service=${service}`;
-      }
+  const [useMeasurements, setUseMeasurements] = useState(false);
+  const [measurements, setMeasurements] = useState({
+    bustMin: '', bustMax: '', waistMin: '', waistMax: '', hipMin: '', hipMax: ''
+  });
 
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      if (data && data.result && data.result.items) {
-        setProducts(data.result.items);
+  const searchProducts = async () => {
+    setLoading(true);
+    setProducts([]);
+    try {
+      if (useMeasurements) {
+        // Step 1: 女優APIでスリーサイズ条件に合う女優を検索
+        let actressUrl = `/api/dmm/actress?hits=5`;
+        if (measurements.bustMin) actressUrl += `&gte_bust=${measurements.bustMin}`;
+        if (measurements.bustMax) actressUrl += `&lte_bust=${measurements.bustMax}`;
+        if (measurements.waistMin) actressUrl += `&gte_waist=${measurements.waistMin}`;
+        if (measurements.waistMax) actressUrl += `&lte_waist=${measurements.waistMax}`;
+        if (measurements.hipMin) actressUrl += `&gte_hip=${measurements.hipMin}`;
+        if (measurements.hipMax) actressUrl += `&lte_hip=${measurements.hipMax}`;
+
+        const aRes = await fetch(actressUrl);
+        const aData = await aRes.json();
+        const actresses = aData.result?.actress || [];
+        
+        if (actresses.length === 0) {
+          alert('指定されたスリーサイズ条件に一致する女優が見つかりませんでした。条件を少し広げてみてください。');
+          setLoading(false);
+          return;
+        }
+
+        // Step 2: 該当した上位の女優(最大3名)の出演作品を検索
+        let mergedItems = [];
+        for (const act of actresses.slice(0, 3)) {
+          let pUrl = `/api/dmm/product?site=FANZA&article=actress&article_id=${act.id}&hits=10&sort=${sort}`;
+          if (service !== 'all') pUrl += `&service=${service}`;
+          
+          const pRes = await fetch(pUrl);
+          const pData = await pRes.json();
+          if (pData.result?.items) {
+            // 各作品に誰の検索結果かわかるように女優名を付与
+            const itemsWithActress = pData.result.items.map(i => ({...i, _matchedActress: act.name}));
+            mergedItems = [...mergedItems, ...itemsWithActress];
+          }
+        }
+        
+        // 重複排除
+        const uniqueItems = Array.from(new Map(mergedItems.map(item => [item.content_id, item])).values());
+        setProducts(uniqueItems);
+
       } else {
-        setProducts([]);
+        if (!keyword.trim()) {
+          alert('検索キーワードを入力してください。');
+          setLoading(false);
+          return;
+        }
+        let apiUrl = `/api/dmm/product?site=FANZA&keyword=${encodeURIComponent(keyword)}&hits=20&sort=${sort}`;
+        if (service !== 'all') apiUrl += `&service=${service}`;
+
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        if (data && data.result && data.result.items) {
+          setProducts(data.result.items);
+        }
       }
     } catch (error) {
       console.error('Fetch error:', error);
@@ -65,16 +108,54 @@ function RealProductSearch() {
       </p>
       
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem', background: 'rgba(255,255,255,0.4)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
-        <div style={{ flex: '1 1 300px' }}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>キーワード</label>
-          <input 
-            type="text" 
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="キーワード (例: シチュエーション、プレイ内容、女優名など)" 
-            style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem' }}
-          />
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+            <input type="checkbox" checked={useMeasurements} onChange={e => setUseMeasurements(e.target.checked)} style={{ transform: 'scale(1.2)' }} />
+            👙 女優のスリーサイズ（体型）から作品を探す
+          </label>
         </div>
+
+        {!useMeasurements ? (
+          <div style={{ flex: '1 1 300px' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>キーワード</label>
+            <input 
+              type="text" 
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="キーワード (例: シチュエーション、プレイ内容、女優名など)" 
+              style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem' }}
+            />
+          </div>
+        ) : (
+          <div style={{ flex: '1 1 100%', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 150px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>バスト (cm)</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input type="number" placeholder="Min" value={measurements.bustMin} onChange={e => setMeasurements({...measurements, bustMin: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+                <span>〜</span>
+                <input type="number" placeholder="Max" value={measurements.bustMax} onChange={e => setMeasurements({...measurements, bustMax: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+              </div>
+            </div>
+            <div style={{ flex: '1 1 150px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>ウエスト (cm)</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input type="number" placeholder="Min" value={measurements.waistMin} onChange={e => setMeasurements({...measurements, waistMin: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+                <span>〜</span>
+                <input type="number" placeholder="Max" value={measurements.waistMax} onChange={e => setMeasurements({...measurements, waistMax: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+              </div>
+            </div>
+            <div style={{ flex: '1 1 150px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>ヒップ (cm)</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input type="number" placeholder="Min" value={measurements.hipMin} onChange={e => setMeasurements({...measurements, hipMin: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+                <span>〜</span>
+                <input type="number" placeholder="Max" value={measurements.hipMax} onChange={e => setMeasurements({...measurements, hipMax: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+              </div>
+            </div>
+            <p style={{ width: '100%', fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0 0 -0.5rem 0' }}>※条件に合う女優を検索し、その女優の出演作品を自動で抽出します。</p>
+          </div>
+        )}
+
         <div style={{ flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>サービス（カテゴリ）</label>
           <select value={service} onChange={(e) => setService(e.target.value)} style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem', background: '#fff' }}>
@@ -127,6 +208,11 @@ function RealProductSearch() {
               <p style={{ color: 'var(--primary-hover)', fontWeight: 'bold', fontSize: '1.1rem', marginTop: 'auto' }}>
                 {item.prices?.price ? `¥${item.prices.price}` : '価格未定'}
               </p>
+              {item._matchedActress && (
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--glass-bg)', padding: '0.2rem 0.5rem', borderRadius: '4px', alignSelf: 'flex-start', marginBottom: '0.3rem' }}>
+                  出演: {item._matchedActress}
+                </div>
+              )}
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                 <a href={item.affiliateURL} target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem', textAlign: 'center', display: 'block' }}>
                   作品の詳細を見る ✨
@@ -327,6 +413,93 @@ function TrendingAnalyticsDashboard() {
   );
 }
 
+function DmmReleaseCalendar() {
+  const [releases, setReleases] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const fetchReleases = async () => {
+    setLoading(true);
+    try {
+      // 最新の動画作品を日付順で取得
+      const res = await fetch('/api/dmm/product?site=FANZA&service=digital&sort=-date&hits=40');
+      const data = await res.json();
+      
+      if (data && data.result && data.result.items) {
+        const items = data.result.items;
+        const grouped = {};
+        
+        items.forEach(item => {
+          const rawDate = item.date || item.delivery_date;
+          if (rawDate) {
+            // YYYY-MM-DD HH:MM:SS -> YYYY-MM-DD
+            const dateStr = rawDate.split(' ')[0];
+            if (!grouped[dateStr]) grouped[dateStr] = [];
+            grouped[dateStr].push(item);
+          }
+        });
+        
+        // 日付でソート
+        const sortedGroups = Object.keys(grouped).sort((a,b) => new Date(b) - new Date(a)).reduce((acc, key) => {
+          acc[key] = grouped[key];
+          return acc;
+        }, {});
+        
+        setReleases(sortedGroups);
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchReleases();
+  }, []);
+
+  return (
+    <div className="glass-panel animate-fade-in" style={{ marginBottom: '3rem' }}>
+      <h2 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        📅 新作発売カレンダー (FANZA動画)
+      </h2>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+        近日発売された、または発売予定の新作タイトルを日付ごとにチェックできます。
+      </p>
+
+      {loading ? (
+        <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>カレンダーを読み込み中...</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          {Object.keys(releases).map(dateStr => (
+            <div key={dateStr}>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem', color: 'var(--primary-color)' }}>
+                {dateStr}
+              </h3>
+              <div className="grid grid-cols-2" style={{ gap: '1rem' }}>
+                {releases[dateStr].map(item => (
+                  <div key={item.content_id} style={{ display: 'flex', gap: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.5)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                    <img src={item.imageURL?.small || ''} alt="thumbnail" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 'bold', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                        {item.title}
+                      </div>
+                      <a href={item.affiliateURL} target="_blank" rel="noopener noreferrer" style={{ marginTop: 'auto', fontSize: '0.8rem', color: 'var(--accent-color)', fontWeight: 'bold', textDecoration: 'none' }}>
+                        作品ページへ →
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          {Object.keys(releases).length === 0 && !loading && (
+            <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>リリース情報がありません。</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // --- Pages ---
 function TopPage({ navigateTo }) {
   return (
@@ -402,6 +575,11 @@ function DmmToolsPage({ navigateTo }) {
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📈</div>
           <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>トレンド分析ダッシュボード</h2>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>人気キーワードやジャンルの傾向をグラフで可視化</p>
+        </div>
+        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => navigateTo('dmm-calendar')}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>新作発売カレンダー</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>近日発売の注目作品をカレンダー形式で一覧表示</p>
         </div>
       </div>
 
@@ -1191,6 +1369,12 @@ export default function Page() {
           <div className="container animate-fade-in">
              <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
              <TrendingAnalyticsDashboard />
+          </div>
+        )}
+        {currentPage === 'dmm-calendar' && (
+          <div className="container animate-fade-in">
+             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
+             <DmmReleaseCalendar />
           </div>
         )}
 
