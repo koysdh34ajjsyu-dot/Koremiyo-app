@@ -1310,6 +1310,7 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
 // --- App Root ---
 export default function Page() {
   const [currentPage, setCurrentPage] = useState('top');
+  const [showAdmin, setShowAdmin] = useState(false);
   
   // ブログ記事のステート (Supabase連携)
   const [dlsiteArticles, setDlsiteArticles] = useState([]);
@@ -1332,6 +1333,18 @@ export default function Page() {
 
   useEffect(() => {
     fetchPosts();
+    
+    // 隠しURLのチェック (?secret=admin1234)
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get('secret') === 'admin1234') {
+        setShowAdmin(true);
+        setCurrentPage('admin');
+        
+        // オプション: URLからパラメータを消去して綺麗にする場合
+        // window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
   }, []);
 
   return (
@@ -1345,7 +1358,9 @@ export default function Page() {
           <a className={`nav-link ${currentPage === 'dmm' ? 'active' : ''}`} onClick={() => setCurrentPage('dmm')}>DMMツール</a>
           <a className={`nav-link ${currentPage === 'dmm-blog' ? 'active' : ''}`} onClick={() => setCurrentPage('dmm-blog')}>DMMブログ</a>
           <a className={`nav-link ${currentPage === 'dlsite' ? 'active' : ''}`} onClick={() => setCurrentPage('dlsite')}>DLsiteブログ</a>
-          <a className={`nav-link ${currentPage === 'admin' ? 'active' : ''}`} onClick={() => setCurrentPage('admin')} style={{ marginLeft: '1rem', background: 'var(--secondary-color)', color: 'white' }}>管理者 🔒</a>
+          {showAdmin && (
+            <a className={`nav-link ${currentPage === 'admin' ? 'active' : ''}`} onClick={() => setCurrentPage('admin')} style={{ marginLeft: '1rem', background: 'var(--secondary-color)', color: 'white' }}>管理者 🔒</a>
+          )}
         </div>
       </nav>
 
@@ -1380,7 +1395,7 @@ export default function Page() {
 
         {currentPage === 'dmm-blog' && <DmmBlogPage articles={dmmArticles} />}
         {currentPage === 'dlsite' && <DlsiteBlogPage articles={dlsiteArticles} />}
-        {currentPage === 'admin' && <AdminDashboard dlsiteArticles={dlsiteArticles} dmmArticles={dmmArticles} refreshPosts={fetchPosts} />}
+        {currentPage === 'admin' && showAdmin && <AdminDashboard dlsiteArticles={dlsiteArticles} dmmArticles={dmmArticles} refreshPosts={fetchPosts} />}
       </main>
       
       <footer style={{ padding: '2rem', textAlign: 'center', borderTop: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
