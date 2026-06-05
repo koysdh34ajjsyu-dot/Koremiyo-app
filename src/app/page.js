@@ -1,8 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { supabase } from '../lib/supabase';
 import './globals.css';
+import 'react-quill/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 // --- Utilities ---
 const extractThumbnail = (html) => {
@@ -912,7 +916,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('フェ◯チオが好きな方はこちら！！');
-  const [showPreview, setShowPreview] = useState(false);
+  const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // キャンペーン設定用ステート
@@ -998,7 +1002,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
     setEditingId(null);
     setTitle('');
     setContent('');
-    setShowPreview(false);
+    setIsHtmlMode(false);
   };
 
   return (
@@ -1010,17 +1014,44 @@ function DlsiteAdmin({ articles, refreshPosts }) {
         <div className="glass-panel delay-1">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DLsite)' : '新規記事作成 (DLsite)'}</h3>
-            <button className="btn btn-outline" onClick={() => setShowPreview(!showPreview)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
-              {showPreview ? 'エディタに戻る' : 'HTMLプレビューを表示'}
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className={`btn ${!isHtmlMode ? 'btn-primary' : 'btn-outline'}`} onClick={() => setIsHtmlMode(false)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
+                🎨 リッチエディタ
+              </button>
+              <button className={`btn ${isHtmlMode ? 'btn-primary' : 'btn-outline'}`} onClick={() => setIsHtmlMode(true)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
+                ⌨️ HTMLソース
+              </button>
+            </div>
           </div>
           <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
           
-          {showPreview ? (
-            <div style={{ width: '100%', border: '2px dashed var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#fff', marginBottom: '1rem' }} dangerouslySetInnerHTML={{ __html: content || '<p style="color:#aaa">プレビュー表示エリア（HTMLがレンダリングされます）</p>' }} />
-          ) : (
-            <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="情熱的なレビューをここに記述... (アフィリエイト用HTMLコードをそのまま貼り付け可能です)" style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
-          )}
+          <div style={{ marginBottom: '1rem', background: '#fff', borderRadius: '12px', border: '2px solid var(--border-color)', overflow: 'hidden' }}>
+            {!isHtmlMode ? (
+              <ReactQuill 
+                theme="snow" 
+                value={content} 
+                onChange={setContent} 
+                style={{ height: '300px', border: 'none' }}
+                modules={{
+                  toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link', 'image'],
+                    ['clean']
+                  ]
+                }}
+              />
+            ) : (
+              <textarea 
+                value={content} 
+                onChange={e => setContent(e.target.value)} 
+                placeholder="アフィリエイト用のHTMLコードや生のタグをここに記述..." 
+                style={{ width: '100%', minHeight: '342px', padding: '1rem', border: 'none', outline: 'none', fontSize: '1rem', resize: 'vertical', fontFamily: 'monospace', background: '#2d2d2d', color: '#e0e0e0', margin: 0, display: 'block' }}
+              />
+            )}
+          </div>
 
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button className="btn btn-primary" onClick={handleSave} disabled={loading}>{loading ? '保存中...' : (editingId ? '変更を保存する' : '記事を公開する')}</button>
@@ -1091,7 +1122,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [dmmId, setDmmId] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
+  const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // キャンペーン設定用ステート
@@ -1178,7 +1209,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
     setTitle('');
     setContent('');
     setDmmId('');
-    setShowPreview(false);
+    setIsHtmlMode(false);
   };
 
   return (
@@ -1190,17 +1221,44 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
         <div className="glass-panel delay-1">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DMM)' : '新規記事作成 (DMM)'}</h3>
-            <button className="btn btn-outline" onClick={() => setShowPreview(!showPreview)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
-              {showPreview ? 'エディタに戻る' : 'HTMLプレビューを表示'}
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className={`btn ${!isHtmlMode ? 'btn-primary' : 'btn-outline'}`} onClick={() => setIsHtmlMode(false)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
+                🎨 リッチエディタ
+              </button>
+              <button className={`btn ${isHtmlMode ? 'btn-primary' : 'btn-outline'}`} onClick={() => setIsHtmlMode(true)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
+                ⌨️ HTMLソース
+              </button>
+            </div>
           </div>
           <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
           
-          {showPreview ? (
-            <div style={{ width: '100%', border: '2px dashed var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#fff', marginBottom: '1rem' }} dangerouslySetInnerHTML={{ __html: content || '<p style="color:#aaa">プレビュー表示エリア（HTMLがレンダリングされます）</p>' }} />
-          ) : (
-            <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="FANZA作品のレビューをここに記述... (アフィリエイト用HTMLコードをそのまま貼り付け可能です)" style={{ width: '100%', border: '2px solid var(--border-color)', borderRadius: '12px', minHeight: '300px', padding: '1rem', background: '#faf8f9', marginBottom: '1rem', outline: 'none', fontSize: '1rem', resize: 'vertical' }}></textarea>
-          )}
+          <div style={{ marginBottom: '1rem', background: '#fff', borderRadius: '12px', border: '2px solid var(--border-color)', overflow: 'hidden' }}>
+            {!isHtmlMode ? (
+              <ReactQuill 
+                theme="snow" 
+                value={content} 
+                onChange={setContent} 
+                style={{ height: '300px', border: 'none' }}
+                modules={{
+                  toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link', 'image'],
+                    ['clean']
+                  ]
+                }}
+              />
+            ) : (
+              <textarea 
+                value={content} 
+                onChange={e => setContent(e.target.value)} 
+                placeholder="アフィリエイト用のHTMLコードや生のタグをここに記述..." 
+                style={{ width: '100%', minHeight: '342px', padding: '1rem', border: 'none', outline: 'none', fontSize: '1rem', resize: 'vertical', fontFamily: 'monospace', background: '#2d2d2d', color: '#e0e0e0', margin: 0, display: 'block' }}
+              />
+            )}
+          </div>
 
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button className="btn btn-primary" onClick={handleSave} disabled={loading}>{loading ? '保存中...' : (editingId ? '変更を保存する' : '記事を公開する')}</button>
