@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { supabase } from '../lib/supabase';
 import './globals.css';
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 // --- Utilities ---
 const extractThumbnail = (html) => {
