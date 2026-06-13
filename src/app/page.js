@@ -1084,6 +1084,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
                 modules={{
                   toolbar: [
                     [{ 'header': [1, 2, 3, false] }],
+                    [{ 'size': ['small', false, 'large', 'huge'] }],
                     ['bold', 'italic', 'underline', 'strike'],
                     [{ 'color': [] }, { 'background': [] }],
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
@@ -1290,6 +1291,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
                 modules={{
                   toolbar: [
                     [{ 'header': [1, 2, 3, false] }],
+                    [{ 'size': ['small', false, 'large', 'huge'] }],
                     ['bold', 'italic', 'underline', 'strike'],
                     [{ 'color': [] }, { 'background': [] }],
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
