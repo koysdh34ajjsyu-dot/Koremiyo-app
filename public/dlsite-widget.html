@@ -5,20 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
+    html, body {
       background: transparent;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
       overflow: hidden;
+      width: 100%;
     }
-    /* DLsiteが生成するウィジェットのラッパーをレスポンシブ対応に */
     #dlsite-widget-inner {
       width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+      display: inline-block;
     }
-    /* DLsiteウィジェット内の画像などが枠を超えないように */
     #dlsite-widget-inner img {
       max-width: 100%;
       height: auto;
@@ -46,5 +43,16 @@
     </script>
     <script type="text/javascript" src="https://www.dlsite.com/js/blogparts.js" charset="UTF-8"></script>
   </div>
+  <script>
+    // ウィジェット読み込み完了後、実際のコンテンツ高さを親ウィンドウに通知して余白をなくす
+    function sendHeight() {
+      var h = document.getElementById('dlsite-widget-inner').scrollHeight;
+      window.parent.postMessage({ type: 'dlsite-widget-height', height: h }, '*');
+    }
+    window.addEventListener('load', function() {
+      // ウィジェットのスクリプトがDOM操作を完了するまで少し待つ
+      setTimeout(sendHeight, 800);
+    });
+  </script>
 </body>
 </html>

@@ -620,7 +620,18 @@ const renderCampaign = (contentRaw) => {
 function DlsiteBlogPage({ articles = [] }) {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
-  // useEffect不要 — iframeで静的HTMLを読み込む方式に変更
+  const [iframeHeight, setIframeHeight] = useState(400);
+
+  // iframeからのpostMessageを受け取ってiframe高さを自動調整する
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.data && e.data.type === 'dlsite-widget-height' && e.data.height) {
+        setIframeHeight(e.data.height + 8); // 8pxのバッファを追加
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, []);
 
   const categories = [
     { title: 'フェ◯チオが好きな方はこちら！！', desc: 'フェラ・フェラチオ好きへ管理者オススメのDLsite同人作品を紹介。フェラ音声・フェラ同人を厳選！', color: '#ff758c' },
@@ -751,13 +762,13 @@ function DlsiteBlogPage({ articles = [] }) {
             style={{
               width: '100%',
               minWidth: '300px',
-              height: '420px',
+              height: `${iframeHeight}px`,
               border: 'none',
               borderRadius: '12px',
               display: 'block',
             }}
             title="DLsite週間ランキング"
-            scrolling="auto"
+            scrolling="no"
           />
         </div>
         <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
