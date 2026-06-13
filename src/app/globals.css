@@ -245,3 +245,23 @@ h1, h2, h3 {
   max-width: 100% !important;
   border-radius: 8px;
 }
+
+/* Quill Editor Styles */
+.quill {
+  display: flex;
+  flex-direction: column;
+}
+.ql-toolbar {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+.ql-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  font-size: 1rem;
+  background: #faf8f9;
+}

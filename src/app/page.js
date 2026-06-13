@@ -1031,7 +1031,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
                 theme="snow" 
                 value={content} 
                 onChange={setContent} 
-                style={{ height: '300px', border: 'none' }}
+                style={{ height: '500px', border: 'none' }}
                 modules={{
                   toolbar: [
                     [{ 'header': [1, 2, 3, false] }],
@@ -1238,7 +1238,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
                 theme="snow" 
                 value={content} 
                 onChange={setContent} 
-                style={{ height: '300px', border: 'none' }}
+                style={{ height: '500px', border: 'none' }}
                 modules={{
                   toolbar: [
                     [{ 'header': [1, 2, 3, false] }],
