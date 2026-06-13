@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow: hidden;
+    }
+    /* DLsiteが生成するウィジェットのラッパーをレスポンシブ対応に */
+    #dlsite-widget-inner {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    /* DLsiteウィジェット内の画像などが枠を超えないように */
+    #dlsite-widget-inner img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="dlsite-widget-inner">
+    <script type="text/javascript">
+      blogparts = {
+        "base": "https://www.dlsite.com/",
+        "type": "ranking",
+        "site": "maniax",
+        "query": { "period": "week" },
+        "title": "ランキング",
+        "display": "horizontal",
+        "detail": "0",
+        "column": "v",
+        "image": "large",
+        "count": "3",
+        "wrapper": "1",
+        "autorotate": true,
+        "aid": "Koremiyoonline"
+      };
+    </script>
+    <script type="text/javascript" src="https://www.dlsite.com/js/blogparts.js" charset="UTF-8"></script>
+  </div>
+</body>
+</html>
