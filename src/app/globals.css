@@ -229,11 +229,31 @@ h1, h2, h3 {
   }
 }
 
-/* Article Content Constraints */
+/* Article Content Constraints & Formatting */
 .article-content {
   overflow-wrap: break-word;
   word-wrap: break-word;
-  white-space: pre-wrap;
+}
+.article-content p {
+  margin-bottom: 1em;
+}
+.article-content ul, .article-content ol {
+  margin-bottom: 1em;
+  margin-left: 2em;
+  padding-left: 1rem;
+}
+.article-content li {
+  margin-bottom: 0.5em;
+}
+.article-content h1, .article-content h2, .article-content h3, .article-content h4 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+.article-content blockquote {
+  border-left: 4px solid var(--primary-color);
+  padding-left: 1em;
+  color: var(--text-secondary);
+  margin-bottom: 1em;
 }
 .article-content img,
 .article-content video,
@@ -241,6 +261,7 @@ h1, h2, h3 {
   max-width: 100% !important;
   height: auto !important;
   border-radius: 8px;
+  margin-bottom: 1em;
 }
 .article-content iframe {
   max-width: 100% !important;
