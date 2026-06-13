@@ -666,8 +666,8 @@ function DlsiteBlogPage({ articles = [] }) {
           )}
 
           <div 
-            className="article-content ql-editor"
-            style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem', padding: 0 }}
+            className="article-content"
+            style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
             dangerouslySetInnerHTML={{ __html: cleanContent }}
           />
         </div>
@@ -809,8 +809,8 @@ function DmmBlogPage({ articles = [] }) {
           )}
 
           <div 
-            className="article-content ql-editor"
-            style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem', padding: 0 }}
+            className="article-content"
+            style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
             dangerouslySetInnerHTML={{ __html: cleanContent }}
           />
         </div>
