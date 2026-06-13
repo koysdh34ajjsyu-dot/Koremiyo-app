@@ -621,6 +621,39 @@ function DlsiteBlogPage({ articles = [] }) {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
 
+  // DLsiteランキングウィジェットのスクリプトを動的に読み込む
+  useEffect(() => {
+    // 既存スクリプトのクリーンアップ
+    const existingConfig = document.getElementById('dlsite-blogparts-config');
+    const existingLoader = document.getElementById('dlsite-blogparts-loader');
+    if (existingConfig) existingConfig.remove();
+    if (existingLoader) existingLoader.remove();
+
+    // 少し遅延させてDOMが確実にレンダリングされた後に挿入
+    const timer = setTimeout(() => {
+      const configScript = document.createElement('script');
+      configScript.id = 'dlsite-blogparts-config';
+      configScript.type = 'text/javascript';
+      configScript.text = `blogparts={"base":"https://www.dlsite.com/","type":"ranking","site":"maniax","query":{"period":"week"},"title":"ランキング","display":"horizontal","detail":"0","column":"v","image":"large","count":"3","wrapper":"1","autorotate":true,"aid":"Koremiyoonline"}`;
+      document.body.appendChild(configScript);
+
+      const loaderScript = document.createElement('script');
+      loaderScript.id = 'dlsite-blogparts-loader';
+      loaderScript.type = 'text/javascript';
+      loaderScript.src = 'https://www.dlsite.com/js/blogparts.js';
+      loaderScript.charset = 'UTF-8';
+      document.body.appendChild(loaderScript);
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      const cfg = document.getElementById('dlsite-blogparts-config');
+      const ldr = document.getElementById('dlsite-blogparts-loader');
+      if (cfg) cfg.remove();
+      if (ldr) ldr.remove();
+    };
+  }, []);
+
   const categories = [
     { title: 'フェ◯チオが好きな方はこちら！！', desc: 'フェラ・フェラチオ好きへ管理者オススメのDLsite同人作品を紹介。フェラ音声・フェラ同人を厳選！', color: '#ff758c' },
     { title: 'スクール水着が好きな方はこちら！！', desc: 'スク水・スクール水着エロ好きへ管理者オススメのDLsite同人作品を紹介。スク水エロCG・音声を厳選！', color: '#84b6f4' },
@@ -724,6 +757,28 @@ function DlsiteBlogPage({ articles = [] }) {
           );
         })}
         {filteredArticles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
+      </div>
+
+      {/* DLsite 週間ランキングウィジェット */}
+      <div style={{ marginTop: '4rem' }}>
+        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>📊 DLsite 週間ランキング</h2>
+        <div 
+          style={{ 
+            background: 'var(--panel-bg)',
+            border: '3px solid var(--border-color)',
+            borderRadius: '24px',
+            padding: '1.5rem',
+            boxShadow: '0 10px 25px var(--shadow-color)',
+            overflowX: 'auto',       /* スマホでの横スクロール対応 */
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          {/* DLsiteのblogparts.jsがここにランキングを書き出します */}
+          <div id="dlsite-ranking-widget" style={{ minWidth: '300px' }} />
+        </div>
+        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+          ※ ランキングはDLsiteより提供されています
+        </p>
       </div>
     </div>
   );
