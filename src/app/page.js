@@ -1010,7 +1010,6 @@ function DlsiteAdmin({ articles, refreshPosts }) {
     setEditingId(article.id);
     setTitle(article.title);
     setCategory(article.category || 'フェ◯チオが好きな方はこちら！！');
-    setShowPreview(false);
     
     // キャンペーン情報の復元
     const match = (article.content || '').match(/<!--CAMPAIGN:(.*?)-->/);
@@ -1216,7 +1215,6 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
     setEditingId(article.id);
     setTitle(article.title);
     setDmmId(article.dmmId || article.dmm_id || '');
-    setShowPreview(false);
 
     // キャンペーン情報の復元
     const match = (article.content || '').match(/<!--CAMPAIGN:(.*?)-->/);
