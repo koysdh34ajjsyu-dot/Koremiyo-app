@@ -307,3 +307,15 @@ h1, h2, h3 {
   font-size: 1rem;
   background: #faf8f9;
 }
+
+/* Featured (最新) 記事カードのスマホ対応 */
+@media (max-width: 768px) {
+  .featured-card {
+    flex-direction: column !important;
+  }
+  .featured-card .featured-thumb {
+    width: 100% !important;
+    min-height: 180px !important;
+  }
+}
+

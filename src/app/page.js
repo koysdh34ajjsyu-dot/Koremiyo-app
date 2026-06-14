@@ -710,11 +710,82 @@ function DlsiteBlogPage({ articles = [] }) {
       </div>
 
       <h2 style={{ marginBottom: '1.5rem' }}>{activeCategory ? `「${activeCategory}」のレビュー` : '最新のレビュー'}</h2>
+
+      {/* 最新記事をフィーチャードカードとして強調表示 */}
+      {filteredArticles.length > 0 && !activeCategory && (() => {
+        const latest = filteredArticles[0];
+        const thumbUrl = extractThumbnail(latest.content || latest.contentHTML);
+        const { showCampaign } = renderCampaign(latest.content || latest.contentHTML);
+        const postedDate = latest.created_at ? new Date(latest.created_at).toLocaleDateString('ja-JP') : null;
+        return (
+          <div
+            className="glass-panel"
+            style={{
+              display: 'flex',
+              gap: '2rem',
+              marginBottom: '2.5rem',
+              padding: '0',
+              overflow: 'hidden',
+              borderColor: 'var(--primary-color)',
+              boxShadow: '0 12px 35px rgba(255,143,171,0.25)',
+              flexDirection: 'row',
+              cursor: 'pointer',
+              position: 'relative',
+            }}
+            onClick={() => setSelectedArticle(latest)}
+          >
+            {/* NEW バッジ */}
+            <div style={{
+              position: 'absolute', top: '1rem', left: '1rem', zIndex: 10,
+              background: 'linear-gradient(135deg, var(--primary-color), #ff758c)',
+              color: 'white', padding: '0.3rem 0.9rem', borderRadius: '50px',
+              fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '0.05em',
+              boxShadow: '0 4px 12px rgba(255,117,140,0.4)',
+            }}>✨ NEW</div>
+            {showCampaign && (
+              <div style={{
+                position: 'absolute', top: '1rem', right: '1rem', zIndex: 10,
+                background: 'linear-gradient(45deg, #84b6f4, #b088f9)',
+                color: 'white', padding: '0.3rem 0.9rem', borderRadius: '50px',
+                fontWeight: 'bold', fontSize: '0.8rem',
+              }}>🔥 キャンペーン中</div>
+            )}
+            {/* サムネイル */}
+            <div style={{
+              width: '45%', minHeight: '240px', flexShrink: 0,
+              background: thumbUrl ? 'none' : 'linear-gradient(135deg, rgba(255,179,198,0.3), rgba(160,196,255,0.3))',
+              overflow: 'hidden',
+            }}>
+              {thumbUrl
+                ? <img src={thumbUrl} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>📝</div>
+              }
+            </div>
+            {/* テキスト */}
+            <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.8rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
+                <span style={{ color: 'var(--accent-color)', fontSize: '0.85rem', fontWeight: 'bold' }}>{latest.category || latest.tag}</span>
+                {postedDate && <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>📅 {postedDate}</span>}
+              </div>
+              <h2 style={{ fontSize: '1.5rem', lineHeight: '1.4', margin: 0, color: 'var(--text-primary)' }}>{latest.title}</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
+                {(latest.content || '').replace(/<[^>]+>/g, '').slice(0, 120)}{(latest.content || '').length > 120 ? '…' : ''}
+              </p>
+              <button
+                className="btn btn-primary"
+                style={{ width: 'fit-content', padding: '0.6rem 1.8rem', fontSize: '0.95rem' }}
+                onClick={(e) => { e.stopPropagation(); setSelectedArticle(latest); }}
+              >記事を読む →</button>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* 残りの記事グリッド */}
       <div className="grid grid-cols-3" style={{ gap: '2rem' }}>
-        {filteredArticles.map(item => {
+        {(activeCategory ? filteredArticles : filteredArticles.slice(1)).map(item => {
           const thumbUrl = extractThumbnail(item.content || item.contentHTML);
           const { showCampaign } = renderCampaign(item.content || item.contentHTML);
-
           return (
             <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative' }}>
               {showCampaign && (
@@ -825,11 +896,78 @@ function DmmBlogPage({ articles = [] }) {
         <p style={{ color: 'var(--text-secondary)' }}>FANZA/DMMの注目作品や名作を独自の視点で徹底レビュー</p>
       </div>
 
+      {/* 最新記事フィーチャードカード */}
+      {articles.length > 0 && (() => {
+        const latest = articles[0];
+        const thumbUrl = extractThumbnail(latest.content || latest.contentHTML);
+        const { showCampaign } = renderCampaign(latest.content || latest.contentHTML);
+        const postedDate = latest.created_at ? new Date(latest.created_at).toLocaleDateString('ja-JP') : null;
+        return (
+          <div
+            className="glass-panel"
+            style={{
+              display: 'flex',
+              gap: '2rem',
+              marginBottom: '2.5rem',
+              padding: '0',
+              overflow: 'hidden',
+              borderColor: 'var(--primary-color)',
+              boxShadow: '0 12px 35px rgba(255,143,171,0.25)',
+              cursor: 'pointer',
+              position: 'relative',
+            }}
+            onClick={() => setSelectedArticle(latest)}
+          >
+            <div style={{
+              position: 'absolute', top: '1rem', left: '1rem', zIndex: 10,
+              background: 'linear-gradient(135deg, var(--primary-color), #ff758c)',
+              color: 'white', padding: '0.3rem 0.9rem', borderRadius: '50px',
+              fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '0.05em',
+              boxShadow: '0 4px 12px rgba(255,117,140,0.4)',
+            }}>✨ NEW</div>
+            {showCampaign && (
+              <div style={{
+                position: 'absolute', top: '1rem', right: '1rem', zIndex: 10,
+                background: 'linear-gradient(45deg, #ff0033, #ff758c)',
+                color: 'white', padding: '0.3rem 0.9rem', borderRadius: '50px',
+                fontWeight: 'bold', fontSize: '0.8rem',
+              }}>🔥 キャンペーン中</div>
+            )}
+            <div style={{
+              width: '45%', minHeight: '240px', flexShrink: 0,
+              background: thumbUrl ? 'none' : 'linear-gradient(135deg, rgba(255,179,198,0.3), rgba(160,196,255,0.3))',
+              overflow: 'hidden',
+            }}>
+              {thumbUrl
+                ? <img src={thumbUrl} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>📝</div>
+              }
+            </div>
+            <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.8rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
+                <span style={{ color: 'var(--primary-color)', fontSize: '0.85rem', fontWeight: 'bold' }}>FANZA動画</span>
+                {postedDate && <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>📅 {postedDate}</span>}
+              </div>
+              <h2 style={{ fontSize: '1.5rem', lineHeight: '1.4', margin: 0 }}>{latest.title}</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
+                {(latest.content || '').replace(/<[^>]+>/g, '').slice(0, 120)}{(latest.content || '').length > 120 ? '…' : ''}
+              </p>
+              <button
+                className="btn btn-primary"
+                style={{ width: 'fit-content', padding: '0.6rem 1.8rem', fontSize: '0.95rem' }}
+                onClick={(e) => { e.stopPropagation(); setSelectedArticle(latest); }}
+              >記事を読む →</button>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* 残りの記事グリッド */}
+      {articles.length > 1 && <h2 style={{ marginBottom: '1.5rem' }}>その他のレビュー</h2>}
       <div className="grid grid-cols-3" style={{ gap: '2rem' }}>
-        {articles.map(item => {
+        {articles.slice(1).map(item => {
           const thumbUrl = extractThumbnail(item.content || item.contentHTML);
           const { showCampaign } = renderCampaign(item.content || item.contentHTML);
-
           return (
             <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative' }}>
               {showCampaign && (
