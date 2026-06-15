@@ -698,49 +698,77 @@ function TopPage({ navigateTo }) {
   );
 }
 
-function DmmToolsPage({ navigateTo }) {
+function UnifiedDmmDashboard() {
+  const [activeTab, setActiveTab] = useState('inspector');
+
+  const navItems = [
+    { id: 'inspector', icon: '🕵️‍♀️', label: 'ディープアナライザー', desc: 'URLから裏情報を抽出' },
+    { id: 'product', icon: '🔍', label: '商品検索ツール', desc: '詳細条件で作品検索' },
+    { id: 'actress', icon: '👩', label: '女優データベース', desc: '女優プロフィール検索' },
+    { id: 'trending', icon: '📈', label: 'トレンド分析', desc: '人気キーワード可視化' },
+    { id: 'calendar', icon: '📅', label: '新作カレンダー', desc: '近日発売作品一覧' },
+  ];
+
   return (
-    <div className="container animate-fade-in">
-      <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>DMMツール / FANZAツール ポータル</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>FANZA・DMM APIを活用した商品検索・女優データベース・トレンド分析など、強力な検索・分析ツール群</p>
+    <div className="container animate-fade-in" style={{ maxWidth: '1400px' }}>
+      <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>DMMツール / FANZA 統合ダッシュボード</h1>
+        <p style={{ color: 'var(--text-secondary)' }}>各ツールを横断的に切り替えてシームレスに分析・検索を行えます</p>
       </div>
 
-      <div className="grid grid-cols-3" style={{ marginBottom: '3rem' }}>
-        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center', position: 'relative', overflow: 'hidden' }} onClick={() => navigateTo('dmm-deep-inspector')}>
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: 'linear-gradient(90deg, #ff7eb3, #ff758c)' }}></div>
-          <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#ff7eb3', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '50px', fontSize: '0.7rem', fontWeight: 'bold' }}>NEW</div>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem', marginTop: '1rem' }}>🕵️‍♀️</div>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>作品ディープアナライザー</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>URLから価格・スリーサイズ等の裏情報を一括抽出</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        {/* レスポンシブメニュー */}
+        <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', background: 'var(--glass-bg)', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border-color)', justifyContent: 'center' }}>
+          {navItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              style={{
+                background: activeTab === item.id ? 'var(--primary-color)' : 'var(--panel-bg)',
+                color: activeTab === item.id ? '#fff' : 'var(--text-primary)',
+                border: `2px solid ${activeTab === item.id ? 'var(--primary-color)' : 'transparent'}`,
+                padding: '0.8rem 1.2rem',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.8rem',
+                fontWeight: activeTab === item.id ? 'bold' : 'normal',
+                transition: 'all 0.2s ease',
+                flex: '1 1 auto',
+                minWidth: '220px',
+                maxWidth: '280px',
+                boxShadow: activeTab === item.id ? '0 4px 12px rgba(255,117,140,0.3)' : 'none'
+              }}
+              className="hover-card"
+            >
+              <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: '1rem' }}>{item.label}</div>
+                <div style={{ fontSize: '0.75rem', opacity: activeTab === item.id ? 0.9 : 0.6 }}>{item.desc}</div>
+              </div>
+            </button>
+          ))}
         </div>
-        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => navigateTo('dmm-product-search')}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>商品検索ツール</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>各種条件でDMM/FANZAの商品を柔軟に検索・抽出</p>
-        </div>
-        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => navigateTo('dmm-actress-search')}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👩</div>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>女優データベース検索</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>名前や詳細なプロフィールから女優情報を検索</p>
-        </div>
-        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => navigateTo('dmm-trending')}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📈</div>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>トレンド分析ダッシュボード</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>人気キーワードやジャンルの傾向をグラフで可視化</p>
-        </div>
-        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => navigateTo('dmm-calendar')}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>新作発売カレンダー</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>近日発売の注目作品をカレンダー形式で一覧表示</p>
-        </div>
-      </div>
 
-      <h2 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', color: 'var(--text-secondary)' }}>🚀 近日公開予定のツール</h2>
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', opacity: 0.7, marginBottom: '2rem' }}>
-        <span style={{ background: 'var(--glass-bg)', padding: '0.5rem 1.2rem', borderRadius: '50px', fontSize: '0.9rem', border: '1px solid var(--border-color)' }}>📉 セール・価格トラッキング</span>
-        <span style={{ background: 'var(--glass-bg)', padding: '0.5rem 1.2rem', borderRadius: '50px', fontSize: '0.9rem', border: '1px solid var(--border-color)' }}>🤖 おすすめ作品自動生成AI</span>
-        <span style={{ background: 'var(--glass-bg)', padding: '0.5rem 1.2rem', borderRadius: '50px', fontSize: '0.9rem', border: '1px solid var(--border-color)' }}>📱 ユーザーお気に入り保存機能</span>
+        {/* ツール描画領域 (display: noneでステートを保持) */}
+        <div style={{ minHeight: '600px' }}>
+          <div style={{ display: activeTab === 'inspector' ? 'block' : 'none' }}>
+            <ProductDeepInspector />
+          </div>
+          <div style={{ display: activeTab === 'product' ? 'block' : 'none' }}>
+            <RealProductSearch />
+          </div>
+          <div style={{ display: activeTab === 'actress' ? 'block' : 'none' }}>
+            <RealActressSearch />
+          </div>
+          <div style={{ display: activeTab === 'trending' ? 'block' : 'none' }}>
+            <TrendingAnalyticsDashboard />
+          </div>
+          <div style={{ display: activeTab === 'calendar' ? 'block' : 'none' }}>
+            <DmmReleaseCalendar />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1761,38 +1789,7 @@ export default function Page() {
 
       <main style={{ flex: 1, padding: '2rem 0' }}>
         {currentPage === 'top' && <TopPage navigateTo={setCurrentPage} />}
-        {currentPage === 'dmm' && <DmmToolsPage navigateTo={setCurrentPage} />}
-        
-        {currentPage === 'dmm-deep-inspector' && (
-          <div className="container animate-fade-in">
-             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
-             <ProductDeepInspector />
-          </div>
-        )}
-        {currentPage === 'dmm-product-search' && (
-          <div className="container animate-fade-in">
-             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
-             <RealProductSearch />
-          </div>
-        )}
-        {currentPage === 'dmm-actress-search' && (
-          <div className="container animate-fade-in">
-             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
-             <RealActressSearch />
-          </div>
-        )}
-        {currentPage === 'dmm-trending' && (
-          <div className="container animate-fade-in">
-             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
-             <TrendingAnalyticsDashboard />
-          </div>
-        )}
-        {currentPage === 'dmm-calendar' && (
-          <div className="container animate-fade-in">
-             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
-             <DmmReleaseCalendar />
-          </div>
-        )}
+        {currentPage === 'dmm' && <UnifiedDmmDashboard />}
 
         {currentPage === 'dmm-blog' && <DmmBlogPage articles={dmmArticles} />}
         {currentPage === 'dlsite' && <DlsiteBlogPage articles={dlsiteArticles} />}
