@@ -504,6 +504,148 @@ function DmmReleaseCalendar() {
   );
 }
 
+function ProductDeepInspector() {
+  const [inputUrl, setInputUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [productData, setProductData] = useState(null);
+  const [actressesData, setActressesData] = useState([]);
+  const [error, setError] = useState('');
+
+  const handleAnalyze = async () => {
+    if (!inputUrl.trim()) return;
+    setLoading(true);
+    setError('');
+    setProductData(null);
+    setActressesData([]);
+
+    try {
+      let queryParam = '';
+      const cidMatch = inputUrl.match(/cid=([a-zA-Z0-9]+)/);
+      if (cidMatch) {
+        queryParam = `cid=${cidMatch[1]}`;
+      } else {
+        queryParam = `keyword=${encodeURIComponent(inputUrl)}`;
+      }
+
+      const pRes = await fetch(`/api/dmm/product?site=FANZA&${queryParam}&hits=1`);
+      const pData = await pRes.json();
+
+      if (!pData.result?.items || pData.result.items.length === 0) {
+        setError('作品が見つかりませんでした。正しいURLかキーワードを入力してください。');
+        setLoading(false);
+        return;
+      }
+
+      const product = pData.result.items[0];
+      setProductData(product);
+
+      if (product.iteminfo?.actress) {
+        const actressPromises = product.iteminfo.actress.map(async (act) => {
+          const aRes = await fetch(`/api/dmm/actress?actress_id=${act.id}`);
+          const aData = await aRes.json();
+          if (aData.result?.actress && aData.result.actress.length > 0) {
+            return aData.result.actress[0];
+          }
+          return null;
+        });
+
+        const fetchedActresses = await Promise.all(actressPromises);
+        setActressesData(fetchedActresses.filter(a => a !== null));
+      }
+
+    } catch (err) {
+      console.error(err);
+      setError('情報の取得に失敗しました。');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="glass-panel animate-fade-in" style={{ marginBottom: '3rem' }}>
+      <h2 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        🕵️‍♀️ 作品ディープアナライザー
+      </h2>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+        DMM/FANZAの作品URLやタイトルを入力すると、価格・収録時間に加え、出演女優の隠されたプロフィール（スリーサイズ等）を一気に抽出します。
+      </p>
+
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+        <input 
+          type="text" 
+          value={inputUrl}
+          onChange={(e) => setInputUrl(e.target.value)}
+          placeholder="作品URL (例: https://www.dmm.co.jp/.../cid=...) または タイトル" 
+          style={{ flex: '1 1 300px', padding: '1rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem' }}
+        />
+        <button className="btn btn-primary" onClick={handleAnalyze} disabled={loading} style={{ padding: '0 2rem' }}>
+          {loading ? '解析中...' : '解析する'}
+        </button>
+      </div>
+
+      {error && <p style={{ color: 'red', marginBottom: '1rem', fontWeight: 'bold' }}>{error}</p>}
+
+      {productData && (
+        <div className="animate-fade-in" style={{ background: 'rgba(255,255,255,0.5)', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+            <div style={{ width: '300px', flexShrink: 0 }}>
+              <img src={productData.imageURL?.large} alt={productData.title} style={{ width: '100%', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+            </div>
+            <div style={{ flex: 1, minWidth: '300px' }}>
+              <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>{productData.title}</h3>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ background: 'var(--panel-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>販売価格</p>
+                  <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#ff0033' }}>{productData.prices?.price ? `${productData.prices.price}円` : '未定'}</p>
+                </div>
+                <div style={{ background: 'var(--panel-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>収録時間</p>
+                  <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{productData.volume ? `${productData.volume}分` : '不明'}</p>
+                </div>
+                <div style={{ background: 'var(--panel-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>平均評価</p>
+                  <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#ffb3c6' }}>⭐ {productData.review?.average || '評価なし'}</p>
+                </div>
+                <div style={{ background: 'var(--panel-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>配信開始日</p>
+                  <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.3rem' }}>{productData.date ? productData.date.substring(0,10) : '不明'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h4 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem', color: 'var(--primary-color)' }}>👩 出演女優の裏プロフィール</h4>
+          {actressesData.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+              {actressesData.map(act => (
+                <div key={act.id} style={{ background: 'var(--panel-bg)', padding: '1.5rem', borderRadius: '12px', border: '2px solid var(--primary-color)', position: 'relative', boxShadow: '0 4px 12px rgba(255,179,198,0.2)' }}>
+                  <h5 style={{ fontSize: '1.3rem', margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>{act.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>{act.ruby}</span></h5>
+                  
+                  <div style={{ background: 'rgba(255,179,198,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold', color: '#ff758c', textAlign: 'center', fontSize: '1.2rem' }}>
+                      B{act.bust || '?'} ({act.cup || '?'}カップ) / W{act.waist || '?'} / H{act.hip || '?'}
+                    </p>
+                  </div>
+
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '0.95rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <li><strong style={{ color: 'var(--text-primary)' }}>身長:</strong> {act.height ? `${act.height}cm` : '不明'}</li>
+                    <li><strong style={{ color: 'var(--text-primary)' }}>誕生日:</strong> {act.birthday || '不明'}</li>
+                    <li><strong style={{ color: 'var(--text-primary)' }}>血液型:</strong> {act.blood_type ? `${act.blood_type}型` : '不明'}</li>
+                    <li><strong style={{ color: 'var(--text-primary)' }}>趣味・特技:</strong> {act.hobby || '不明'}</li>
+                    <li><strong style={{ color: 'var(--text-primary)' }}>出身地:</strong> {act.prefectures || '不明'}</li>
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: 'var(--text-secondary)' }}>出演女優の詳細情報が見つかりませんでした。</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // --- Pages ---
 function TopPage({ navigateTo }) {
   return (
@@ -565,6 +707,13 @@ function DmmToolsPage({ navigateTo }) {
       </div>
 
       <div className="grid grid-cols-3" style={{ marginBottom: '3rem' }}>
+        <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center', position: 'relative', overflow: 'hidden' }} onClick={() => navigateTo('dmm-deep-inspector')}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: 'linear-gradient(90deg, #ff7eb3, #ff758c)' }}></div>
+          <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#ff7eb3', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '50px', fontSize: '0.7rem', fontWeight: 'bold' }}>NEW</div>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem', marginTop: '1rem' }}>🕵️‍♀️</div>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>作品ディープアナライザー</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>URLから価格・スリーサイズ等の裏情報を一括抽出</p>
+        </div>
         <div className="glass-panel hover-card" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => navigateTo('dmm-product-search')}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
           <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>商品検索ツール</h2>
@@ -1614,6 +1763,12 @@ export default function Page() {
         {currentPage === 'top' && <TopPage navigateTo={setCurrentPage} />}
         {currentPage === 'dmm' && <DmmToolsPage navigateTo={setCurrentPage} />}
         
+        {currentPage === 'dmm-deep-inspector' && (
+          <div className="container animate-fade-in">
+             <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
+             <ProductDeepInspector />
+          </div>
+        )}
         {currentPage === 'dmm-product-search' && (
           <div className="container animate-fade-in">
              <button className="btn btn-outline" style={{ marginBottom: '1.5rem' }} onClick={() => setCurrentPage('dmm')}>← DMMツールポータルに戻る</button>
