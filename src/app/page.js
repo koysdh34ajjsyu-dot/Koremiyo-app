@@ -1335,7 +1335,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
     setLoading(true);
     
     if (editingId) {
-      const { error } = await supabase.from('posts').update({ title, content: finalContent, category }).eq('id', editingId);
+      const { error } = await supabase.from('posts').update({ title, content: finalContent, category, created_at: new Date().toISOString() }).eq('id', editingId);
       if (error) { alert('更新に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     } else {
       const { error } = await supabase.from('posts').insert([{ site: 'dlsite', title, content: finalContent, category }]);
@@ -1573,7 +1573,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
     setLoading(true);
 
     if (editingId) {
-      const { error } = await supabase.from('posts').update({ title, content: finalContent, dmm_id: dmmId }).eq('id', editingId);
+      const { error } = await supabase.from('posts').update({ title, content: finalContent, dmm_id: dmmId, created_at: new Date().toISOString() }).eq('id', editingId);
       if (error) { alert('更新に失敗しました: ' + JSON.stringify(error)); console.error(error); }
     } else {
       const { error } = await supabase.from('posts').insert([{ site: 'dmm', title, content: finalContent, dmm_id: dmmId }]);
@@ -1807,7 +1807,7 @@ export default function Page() {
     const { data, error } = await supabase
       .from('posts')
       .select('*')
-      .order('id', { ascending: false });
+      .order('created_at', { ascending: false });
     
     if (data) {
       setDlsiteArticles(data.filter(post => post.site === 'dlsite'));
