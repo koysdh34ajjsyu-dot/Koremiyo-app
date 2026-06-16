@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { supabase } from '../lib/supabase';
 import './globals.css';
@@ -1283,6 +1283,33 @@ function DlsiteAdmin({ articles, refreshPosts }) {
   const [category, setCategory] = useState('フェ◯チオが好きな方はこちら！！');
   const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [loading, setLoading] = useState(false);
+  const quillRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  const insertLineBreak = () => {
+    if (isHtmlMode) {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const newContent = content.substring(0, start) + '<br>\n' + content.substring(end);
+      setContent(newContent);
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + 5;
+        textarea.focus();
+      }, 0);
+    } else {
+      const quill = quillRef.current?.getEditor();
+      if (!quill) return;
+      const range = quill.getSelection(true);
+      if (range) {
+        quill.clipboard.dangerouslyPasteHTML(range.index, '<p><br></p>');
+        quill.setSelection(range.index + 1);
+      } else {
+        setContent(prev => prev + '<p><br></p>');
+      }
+    }
+  };
 
   // キャンペーン設定用ステート
   const [campaignEnabled, setCampaignEnabled] = useState(false);
@@ -1379,6 +1406,9 @@ function DlsiteAdmin({ articles, refreshPosts }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DLsite)' : '新規記事作成 (DLsite)'}</h3>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn btn-outline" onClick={insertLineBreak} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
+                ↙️ 空白行(改行)を追加
+              </button>
               <button className={`btn ${!isHtmlMode ? 'btn-primary' : 'btn-outline'}`} onClick={() => setIsHtmlMode(false)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
                 🎨 リッチエディタ
               </button>
@@ -1392,6 +1422,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
           <div style={{ marginBottom: '1rem', background: '#fff', borderRadius: '12px', border: '2px solid var(--border-color)', overflow: 'hidden' }}>
             {!isHtmlMode ? (
               <ReactQuill 
+                ref={quillRef}
                 theme="snow" 
                 value={content} 
                 onChange={setContent} 
@@ -1410,6 +1441,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
               />
             ) : (
               <textarea 
+                ref={textareaRef}
                 value={content} 
                 onChange={e => setContent(e.target.value)} 
                 placeholder="アフィリエイト用のHTMLコードや生のタグをここに記述..." 
@@ -1489,6 +1521,33 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
   const [dmmId, setDmmId] = useState('');
   const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [loading, setLoading] = useState(false);
+  const quillRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  const insertLineBreak = () => {
+    if (isHtmlMode) {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const newContent = content.substring(0, start) + '<br>\n' + content.substring(end);
+      setContent(newContent);
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + 5;
+        textarea.focus();
+      }, 0);
+    } else {
+      const quill = quillRef.current?.getEditor();
+      if (!quill) return;
+      const range = quill.getSelection(true);
+      if (range) {
+        quill.clipboard.dangerouslyPasteHTML(range.index, '<p><br></p>');
+        quill.setSelection(range.index + 1);
+      } else {
+        setContent(prev => prev + '<p><br></p>');
+      }
+    }
+  };
 
   // キャンペーン設定用ステート
   const [campaignEnabled, setCampaignEnabled] = useState(false);
@@ -1586,6 +1645,9 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DMM)' : '新規記事作成 (DMM)'}</h3>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn btn-outline" onClick={insertLineBreak} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
+                ↙️ 空白行(改行)を追加
+              </button>
               <button className={`btn ${!isHtmlMode ? 'btn-primary' : 'btn-outline'}`} onClick={() => setIsHtmlMode(false)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
                 🎨 リッチエディタ
               </button>
@@ -1599,6 +1661,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
           <div style={{ marginBottom: '1rem', background: '#fff', borderRadius: '12px', border: '2px solid var(--border-color)', overflow: 'hidden' }}>
             {!isHtmlMode ? (
               <ReactQuill 
+                ref={quillRef}
                 theme="snow" 
                 value={content} 
                 onChange={setContent} 
@@ -1617,6 +1680,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
               />
             ) : (
               <textarea 
+                ref={textareaRef}
                 value={content} 
                 onChange={e => setContent(e.target.value)} 
                 placeholder="アフィリエイト用のHTMLコードや生のタグをここに記述..." 
