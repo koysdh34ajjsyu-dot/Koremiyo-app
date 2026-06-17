@@ -1809,7 +1809,17 @@ function FeedbackAdmin() {
     if (!error) {
       setFeedbacks(feedbacks.map(f => f.id === id ? { ...f, status: newStatus } : f));
     } else {
-      alert('ステータスの更新に失敗しました');
+      alert('ステータスの更新に失敗しました: ' + error.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('本当にこのフィードバックを削除しますか？')) return;
+    const { error } = await supabase.from('feedbacks').delete().eq('id', id);
+    if (!error) {
+      setFeedbacks(feedbacks.filter(f => f.id !== id));
+    } else {
+      alert('削除に失敗しました: ' + error.message);
     }
   };
 
@@ -1838,10 +1848,11 @@ function FeedbackAdmin() {
                 <span>{getStatusLabel(f.status)}</span>
               </div>
               <p style={{ whiteSpace: 'pre-wrap', marginBottom: '1.5rem', lineHeight: '1.6' }}>{f.content}</p>
-              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap', alignItems: 'center' }}>
                 <button className={`btn ${f.status === 'new' ? 'btn-primary' : 'btn-outline'}`} onClick={() => handleStatusChange(f.id, 'new')} style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}>新規</button>
                 <button className={`btn ${f.status === 'in_progress' ? 'btn-primary' : 'btn-outline'}`} onClick={() => handleStatusChange(f.id, 'in_progress')} style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}>対応中</button>
                 <button className={`btn ${f.status === 'resolved' ? 'btn-primary' : 'btn-outline'}`} onClick={() => handleStatusChange(f.id, 'resolved')} style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}>完了</button>
+                <button className="btn btn-outline" onClick={() => handleDelete(f.id)} style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', color: '#ff4444', borderColor: '#ff4444', marginLeft: 'auto' }}>🗑️ 削除</button>
               </div>
             </div>
           ))}
