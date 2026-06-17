@@ -1304,16 +1304,16 @@ function DlsiteAdmin({ articles, refreshPosts }) {
   const quillRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const insertLineBreak = () => {
+  const insertHtmlSnippet = (snippet) => {
     if (isHtmlMode) {
       const textarea = textareaRef.current;
       if (!textarea) return;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
-      const newContent = content.substring(0, start) + '<br>\n' + content.substring(end);
+      const newContent = content.substring(0, start) + snippet + content.substring(end);
       setContent(newContent);
       setTimeout(() => {
-        textarea.selectionStart = textarea.selectionEnd = start + 5;
+        textarea.selectionStart = textarea.selectionEnd = start + snippet.length;
         textarea.focus();
       }, 0);
     } else {
@@ -1321,10 +1321,10 @@ function DlsiteAdmin({ articles, refreshPosts }) {
       if (!quill) return;
       const range = quill.getSelection(true);
       if (range) {
-        quill.clipboard.dangerouslyPasteHTML(range.index, '<p><br></p>');
+        quill.clipboard.dangerouslyPasteHTML(range.index, snippet);
         quill.setSelection(range.index + 1);
       } else {
-        setContent(prev => prev + '<p><br></p>');
+        setContent(prev => prev + snippet);
       }
     }
   };
@@ -1424,7 +1424,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DLsite)' : '新規記事作成 (DLsite)'}</h3>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="btn btn-outline" onClick={insertLineBreak} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
+              <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<br>\\n')} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
                 ↙️ 空白行(改行)を追加
               </button>
               <button className={`btn ${!isHtmlMode ? 'btn-primary' : 'btn-outline'}`} onClick={() => setIsHtmlMode(false)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
@@ -1458,13 +1458,22 @@ function DlsiteAdmin({ articles, refreshPosts }) {
                 }}
               />
             ) : (
-              <textarea 
-                ref={textareaRef}
-                value={content} 
-                onChange={e => setContent(e.target.value)} 
-                placeholder="アフィリエイト用のHTMLコードや生のタグをここに記述..." 
-                style={{ width: '100%', minHeight: '342px', padding: '1rem', border: 'none', outline: 'none', fontSize: '1rem', resize: 'vertical', fontFamily: 'monospace', background: '#2d2d2d', color: '#e0e0e0', margin: 0, display: 'block' }}
-              />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ padding: '0.5rem', background: '#1e1e1e', borderBottom: '1px solid #444', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="color: #ff758c;">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🎨 文字色</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="font-size: 1.5rem; font-weight: bold;">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🅰️ 大文字</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('\\n<ul>\\n  <li>リスト1</li>\\n  <li>リスト2</li>\\n</ul>\\n')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>📝 リスト</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('\\n<table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">\\n  <tr><th style="padding: 0.5rem; background: #444;">見出し</th></tr>\\n  <tr><td style="padding: 0.5rem;">内容</td></tr>\\n</table>\\n')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>📊 表</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<a href="URL" target="_blank" rel="noopener sponsored">リンクテキスト</a>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🔗 リンク</button>
+                </div>
+                <textarea 
+                  ref={textareaRef}
+                  value={content} 
+                  onChange={e => setContent(e.target.value)} 
+                  placeholder="アフィリエイト用のHTMLコードや生のタグをここに記述..." 
+                  style={{ width: '100%', minHeight: '342px', padding: '1rem', border: 'none', outline: 'none', fontSize: '1rem', resize: 'vertical', fontFamily: 'monospace', background: '#2d2d2d', color: '#e0e0e0', margin: 0, display: 'block' }}
+                />
+              </div>
             )}
           </div>
 
@@ -1542,16 +1551,16 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
   const quillRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const insertLineBreak = () => {
+  const insertHtmlSnippet = (snippet) => {
     if (isHtmlMode) {
       const textarea = textareaRef.current;
       if (!textarea) return;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
-      const newContent = content.substring(0, start) + '<br>\n' + content.substring(end);
+      const newContent = content.substring(0, start) + snippet + content.substring(end);
       setContent(newContent);
       setTimeout(() => {
-        textarea.selectionStart = textarea.selectionEnd = start + 5;
+        textarea.selectionStart = textarea.selectionEnd = start + snippet.length;
         textarea.focus();
       }, 0);
     } else {
@@ -1559,10 +1568,10 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
       if (!quill) return;
       const range = quill.getSelection(true);
       if (range) {
-        quill.clipboard.dangerouslyPasteHTML(range.index, '<p><br></p>');
+        quill.clipboard.dangerouslyPasteHTML(range.index, snippet);
         quill.setSelection(range.index + 1);
       } else {
-        setContent(prev => prev + '<p><br></p>');
+        setContent(prev => prev + snippet);
       }
     }
   };
@@ -1663,7 +1672,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DMM)' : '新規記事作成 (DMM)'}</h3>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="btn btn-outline" onClick={insertLineBreak} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
+              <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<br>\\n')} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
                 ↙️ 空白行(改行)を追加
               </button>
               <button className={`btn ${!isHtmlMode ? 'btn-primary' : 'btn-outline'}`} onClick={() => setIsHtmlMode(false)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
@@ -1697,13 +1706,22 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
                 }}
               />
             ) : (
-              <textarea 
-                ref={textareaRef}
-                value={content} 
-                onChange={e => setContent(e.target.value)} 
-                placeholder="アフィリエイト用のHTMLコードや生のタグをここに記述..." 
-                style={{ width: '100%', minHeight: '342px', padding: '1rem', border: 'none', outline: 'none', fontSize: '1rem', resize: 'vertical', fontFamily: 'monospace', background: '#2d2d2d', color: '#e0e0e0', margin: 0, display: 'block' }}
-              />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ padding: '0.5rem', background: '#1e1e1e', borderBottom: '1px solid #444', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="color: #ff758c;">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🎨 文字色</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="font-size: 1.5rem; font-weight: bold;">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🅰️ 大文字</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('\\n<ul>\\n  <li>リスト1</li>\\n  <li>リスト2</li>\\n</ul>\\n')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>📝 リスト</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('\\n<table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">\\n  <tr><th style="padding: 0.5rem; background: #444;">見出し</th></tr>\\n  <tr><td style="padding: 0.5rem;">内容</td></tr>\\n</table>\\n')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>📊 表</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<a href="URL" target="_blank" rel="noopener sponsored">リンクテキスト</a>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🔗 リンク</button>
+                </div>
+                <textarea 
+                  ref={textareaRef}
+                  value={content} 
+                  onChange={e => setContent(e.target.value)} 
+                  placeholder="アフィリエイト用のHTMLコードや生のタグをここに記述..." 
+                  style={{ width: '100%', minHeight: '342px', padding: '1rem', border: 'none', outline: 'none', fontSize: '1rem', resize: 'vertical', fontFamily: 'monospace', background: '#2d2d2d', color: '#e0e0e0', margin: 0, display: 'block' }}
+                />
+              </div>
             )}
           </div>
 
