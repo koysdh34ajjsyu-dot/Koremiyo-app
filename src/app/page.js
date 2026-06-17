@@ -15,6 +15,24 @@ const extractThumbnail = (html) => {
   return match ? match[1] : null;
 };
 
+function SafeHtmlRenderer({ html, className, style }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const container = containerRef.current;
+    const scripts = Array.from(container.querySelectorAll('script'));
+    scripts.forEach(oldScript => {
+      const newScript = document.createElement('script');
+      Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+      if (oldScript.innerHTML) newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+      if (oldScript.parentNode) oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
+  }, [html]);
+
+  return <div ref={containerRef} className={className} style={style} dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
 // --- Components ---
 function RealProductSearch() {
   const [keyword, setKeyword] = useState('');
@@ -842,10 +860,10 @@ function DlsiteBlogPage({ articles = [] }) {
             </div>
           )}
 
-          <div 
+          <SafeHtmlRenderer 
             className="article-content"
             style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
-            dangerouslySetInnerHTML={{ __html: cleanContent }}
+            html={cleanContent}
           />
         </div>
       </div>
@@ -1056,10 +1074,10 @@ function DmmBlogPage({ articles = [] }) {
             </div>
           )}
 
-          <div 
+          <SafeHtmlRenderer 
             className="article-content"
             style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
-            dangerouslySetInnerHTML={{ __html: cleanContent }}
+            html={cleanContent}
           />
         </div>
       </div>
