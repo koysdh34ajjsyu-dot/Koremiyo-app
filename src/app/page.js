@@ -1788,6 +1788,69 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
   );
 }
 
+function FeedbackAdmin() {
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFeedbacks();
+  }, []);
+
+  const fetchFeedbacks = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('feedbacks').select('*').order('created_at', { ascending: false });
+    if (data) setFeedbacks(data);
+    if (error) console.error(error);
+    setLoading(false);
+  };
+
+  const handleStatusChange = async (id, newStatus) => {
+    const { error } = await supabase.from('feedbacks').update({ status: newStatus }).eq('id', id);
+    if (!error) {
+      setFeedbacks(feedbacks.map(f => f.id === id ? { ...f, status: newStatus } : f));
+    } else {
+      alert('ステータスの更新に失敗しました');
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch(status) {
+      case 'new': return <span style={{ color: '#ff758c', fontWeight: 'bold', background: 'rgba(255,117,140,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>新規</span>;
+      case 'in_progress': return <span style={{ color: '#ff7eb3', fontWeight: 'bold', background: 'rgba(255,126,179,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>対応中</span>;
+      case 'resolved': return <span style={{ color: '#aaa', fontWeight: 'bold', background: 'rgba(170,170,170,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>完了</span>;
+      default: return status;
+    }
+  };
+
+  return (
+    <div className="animate-fade-in">
+      <h2 style={{ marginBottom: '2rem', borderBottom: '3px solid var(--primary-color)', paddingBottom: '0.5rem', display: 'inline-block' }}>
+        📩 フィードバック管理
+      </h2>
+      <button className="btn btn-outline" onClick={fetchFeedbacks} style={{ marginBottom: '1.5rem', display: 'block' }}>🔄 更新</button>
+      
+      {loading ? <p>読み込み中...</p> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {feedbacks.length === 0 ? <p>フィードバックはまだありません。</p> : feedbacks.map(f => (
+            <div key={f.id} className="glass-panel" style={{ padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{new Date(f.created_at).toLocaleString('ja-JP')}</span>
+                <span>{getStatusLabel(f.status)}</span>
+              </div>
+              <p style={{ whiteSpace: 'pre-wrap', marginBottom: '1.5rem', lineHeight: '1.6' }}>{f.content}</p>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                <button className={`btn ${f.status === 'new' ? 'btn-primary' : 'btn-outline'}`} onClick={() => handleStatusChange(f.id, 'new')} style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}>新規</button>
+                <button className={`btn ${f.status === 'in_progress' ? 'btn-primary' : 'btn-outline'}`} onClick={() => handleStatusChange(f.id, 'in_progress')} style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}>対応中</button>
+                <button className={`btn ${f.status === 'resolved' ? 'btn-primary' : 'btn-outline'}`} onClick={() => handleStatusChange(f.id, 'resolved')} style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}>完了</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [adminMode, setAdminMode] = useState(null);
@@ -1800,7 +1863,7 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
     return (
       <div className="container animate-fade-in" style={{ marginTop: '2rem' }}>
         <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>管理者ダッシュボード</h1>
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
           <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dmm')}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🛠</div>
             <h2 style={{ marginBottom: '1rem' }}>DMMツール管理</h2>
@@ -1812,6 +1875,10 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
           <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dlsite')}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✍️</div>
             <h2 style={{ marginBottom: '1rem' }}>DLsiteブログ投稿</h2>
+          </div>
+          <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('feedback')}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📩</div>
+            <h2 style={{ marginBottom: '1rem' }}>フィードバック管理</h2>
           </div>
         </div>
       </div>
@@ -1826,7 +1893,94 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
       {adminMode === 'dmm' && <DmmAdmin />}
       {adminMode === 'dlsite' && <DlsiteAdmin articles={dlsiteArticles} refreshPosts={refreshPosts} />}
       {adminMode === 'dmm-blog' && <DmmBlogAdmin articles={dmmArticles} refreshPosts={refreshPosts} />}
+      {adminMode === 'feedback' && <FeedbackAdmin />}
     </div>
+  );
+}
+
+function FeedbackWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!content.trim()) return alert('要望・フィードバックを入力してください');
+    
+    // スパム・連続投稿防止 (1時間に1回)
+    const lastFeedbackTime = localStorage.getItem('lastFeedbackTime');
+    const now = new Date().getTime();
+    if (lastFeedbackTime && now - parseInt(lastFeedbackTime) < 3600000) {
+      return alert('フィードバックは1時間に1回まで送信できます。時間をおいて再度お試しください。');
+    }
+
+    setLoading(true);
+    const { error } = await supabase.from('feedbacks').insert([{ content }]);
+    setLoading(false);
+
+    if (error) {
+      alert('送信に失敗しました: ' + error.message);
+    } else {
+      localStorage.setItem('lastFeedbackTime', now.toString());
+      setSubmitted(true);
+      setTimeout(() => {
+        setIsOpen(false);
+        setSubmitted(false);
+        setContent('');
+      }, 3000);
+    }
+  };
+
+  return (
+    <>
+      <button 
+        onClick={() => setIsOpen(true)}
+        style={{
+          position: 'fixed', bottom: '30px', right: '30px',
+          background: 'linear-gradient(135deg, var(--primary-color), var(--secondary-color))',
+          color: 'white', border: 'none', borderRadius: '50px',
+          padding: '12px 24px', fontSize: '1.1rem', fontWeight: 'bold',
+          cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+          zIndex: 1000, transition: 'transform 0.3s',
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        💡 要望を送る
+      </button>
+
+      {isOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1001
+        }} onClick={() => setIsOpen(false)}>
+          <div className="glass-panel" style={{ width: '90%', maxWidth: '500px', background: 'var(--surface-color)' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0, marginBottom: '1rem', borderBottom: '2px solid var(--primary-color)', paddingBottom: '0.5rem', display: 'inline-block' }}>機能要望・フィードバック</h3>
+            {submitted ? (
+              <div style={{ textAlign: 'center', padding: '2rem 0', color: 'var(--primary-color)' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+                <p>貴重なご意見ありがとうございます！<br/>送信が完了しました。</p>
+              </div>
+            ) : (
+              <>
+                <p style={{ fontSize: '0.9rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>こんな機能が欲しい、ここが使いにくいなど、お気軽にお送りください。</p>
+                <textarea 
+                  value={content}
+                  onChange={e => setContent(e.target.value)}
+                  placeholder="要望を入力..."
+                  style={{ width: '100%', minHeight: '150px', padding: '1rem', borderRadius: '8px', border: '2px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', marginBottom: '1rem', resize: 'vertical' }}
+                />
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                  <button className="btn btn-outline" onClick={() => setIsOpen(false)} disabled={loading}>キャンセル</button>
+                  <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>{loading ? '送信中...' : '送信する'}</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1907,6 +2061,7 @@ export default function Page() {
         </div>
         <p>&copy; 2026 次、コレ見よ. All rights reserved.</p>
       </footer>
+      <FeedbackWidget />
     </>
   );
 }
