@@ -1419,7 +1419,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
       <h2 style={{ marginBottom: '2rem', borderBottom: '3px solid var(--primary-color)', paddingBottom: '0.5rem', display: 'inline-block' }}>
         ✍️ DLsiteブログ 記事投稿・管理
       </h2>
-      <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         <div className="glass-panel delay-1">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DLsite)' : '新規記事作成 (DLsite)'}</h3>
@@ -1658,7 +1658,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
       <h2 style={{ marginBottom: '2rem', borderBottom: '3px solid var(--primary-color)', paddingBottom: '0.5rem', display: 'inline-block' }}>
         ✍️ DMMブログ 記事投稿・管理
       </h2>
-      <div className="grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         <div className="glass-panel delay-1">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0 }}>{editingId ? '記事の編集 (DMM)' : '新規記事作成 (DMM)'}</h3>
