@@ -370,7 +370,8 @@ function TrendingAnalyticsDashboard() {
         setStats({
           avgPrice: Math.round(totalPrice / items.length),
           topGenres,
-          topMakers
+          topMakers,
+          topItems: items.slice(0, 6) // トップ6件を抽出して保存
         });
       }
     } catch (error) {
@@ -428,6 +429,51 @@ function TrendingAnalyticsDashboard() {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+      )}
+
+      {/* トレンド商品の表示機能 */}
+      {stats && stats.topItems && (
+        <div className="animate-fade-in" style={{ marginTop: '3rem' }}>
+          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', borderBottom: '3px solid var(--primary-color)', paddingBottom: '0.5rem', display: 'inline-block' }}>
+            🔥 現在のトップトレンド作品
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+            読者に訴求しやすい、現在最も売れている人気作品です。アフィリエイトリンクをコピーして記事に活用しましょう。
+          </p>
+          <div className="grid grid-cols-2">
+            {stats.topItems.map((item, idx) => (
+              <div key={idx} style={{ display: 'flex', gap: '1.5rem', padding: '1rem', border: '2px solid var(--border-color)', borderRadius: '16px', background: 'rgba(255,255,255,0.5)', transition: 'transform 0.2s' }} className="hover-card">
+                <img src={item.imageURL?.small || ''} alt="サムネイル" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '12px', background: '#f0f0f0' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <span style={{ color: 'var(--primary-color)', fontSize: '0.85rem', fontWeight: 'bold', background: 'var(--glass-bg)', padding: '0.2rem 0.6rem', borderRadius: '20px', alignSelf: 'flex-start' }}>
+                    売上ランキング 第{idx+1}位
+                  </span>
+                  <h4 style={{ margin: '0.5rem 0', fontSize: '0.95rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {item.title}
+                  </h4>
+                  <p style={{ color: 'var(--primary-hover)', fontWeight: 'bold', fontSize: '1.1rem', marginTop: 'auto' }}>
+                    {item.prices?.price ? `¥${item.prices.price.toLocaleString()}` : '価格未定'}
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(item.affiliateURL);
+                        alert('アフィリエイトリンクをコピーしました！');
+                      }}
+                      className="btn btn-primary" 
+                      style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem', textAlign: 'center' }}
+                    >
+                      🔗 リンクコピー
+                    </button>
+                    <a href={item.affiliateURL} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                      詳細を確認
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
