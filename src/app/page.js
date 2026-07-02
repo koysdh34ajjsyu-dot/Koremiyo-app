@@ -454,6 +454,11 @@ function TrendingAnalyticsDashboard() {
                   <h4 style={{ margin: '0.5rem 0', fontSize: '0.95rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {item.title}
                   </h4>
+                  {item.iteminfo?.actress && item.iteminfo.actress.length > 0 && (
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--glass-bg)', padding: '0.2rem 0.5rem', borderRadius: '4px', alignSelf: 'flex-start', marginBottom: '0.3rem', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      👩 出演: {item.iteminfo.actress.map(a => a.name).join(', ')}
+                    </div>
+                  )}
                   <p style={{ color: 'var(--primary-hover)', fontWeight: 'bold', fontSize: '1.1rem', marginTop: 'auto' }}>
                     {item.prices?.price ? `¥${item.prices.price}` : '価格未定'}
                   </p>
