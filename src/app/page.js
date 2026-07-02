@@ -375,7 +375,8 @@ function TrendingAnalyticsDashboard() {
         });
       }
     } catch (error) {
-      console.error(error);
+      console.error('分析データの取得に失敗しました:', error);
+      alert('データの取得に失敗しました: ' + error.message);
     }
     setLoading(false);
   };
@@ -454,7 +455,7 @@ function TrendingAnalyticsDashboard() {
                     {item.title}
                   </h4>
                   <p style={{ color: 'var(--primary-hover)', fontWeight: 'bold', fontSize: '1.1rem', marginTop: 'auto' }}>
-                    {item.prices?.price ? `¥${item.prices.price.toLocaleString()}` : '価格未定'}
+                    {item.prices?.price ? `¥${item.prices.price}` : '価格未定'}
                   </p>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                     <button 
