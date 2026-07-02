@@ -441,7 +441,7 @@ function TrendingAnalyticsDashboard() {
             🔥 現在のトップトレンド作品
           </h3>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-            読者に訴求しやすい、現在最も売れている人気作品です。アフィリエイトリンクをコピーして記事に活用しましょう。
+            現在最も売れている注目の人気作品です。気になる作品をチェックしてみましょう！
           </p>
           <div className="grid grid-cols-2">
             {stats.topItems.map((item, idx) => (
@@ -458,18 +458,8 @@ function TrendingAnalyticsDashboard() {
                     {item.prices?.price ? `¥${item.prices.price}` : '価格未定'}
                   </p>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                    <button 
-                      onClick={() => {
-                        navigator.clipboard.writeText(item.affiliateURL);
-                        alert('アフィリエイトリンクをコピーしました！');
-                      }}
-                      className="btn btn-primary" 
-                      style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem', textAlign: 'center' }}
-                    >
-                      🔗 リンクコピー
-                    </button>
-                    <a href={item.affiliateURL} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
-                      詳細を確認
+                    <a href={item.affiliateURL} target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ flex: 1, padding: '0.6rem 0.8rem', fontSize: '0.85rem', textAlign: 'center', textDecoration: 'none' }}>
+                      👀 作品詳細を見る
                     </a>
                   </div>
                 </div>
