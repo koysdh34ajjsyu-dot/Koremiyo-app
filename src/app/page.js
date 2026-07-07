@@ -758,8 +758,250 @@ function TopPage({ navigateTo }) {
   );
 }
 
+function ProductCompare() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [compareList, setCompareList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const MAX_COMPARE = 2;
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return alert('検索キーワードを入力してください。');
+
+    // sessionStorage キャッシュ確認
+    const cacheKey = `compare_cache_${searchQuery.trim()}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      setSearchResults(JSON.parse(cached));
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/dmm/product?site=FANZA&keyword=${encodeURIComponent(searchQuery.trim())}&hits=12&sort=rank`);
+      const data = await res.json();
+      if (data.result?.items) {
+        sessionStorage.setItem(cacheKey, JSON.stringify(data.result.items));
+        setSearchResults(data.result.items);
+      } else {
+        setSearchResults([]);
+        alert('検索結果が見つかりませんでした。');
+      }
+    } catch (e) {
+      alert('データの取得に失敗しました: ' + e.message);
+    }
+    setLoading(false);
+  };
+
+  const addToCompare = (item) => {
+    if (compareList.length >= MAX_COMPARE) return;
+    if (compareList.find(i => i.content_id === item.content_id)) return;
+    setCompareList(prev => [...prev, item]);
+  };
+
+  const removeFromCompare = (content_id) => {
+    setCompareList(prev => prev.filter(i => i.content_id !== content_id));
+  };
+
+  const isAdded = (item) => compareList.some(i => i.content_id === item.content_id);
+
+  return (
+    <div className="glass-panel animate-fade-in">
+      <h2 style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        ⚖️ 作品比較ツール
+      </h2>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+        気になる作品を最大2件並べて比較できます。キーワードで作品を検索し、比較リストに追加してください。
+      </p>
+
+      {/* 検索エリア */}
+      <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSearch()}
+          placeholder="作品名・女優名・ジャンルで検索..."
+          style={{
+            flex: 1, minWidth: '200px', padding: '0.8rem 1.2rem',
+            borderRadius: '12px', border: '2px solid var(--border-color)',
+            background: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '1rem'
+          }}
+        />
+        <button className="btn btn-primary" onClick={handleSearch} disabled={loading}
+          style={{ padding: '0.8rem 1.8rem', fontSize: '1rem', whiteSpace: 'nowrap' }}>
+          {loading ? '検索中...' : '🔍 検索'}
+        </button>
+      </div>
+
+      {/* 比較リスト（追加済み） */}
+      {compareList.length > 0 && (
+        <div style={{ marginBottom: '2rem' }}>
+          <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--secondary-color)' }}>
+            📋 比較リスト（{compareList.length} / {MAX_COMPARE}件）
+          </h3>
+
+          {/* 比較テーブル */}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '400px' }}>
+              <thead>
+                <tr style={{ background: 'var(--glass-bg)' }}>
+                  <th style={{ padding: '0.8rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--text-secondary)', width: '120px', borderBottom: '2px solid var(--border-color)' }}>比較項目</th>
+                  {compareList.map((item, idx) => (
+                    <th key={idx} style={{ padding: '0.8rem', textAlign: 'center', borderBottom: '2px solid var(--border-color)', position: 'relative' }}>
+                      <button
+                        onClick={() => removeFromCompare(item.content_id)}
+                        style={{ position: 'absolute', top: '4px', right: '4px', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}
+                        title="比較から削除"
+                      >✕</button>
+                      <img src={item.imageURL?.small || ''} alt="サムネイル"
+                        style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', display: 'block', margin: '0 auto 0.5rem' }} />
+                      <span style={{ fontSize: '0.8rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {item.title}
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {/* 価格 */}
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '0.8rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>💴 価格</td>
+                  {compareList.map((item, idx) => (
+                    <td key={idx} style={{ padding: '0.8rem', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-hover)', fontSize: '1.05rem' }}>
+                      {item.prices?.price ? `¥${item.prices.price}` : '価格未定'}
+                    </td>
+                  ))}
+                </tr>
+                {/* 出演女優 */}
+                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.3)' }}>
+                  <td style={{ padding: '0.8rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>👩 出演女優</td>
+                  {compareList.map((item, idx) => (
+                    <td key={idx} style={{ padding: '0.8rem', textAlign: 'center', fontSize: '0.85rem' }}>
+                      {item.iteminfo?.actress?.length > 0
+                        ? item.iteminfo.actress.map(a => a.name).join(', ')
+                        : <span style={{ color: 'var(--text-secondary)' }}>情報なし</span>
+                      }
+                    </td>
+                  ))}
+                </tr>
+                {/* ジャンル */}
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '0.8rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>🏷️ ジャンル</td>
+                  {compareList.map((item, idx) => (
+                    <td key={idx} style={{ padding: '0.8rem', textAlign: 'center', fontSize: '0.8rem' }}>
+                      {item.iteminfo?.genre?.slice(0, 3).map(g => g.name).join(' / ') || <span style={{ color: 'var(--text-secondary)' }}>情報なし</span>}
+                    </td>
+                  ))}
+                </tr>
+                {/* メーカー */}
+                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.3)' }}>
+                  <td style={{ padding: '0.8rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>🏢 メーカー</td>
+                  {compareList.map((item, idx) => (
+                    <td key={idx} style={{ padding: '0.8rem', textAlign: 'center', fontSize: '0.85rem' }}>
+                      {item.iteminfo?.maker?.[0]?.name || <span style={{ color: 'var(--text-secondary)' }}>情報なし</span>}
+                    </td>
+                  ))}
+                </tr>
+                {/* 発売日 */}
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '0.8rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>📅 発売日</td>
+                  {compareList.map((item, idx) => (
+                    <td key={idx} style={{ padding: '0.8rem', textAlign: 'center', fontSize: '0.85rem' }}>
+                      {item.date ? item.date.split(' ')[0] : <span style={{ color: 'var(--text-secondary)' }}>情報なし</span>}
+                    </td>
+                  ))}
+                </tr>
+                {/* 詳細リンク */}
+                <tr>
+                  <td style={{ padding: '0.8rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>🔗 詳細</td>
+                  {compareList.map((item, idx) => (
+                    <td key={idx} style={{ padding: '0.8rem', textAlign: 'center' }}>
+                      <a href={item.affiliateURL} target="_blank" rel="noopener noreferrer"
+                        className="btn btn-primary"
+                        style={{ fontSize: '0.8rem', padding: '0.5rem 1rem', textDecoration: 'none', display: 'inline-block' }}>
+                        👀 作品を見る
+                      </a>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* 免責事項 */}
+          <p style={{ marginTop: '0.8rem', fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--glass-bg)', padding: '0.5rem 1rem', borderRadius: '8px', borderLeft: '3px solid var(--border-color)' }}>
+            ※ 表示価格はAPIデータに基づくものであり、実際の販売価格と異なる場合があります。最新の価格は各作品の詳細ページでご確認ください。
+          </p>
+        </div>
+      )}
+
+      {/* 検索結果一覧 */}
+      {searchResults.length > 0 && (
+        <div>
+          <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--secondary-color)' }}>
+            🔎 検索結果（{searchResults.length}件）
+            {compareList.length >= MAX_COMPARE && (
+              <span style={{ marginLeft: '1rem', fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                ⚠️ 比較リストが上限（{MAX_COMPARE}件）に達しています
+              </span>
+            )}
+          </h3>
+          <div className="grid grid-cols-2">
+            {searchResults.map((item, idx) => {
+              const added = isAdded(item);
+              const full = compareList.length >= MAX_COMPARE;
+              return (
+                <div key={idx} style={{
+                  display: 'flex', gap: '1rem', padding: '1rem',
+                  border: `2px solid ${added ? 'var(--primary-color)' : 'var(--border-color)'}`,
+                  borderRadius: '16px',
+                  background: added ? 'rgba(255,117,140,0.08)' : 'rgba(255,255,255,0.5)',
+                  transition: 'all 0.2s'
+                }}>
+                  <img src={item.imageURL?.small || ''} alt="サムネイル"
+                    style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '10px', flexShrink: 0, background: '#f0f0f0' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '0.3rem' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {item.title}
+                    </span>
+                    {item.iteminfo?.actress?.length > 0 && (
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                        👩 {item.iteminfo.actress.slice(0, 2).map(a => a.name).join(', ')}
+                      </span>
+                    )}
+                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--primary-hover)' }}>
+                      {item.prices?.price ? `¥${item.prices.price}` : '価格未定'}
+                    </span>
+                    <button
+                      onClick={() => addToCompare(item)}
+                      disabled={added || full}
+                      className={added ? 'btn btn-outline' : 'btn btn-primary'}
+                      style={{ fontSize: '0.78rem', padding: '0.35rem 0.8rem', marginTop: 'auto', opacity: (!added && full) ? 0.4 : 1, cursor: (!added && full) ? 'not-allowed' : 'pointer' }}
+                    >
+                      {added ? '✓ 追加済み' : (full ? '上限に達しています' : '+ 比較に追加')}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {searchResults.length === 0 && !loading && (
+        <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-secondary)' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚖️</div>
+          <p>キーワードを入力して作品を検索し、<br />比較リストに追加してください。</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function UnifiedDmmDashboard() {
   const [activeTab, setActiveTab] = useState('inspector');
+
 
   const navItems = [
     { id: 'inspector', icon: '🕵️‍♀️', label: 'ディープアナライザー', desc: 'URLから裏情報を抽出' },
@@ -767,6 +1009,7 @@ function UnifiedDmmDashboard() {
     { id: 'actress', icon: '👩', label: '女優データベース', desc: '女優プロフィール検索' },
     { id: 'trending', icon: '📈', label: 'トレンド分析', desc: '人気キーワード可視化' },
     { id: 'calendar', icon: '📅', label: '新作カレンダー', desc: '近日発売作品一覧' },
+    { id: 'compare', icon: '⚖️', label: '作品比較ツール', desc: '2作品を並べて比較' },
   ];
 
   return (
@@ -827,6 +1070,9 @@ function UnifiedDmmDashboard() {
           </div>
           <div style={{ display: activeTab === 'calendar' ? 'block' : 'none' }}>
             <DmmReleaseCalendar />
+          </div>
+          <div style={{ display: activeTab === 'compare' ? 'block' : 'none' }}>
+            <ProductCompare />
           </div>
         </div>
       </div>
