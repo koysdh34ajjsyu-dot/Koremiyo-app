@@ -2163,9 +2163,10 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
       <div className="container animate-fade-in" style={{ marginTop: '2rem' }}>
         <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>管理者ダッシュボード</h1>
         <div className="grid grid-cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-          <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dmm')}>
+          <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dmm-tools')}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🛠</div>
-            <h2 style={{ marginBottom: '1rem' }}>DMMツール管理</h2>
+            <h2 style={{ marginBottom: '1rem' }}>DMMツール</h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>商品検索・比較・分析ツール</p>
           </div>
           <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dmm-blog')}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📖</div>
@@ -2189,6 +2190,7 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
       <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem' }}>
         <button className="btn btn-outline" onClick={() => setAdminMode(null)}>← ダッシュボード選択に戻る</button>
       </div>
+      {adminMode === 'dmm-tools' && <UnifiedDmmDashboard />}
       {adminMode === 'dmm' && <DmmAdmin />}
       {adminMode === 'dlsite' && <DlsiteAdmin articles={dlsiteArticles} refreshPosts={refreshPosts} />}
       {adminMode === 'dmm-blog' && <DmmBlogAdmin articles={dmmArticles} refreshPosts={refreshPosts} />}
@@ -2331,7 +2333,6 @@ export default function Page() {
         </div>
         <div className="nav-links">
           <a className={`nav-link ${currentPage === 'top' ? 'active' : ''}`} onClick={() => setCurrentPage('top')}>ホーム</a>
-          <a className={`nav-link ${currentPage === 'dmm' ? 'active' : ''}`} onClick={() => setCurrentPage('dmm')}>DMMツール</a>
           <a className={`nav-link ${currentPage === 'dmm-blog' ? 'active' : ''}`} onClick={() => setCurrentPage('dmm-blog')}>DMMブログ</a>
           <a className={`nav-link ${currentPage === 'dlsite' ? 'active' : ''}`} onClick={() => setCurrentPage('dlsite')}>DLsiteブログ</a>
           {showAdmin && (
@@ -2342,8 +2343,6 @@ export default function Page() {
 
       <main style={{ flex: 1, padding: '2rem 0' }}>
         {currentPage === 'top' && <TopPage navigateTo={setCurrentPage} />}
-        {currentPage === 'dmm' && <UnifiedDmmDashboard />}
-
         {currentPage === 'dmm-blog' && <DmmBlogPage articles={dmmArticles} />}
         {currentPage === 'dlsite' && <DlsiteBlogPage articles={dlsiteArticles} />}
         {currentPage === 'admin' && showAdmin && <AdminDashboard dlsiteArticles={dlsiteArticles} dmmArticles={dmmArticles} refreshPosts={fetchPosts} />}
