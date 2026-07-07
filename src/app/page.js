@@ -716,35 +716,25 @@ function TopPage({ navigateTo }) {
         </h1>
         <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto 1rem', lineHeight: '1.8' }}>
           <strong>音声作品・フェラ・スク水（スクール水着）</strong>などのオススメ同人作品を厳選レビュー。<br/>
-          DLsite・FANZA・DMMから管理者イチオシの作品を紹介するブログポータル＆<strong>DMMツール・FANZAツール</strong>を提供します。
+          DLsite・FANZA・DMMから管理者イチオシの作品を紹介するブログポータルです。
         </p>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', opacity: 0.7 }}>
           ※ 本サイトは18歳以上の方を対象としたアダルトコンテンツを含みます。
         </p>
       </div>
 
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-2">
         <div className="glass-panel delay-1">
-          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>🛠 DMMツール / FANZAツール</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
-            FANZA・DMM APIを活用した高度な商品検索・女優データベース検索・トレンド分析ツール群。
-          </p>
-          <button className="btn btn-primary" onClick={() => navigateTo('dmm')} style={{ width: '100%' }}>
-            ツールを使う →
-          </button>
-        </div>
-
-        <div className="glass-panel delay-2">
           <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>📖 DMMブログ / FANZAレビュー</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             FANZA・DMMのオススメ動画作品を管理者が熱量込めて徹底レビュー。新作・人気作を随時更新。
           </p>
-          <button className="btn btn-outline" onClick={() => navigateTo('dmm-blog')} style={{ width: '100%' }}>
+          <button className="btn btn-primary" onClick={() => navigateTo('dmm-blog')} style={{ width: '100%' }}>
             DMMブログへ →
           </button>
         </div>
 
-        <div className="glass-panel delay-3">
+        <div className="glass-panel delay-2">
           <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>✍️ DLsiteブログ / 音声・同人レビュー</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             <strong>フェラ音声・スク水エロ・スクール水着</strong>などDLsiteオススメ作品を管理者がマニアックにレビュー。
