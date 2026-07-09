@@ -2140,6 +2140,259 @@ function FeedbackAdmin() {
   );
 }
 
+// ============================================================
+// 公開ランキングページ（エンドユーザー向け）
+// ============================================================
+function RankedProductsPage() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [updatedAt, setUpdatedAt] = useState(null);
+
+  useEffect(() => {
+    const fetchRanking = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('ranked_products')
+        .select('*')
+        .order('rank_position', { ascending: true });
+
+      if (data && data.length > 0) {
+        setProducts(data);
+        setUpdatedAt(data[0]?.updated_at);
+      }
+      setLoading(false);
+    };
+    fetchRanking();
+  }, []);
+
+  const formatDate = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  };
+
+  return (
+    <div className="container animate-fade-in">
+      <div style={{ textAlign: 'center', marginBottom: '3rem', marginTop: '2rem' }}>
+        <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
+          🏆 人気作品ランキング
+        </h1>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+          管理者が厳選した最新の人気作品をランキング形式でご紹介します
+        </p>
+        {updatedAt && (
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.7 }}>
+            最終更新: {formatDate(updatedAt)}
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.72rem' }}>
+              ※ 表示価格はAPIデータに基づくものであり、実際と異なる場合があります
+            </span>
+          </p>
+        )}
+      </div>
+
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+          <p>ランキングを読み込み中...</p>
+        </div>
+      )}
+
+      {!loading && products.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
+          <p>現在ランキングデータを準備中です。しばらくお待ちください。</p>
+        </div>
+      )}
+
+      {!loading && products.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+          {products.map((item, idx) => (
+            <div key={item.id} className="glass-panel hover-card animate-fade-in"
+              style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', padding: '1.2rem', border: idx < 3 ? '2px solid var(--primary-color)' : '1px solid var(--border-color)' }}>
+
+              {/* ランク表示 */}
+              <div style={{
+                minWidth: '60px', height: '60px', borderRadius: '50%',
+                background: idx === 0 ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+                  : idx === 1 ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
+                  : idx === 2 ? 'linear-gradient(135deg, #CD7F32, #A05010)'
+                  : 'var(--glass-bg)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: idx < 3 ? '1.4rem' : '1.1rem', fontWeight: 'bold',
+                color: idx < 3 ? '#fff' : 'var(--text-secondary)',
+                flexShrink: 0, boxShadow: idx < 3 ? '0 4px 12px rgba(0,0,0,0.2)' : 'none'
+              }}>
+                {idx < 3 ? ['🥇','🥈','🥉'][idx] : `${idx+1}位`}
+              </div>
+
+              {/* サムネイル */}
+              <img
+                src={item.image_url || ''}
+                alt={item.title}
+                style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '12px', flexShrink: 0, background: '#f0f0f0' }}
+                onError={e => { e.currentTarget.style.display = 'none'; }}
+              />
+
+              {/* 情報 */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: 0 }}>
+                <h3 style={{ fontSize: '1rem', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {item.title}
+                </h3>
+                {item.actress && (
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>👩 {item.actress}</span>
+                )}
+                {item.genre && (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', opacity: 0.8 }}>🏷️ {item.genre}</span>
+                )}
+                {item.maker && (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', opacity: 0.8 }}>🏢 {item.maker}</span>
+                )}
+              </div>
+
+              {/* 価格 + ボタン */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.8rem', flexShrink: 0 }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-hover)' }}>
+                  {item.price ? `¥${item.price}` : '価格未定'}
+                </div>
+                <a
+                  href={item.affiliate_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                  style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                >
+                  👀 作品を見る
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.75rem', color: 'var(--text-secondary)', opacity: 0.6 }}>
+        ※ 本ページのリンクはアフィリエイトリンクを含みます。表示価格はAPIデータに基づくものであり、実際の販売価格と異なる場合があります。最新情報は各作品の詳細ページでご確認ください。
+      </p>
+    </div>
+  );
+}
+
+// ============================================================
+// 管理者ランキング管理（手動保存）
+// ============================================================
+function RankingAdmin() {
+  const [loading, setLoading] = useState(false);
+  const [lastResult, setLastResult] = useState(null);
+  const [savedProducts, setSavedProducts] = useState([]);
+  const [fetchingList, setFetchingList] = useState(false);
+
+  useEffect(() => {
+    fetchSavedList();
+  }, []);
+
+  const fetchSavedList = async () => {
+    setFetchingList(true);
+    const { data } = await supabase
+      .from('ranked_products')
+      .select('rank_position, title, updated_at')
+      .order('rank_position', { ascending: true })
+      .limit(5);
+    setSavedProducts(data || []);
+    setFetchingList(false);
+  };
+
+  const handleManualUpdate = async () => {
+    if (!window.confirm('ランキングデータを今すぐ更新してSupabaseに保存しますか？')) return;
+    setLoading(true);
+    setLastResult(null);
+    try {
+      const res = await fetch('/api/cron/update-ranking');
+      const data = await res.json();
+      if (res.ok) {
+        setLastResult({ success: true, message: data.message });
+        await fetchSavedList();
+      } else {
+        setLastResult({ success: false, message: data.error || '更新に失敗しました' });
+      }
+    } catch (e) {
+      setLastResult({ success: false, message: e.message });
+    }
+    setLoading(false);
+  };
+
+  const formatDate = (iso) => {
+    if (!iso) return 'なし';
+    const d = new Date(iso);
+    return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  };
+
+  return (
+    <div className="animate-fade-in">
+      <h2 style={{ marginBottom: '2rem', borderBottom: '3px solid var(--primary-color)', paddingBottom: '0.5rem', display: 'inline-block' }}>
+        🏆 ランキング管理
+      </h2>
+
+      <div className="grid grid-cols-2">
+        {/* 手動更新パネル */}
+        <div className="glass-panel delay-1">
+          <h3 style={{ marginBottom: '1rem', color: 'var(--secondary-color)' }}>🔄 ランキング手動更新</h3>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.7' }}>
+            DMM APIから最新のランキング上位20件を取得し、Supabaseに保存します。
+            保存したデータはユーザー向けの「人気作品ランキング」ページに即座に反映されます。
+          </p>
+          <div style={{ background: 'rgba(255,200,0,0.1)', border: '1px solid rgba(255,200,0,0.3)', borderRadius: '8px', padding: '0.8rem', marginBottom: '1.5rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+            💡 Vercel Cronにより毎日0時（日本時間）に自動更新されます。手動更新はいつでも実行可能です。
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={handleManualUpdate}
+            disabled={loading}
+            style={{ width: '100%', padding: '0.9rem', fontSize: '1rem' }}
+          >
+            {loading ? '⏳ 更新中...' : '🚀 今すぐランキングを更新・公開する'}
+          </button>
+          {lastResult && (
+            <div style={{
+              marginTop: '1rem', padding: '0.8rem 1rem', borderRadius: '8px',
+              background: lastResult.success ? 'rgba(0,200,100,0.1)' : 'rgba(255,80,80,0.1)',
+              border: `1px solid ${lastResult.success ? 'rgba(0,200,100,0.3)' : 'rgba(255,80,80,0.3)'}`,
+              fontSize: '0.85rem', color: lastResult.success ? '#00b060' : '#ff4444'
+            }}>
+              {lastResult.success ? '✅ ' : '❌ '}{lastResult.message}
+            </div>
+          )}
+        </div>
+
+        {/* 現在保存済みデータ確認 */}
+        <div className="glass-panel delay-2">
+          <h3 style={{ marginBottom: '1rem', color: 'var(--secondary-color)' }}>📋 現在の保存データ（上位5件）</h3>
+          {fetchingList ? (
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>読み込み中...</p>
+          ) : savedProducts.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📭</div>
+              <p style={{ fontSize: '0.9rem' }}>保存データがありません。<br/>「今すぐ更新」ボタンで初回保存してください。</p>
+            </div>
+          ) : (
+            <>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '1rem', opacity: 0.7 }}>
+                最終更新: {formatDate(savedProducts[0]?.updated_at)}
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {savedProducts.map((p, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', padding: '0.5rem', background: 'rgba(255,255,255,0.3)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                    <span style={{ fontWeight: 'bold', color: 'var(--primary-color)', minWidth: '30px' }}>{p.rank_position}位</span>
+                    <span style={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>{p.title}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [adminMode, setAdminMode] = useState(null);
@@ -2157,6 +2410,11 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🛠</div>
             <h2 style={{ marginBottom: '1rem' }}>DMMツール</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>商品検索・比較・分析ツール</p>
+          </div>
+          <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('ranking')}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🏆</div>
+            <h2 style={{ marginBottom: '1rem' }}>ランキング管理</h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>公開ランキングの手動・自動更新</p>
           </div>
           <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dmm-blog')}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📖</div>
@@ -2181,6 +2439,7 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
         <button className="btn btn-outline" onClick={() => setAdminMode(null)}>← ダッシュボード選択に戻る</button>
       </div>
       {adminMode === 'dmm-tools' && <UnifiedDmmDashboard />}
+      {adminMode === 'ranking' && <RankingAdmin />}
       {adminMode === 'dmm' && <DmmAdmin />}
       {adminMode === 'dlsite' && <DlsiteAdmin articles={dlsiteArticles} refreshPosts={refreshPosts} />}
       {adminMode === 'dmm-blog' && <DmmBlogAdmin articles={dmmArticles} refreshPosts={refreshPosts} />}
@@ -2323,6 +2582,7 @@ export default function Page() {
         </div>
         <div className="nav-links">
           <a className={`nav-link ${currentPage === 'top' ? 'active' : ''}`} onClick={() => setCurrentPage('top')}>ホーム</a>
+          <a className={`nav-link ${currentPage === 'ranking' ? 'active' : ''}`} onClick={() => setCurrentPage('ranking')}>🏆 ランキング</a>
           <a className={`nav-link ${currentPage === 'dmm-blog' ? 'active' : ''}`} onClick={() => setCurrentPage('dmm-blog')}>DMMブログ</a>
           <a className={`nav-link ${currentPage === 'dlsite' ? 'active' : ''}`} onClick={() => setCurrentPage('dlsite')}>DLsiteブログ</a>
           {showAdmin && (
@@ -2333,6 +2593,7 @@ export default function Page() {
 
       <main style={{ flex: 1, padding: '2rem 0' }}>
         {currentPage === 'top' && <TopPage navigateTo={setCurrentPage} />}
+        {currentPage === 'ranking' && <RankedProductsPage />}
         {currentPage === 'dmm-blog' && <DmmBlogPage articles={dmmArticles} />}
         {currentPage === 'dlsite' && <DlsiteBlogPage articles={dlsiteArticles} />}
         {currentPage === 'admin' && showAdmin && <AdminDashboard dlsiteArticles={dlsiteArticles} dmmArticles={dmmArticles} refreshPosts={fetchPosts} />}
