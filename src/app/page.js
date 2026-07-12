@@ -2422,6 +2422,238 @@ function RankingAdmin() {
   );
 }
 
+// ============================================================
+// 公開キャンペーンページ（エンドユーザー向け）
+// ============================================================
+function CampaignsPage() {
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        setCampaigns(data);
+      }
+      setLoading(false);
+    };
+    fetchCampaigns();
+  }, []);
+
+  return (
+    <div className="container animate-fade-in" style={{ maxWidth: '800px', margin: '2rem auto' }}>
+      <h1 className="text-gradient" style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '2.5rem' }}>
+        🌟 お得なキャンペーン情報
+      </h1>
+
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+          <p>キャンペーン情報を読み込み中...</p>
+        </div>
+      )}
+
+      {!loading && campaigns.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+          <p>現在開催中のキャンペーンはありません。<br/>次回のお知らせをお待ちください！</p>
+        </div>
+      )}
+
+      {!loading && campaigns.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          {campaigns.map(camp => (
+            <a 
+              key={camp.id} 
+              href={camp.link_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="glass-panel hover-card"
+              style={{ display: 'block', textDecoration: 'none', padding: '0', overflow: 'hidden', border: '2px solid transparent', transition: 'all 0.3s' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}
+            >
+              {camp.image_url && (
+                <img 
+                  src={camp.image_url} 
+                  alt={camp.title} 
+                  style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--border-color)' }} 
+                  onError={e => { e.currentTarget.style.display = 'none'; }}
+                />
+              )}
+              <div style={{ padding: '1.5rem' }}>
+                <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.8rem', fontSize: '1.4rem' }}>{camp.title}</h2>
+                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{camp.description}</p>
+                <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+                  <span className="btn btn-primary" style={{ display: 'inline-block', padding: '0.6rem 1.5rem' }}>詳細を見る ＞</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// 管理者キャンペーン管理
+// ============================================================
+function CampaignAdmin() {
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // フォーム状態
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState({ title: '', description: '', image_url: '', link_url: '', is_active: true, display_order: 0 });
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  const fetchCampaigns = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('campaigns').select('*').order('display_order', { ascending: true }).order('created_at', { ascending: false });
+    setCampaigns(data || []);
+    setLoading(false);
+  };
+
+  const handleEdit = (camp) => {
+    setEditingId(camp.id);
+    setFormData({
+      title: camp.title || '',
+      description: camp.description || '',
+      image_url: camp.image_url || '',
+      link_url: camp.link_url || '',
+      is_active: camp.is_active,
+      display_order: camp.display_order || 0
+    });
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({ title: '', description: '', image_url: '', link_url: '', is_active: true, display_order: 0 });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.title || !formData.link_url) {
+      alert('タイトルとリンクURLは必須です');
+      return;
+    }
+
+    setLoading(true);
+    const method = editingId ? 'PUT' : 'POST';
+    const payload = { ...formData, secret: 'admin1234' };
+    if (editingId) payload.id = editingId;
+
+    try {
+      const res = await fetch('/api/admin/campaign', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      alert(`キャンペーンを${editingId ? '更新' : '作成'}しました`);
+      resetForm();
+      fetchCampaigns();
+    } catch (err) {
+      alert('エラー: ' + err.message);
+    }
+    setLoading(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('本当に削除しますか？')) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/campaign?secret=admin1234&id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert('削除しました');
+      fetchCampaigns();
+    } catch (err) {
+      alert('削除エラー: ' + err.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      {/* 入力フォーム */}
+      <div className="glass-panel delay-1">
+        <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary-color)' }}>{editingId ? '✏️ キャンペーン編集' : '✨ 新規キャンペーン登録'}</h2>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>タイトル (必須)</label>
+            <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} placeholder="例：最大50%OFF 冬の特大セール" required />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>説明文</label>
+            <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', minHeight: '100px' }} placeholder="キャンペーンの詳細説明" />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>バナー画像URL</label>
+            <input type="text" value={formData.image_url} onChange={e => setFormData({...formData, image_url: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} placeholder="https://..." />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>リンクURL (必須)</label>
+            <input type="text" value={formData.link_url} onChange={e => setFormData({...formData, link_url: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} placeholder="アフィリエイトリンク等" required />
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input type="checkbox" checked={formData.is_active} onChange={e => setFormData({...formData, is_active: e.target.checked})} style={{ width: '20px', height: '20px' }} />
+              <span>公開する (ユーザーに表示)</span>
+            </label>
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>表示順 (数字が小さいほど上)</label>
+            <input type="number" value={formData.display_order} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value) || 0})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            {editingId && <button type="button" className="btn btn-outline" onClick={resetForm}>キャンセル</button>}
+            <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={loading}>
+              {loading ? '処理中...' : (editingId ? '更新する' : '登録する')}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* 登録済み一覧 */}
+      <div className="glass-panel delay-2" style={{ maxHeight: '800px', overflowY: 'auto' }}>
+        <h2 style={{ marginBottom: '1.5rem', color: 'var(--secondary-color)' }}>📋 登録済みキャンペーン</h2>
+        {loading && campaigns.length === 0 ? <p>読み込み中...</p> : null}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {campaigns.map(camp => (
+            <div key={camp.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.3)', borderRadius: '8px', border: camp.is_active ? '1px solid var(--primary-color)' : '1px dashed var(--border-color)', opacity: camp.is_active ? 1 : 0.6 }}>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                {camp.image_url && <img src={camp.image_url} alt="" style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} onError={e => e.currentTarget.style.display='none'} />}
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ margin: 0, fontSize: '1rem' }}>{camp.title}</h3>
+                  <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>順序: {camp.display_order} | 状態: {camp.is_active ? '公開中' : '非公開'}</p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.8rem', justifyContent: 'flex-end' }}>
+                <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => handleEdit(camp)}>編集</button>
+                <button className="btn btn-outline" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', color: '#ff4444', borderColor: '#ff4444' }} onClick={() => handleDelete(camp.id)}>削除</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [adminMode, setAdminMode] = useState(null);
@@ -2444,6 +2676,11 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🏆</div>
             <h2 style={{ marginBottom: '1rem' }}>ランキング管理</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>公開ランキングの手動・自動更新</p>
+          </div>
+          <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('campaign')}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🌟</div>
+            <h2 style={{ marginBottom: '1rem' }}>キャンペーン管理</h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>広告バナー・リンクの管理</p>
           </div>
           <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dmm-blog')}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📖</div>
@@ -2469,6 +2706,7 @@ function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
       </div>
       {adminMode === 'dmm-tools' && <UnifiedDmmDashboard />}
       {adminMode === 'ranking' && <RankingAdmin />}
+      {adminMode === 'campaign' && <CampaignAdmin />}
       {adminMode === 'dmm' && <DmmAdmin />}
       {adminMode === 'dlsite' && <DlsiteAdmin articles={dlsiteArticles} refreshPosts={refreshPosts} />}
       {adminMode === 'dmm-blog' && <DmmBlogAdmin articles={dmmArticles} refreshPosts={refreshPosts} />}
@@ -2612,6 +2850,7 @@ export default function Page() {
         <div className="nav-links">
           <a className={`nav-link ${currentPage === 'top' ? 'active' : ''}`} onClick={() => setCurrentPage('top')}>ホーム</a>
           <a className={`nav-link ${currentPage === 'ranking' ? 'active' : ''}`} onClick={() => setCurrentPage('ranking')}>🏆 ランキング</a>
+          <a className={`nav-link ${currentPage === 'campaign' ? 'active' : ''}`} onClick={() => setCurrentPage('campaign')}>🌟 キャンペーン</a>
           <a className={`nav-link ${currentPage === 'dmm-blog' ? 'active' : ''}`} onClick={() => setCurrentPage('dmm-blog')}>DMMブログ</a>
           <a className={`nav-link ${currentPage === 'dlsite' ? 'active' : ''}`} onClick={() => setCurrentPage('dlsite')}>DLsiteブログ</a>
           {showAdmin && (
@@ -2623,6 +2862,7 @@ export default function Page() {
       <main style={{ flex: 1, padding: '2rem 0' }}>
         {currentPage === 'top' && <TopPage navigateTo={setCurrentPage} />}
         {currentPage === 'ranking' && <RankedProductsPage />}
+        {currentPage === 'campaign' && <CampaignsPage />}
         {currentPage === 'dmm-blog' && <DmmBlogPage articles={dmmArticles} />}
         {currentPage === 'dlsite' && <DlsiteBlogPage articles={dlsiteArticles} />}
         {currentPage === 'admin' && showAdmin && <AdminDashboard dlsiteArticles={dlsiteArticles} dmmArticles={dmmArticles} refreshPosts={fetchPosts} />}
