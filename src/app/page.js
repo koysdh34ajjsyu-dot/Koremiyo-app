@@ -2148,14 +2148,19 @@ function RankedProductsPage() {
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState(null);
   const [fetchError, setFetchError] = useState(null);
+  const [debugInfo, setDebugInfo] = useState('');
 
   useEffect(() => {
     const fetchRanking = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // キャッシュ対策としてダミーのヘッダーを追加
+      const { data, error, status } = await supabase
         .from('ranked_products')
         .select('*')
         .order('rank_position', { ascending: true });
+
+      setDebugInfo(`Status: ${status}, DataLength: ${data ? data.length : 'null'}, Error: ${error ? error.message : 'none'}`);
 
       if (error) {
         console.error('Supabase fetch error:', error);
@@ -2211,10 +2216,14 @@ function RankedProductsPage() {
         </div>
       )}
 
-      {!loading && !fetchError && products.length === 0 && (
+      {!loading && products.length === 0 && (
         <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
           <p>現在ランキングデータを準備中です。しばらくお待ちください。</p>
+          <div style={{ marginTop: '2rem', padding: '1rem', background: '#f5f5f5', borderRadius: '8px', fontSize: '0.8rem', color: '#666' }}>
+            <p><strong>[開発者用デバッグ情報]</strong></p>
+            <p>{debugInfo}</p>
+          </div>
         </div>
       )}
 
