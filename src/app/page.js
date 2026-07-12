@@ -2147,6 +2147,7 @@ function RankedProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
     const fetchRanking = async () => {
@@ -2156,9 +2157,13 @@ function RankedProductsPage() {
         .select('*')
         .order('rank_position', { ascending: true });
 
-      if (data && data.length > 0) {
+      if (error) {
+        console.error('Supabase fetch error:', error);
+        setFetchError(error.message);
+      } else if (data && data.length > 0) {
         setProducts(data);
         setUpdatedAt(data[0]?.updated_at);
+        setFetchError(null);
       }
       setLoading(false);
     };
@@ -2197,7 +2202,16 @@ function RankedProductsPage() {
         </div>
       )}
 
-      {!loading && products.length === 0 && (
+      {fetchError && (
+        <div style={{ textAlign: 'center', padding: '2rem', margin: '2rem', background: 'rgba(255,80,80,0.1)', border: '2px solid rgba(255,80,80,0.3)', borderRadius: '12px' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+          <h3 style={{ color: '#ff4444', marginBottom: '0.5rem' }}>データの読み込みに失敗しました</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{fetchError}</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '1rem' }}>※ Supabaseのテーブル定義やRLSポリシーを確認してください。</p>
+        </div>
+      )}
+
+      {!loading && !fetchError && products.length === 0 && (
         <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
           <p>現在ランキングデータを準備中です。しばらくお待ちください。</p>
@@ -2284,6 +2298,7 @@ function RankingAdmin() {
   const [lastResult, setLastResult] = useState(null);
   const [savedProducts, setSavedProducts] = useState([]);
   const [fetchingList, setFetchingList] = useState(false);
+  const [listError, setListError] = useState(null);
 
   useEffect(() => {
     fetchSavedList();
@@ -2291,12 +2306,18 @@ function RankingAdmin() {
 
   const fetchSavedList = async () => {
     setFetchingList(true);
-    const { data } = await supabase
+    setListError(null);
+    const { data, error } = await supabase
       .from('ranked_products')
       .select('rank_position, title, updated_at')
       .order('rank_position', { ascending: true })
       .limit(5);
-    setSavedProducts(data || []);
+    
+    if (error) {
+      setListError(error.message);
+    } else {
+      setSavedProducts(data || []);
+    }
     setFetchingList(false);
   };
 
@@ -2367,6 +2388,11 @@ function RankingAdmin() {
           <h3 style={{ marginBottom: '1rem', color: 'var(--secondary-color)' }}>📋 現在の保存データ（上位5件）</h3>
           {fetchingList ? (
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>読み込み中...</p>
+          ) : listError ? (
+            <div style={{ textAlign: 'center', padding: '1rem', color: '#ff4444', background: 'rgba(255,80,80,0.1)', borderRadius: '8px' }}>
+              <p style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>読み込みエラー</p>
+              <p style={{ fontSize: '0.8rem' }}>{listError}</p>
+            </div>
           ) : savedProducts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📭</div>
