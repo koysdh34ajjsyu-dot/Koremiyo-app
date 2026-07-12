@@ -2154,10 +2154,11 @@ function RankedProductsPage() {
     const fetchRanking = async () => {
       setLoading(true);
       
-      // キャッシュ対策としてダミーのヘッダーを追加
+      // キャッシュ対策：URLを変えるために常に真となる条件を追加
       const { data, error, status } = await supabase
         .from('ranked_products')
         .select('*')
+        .neq('rank_position', -1) // Cache buster
         .order('rank_position', { ascending: true });
 
       setDebugInfo(`Status: ${status}, DataLength: ${data ? data.length : 'null'}, Error: ${error ? error.message : 'none'}`);
