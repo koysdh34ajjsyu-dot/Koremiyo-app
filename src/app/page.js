@@ -2423,6 +2423,43 @@ function RankingAdmin() {
 }
 
 // ============================================================
+// HtmlWidgetRenderer: 危険なHTML文字列や<script>タグを安全に展開・実行するコンポーネント
+// ============================================================
+function HtmlWidgetRenderer({ htmlContent }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    // まず普通にHTMLをセットする（<ins>などの要素が作られる）
+    containerRef.current.innerHTML = htmlContent;
+
+    // セットされたHTMLの中から<script>タグを探し出す
+    const scripts = containerRef.current.querySelectorAll('script');
+    
+    // ReactはinnerHTMLで挿入された<script>を実行しないため、手動で再構築してDOMにアペンドする
+    scripts.forEach((oldScript) => {
+      const newScript = document.createElement('script');
+      
+      // 元のscriptタグの属性をすべてコピーする（srcなど）
+      Array.from(oldScript.attributes).forEach(attr => {
+        newScript.setAttribute(attr.name, attr.value);
+      });
+      
+      // インラインスクリプトの内容もコピーする
+      newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+      
+      // 古いscriptタグを新しい実行可能なものに置き換える
+      if (oldScript.parentNode) {
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+      }
+    });
+  }, [htmlContent]);
+
+  return <div ref={containerRef} style={{ width: '100%', display: 'flex', justifyContent: 'center' }} />;
+}
+
+// ============================================================
 // 公開キャンペーンページ（エンドユーザー向け）
 // ============================================================
 function CampaignsPage() {
@@ -2470,32 +2507,44 @@ function CampaignsPage() {
       {!loading && campaigns.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {campaigns.map(camp => (
-            <a 
-              key={camp.id} 
-              href={camp.link_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="glass-panel hover-card"
-              style={{ display: 'block', textDecoration: 'none', padding: '0', overflow: 'hidden', border: '2px solid transparent', transition: 'all 0.3s' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary-color)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}
-            >
-              {camp.image_url && (
-                <img 
-                  src={camp.image_url} 
-                  alt={camp.title} 
-                  style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--border-color)' }} 
-                  onError={e => { e.currentTarget.style.display = 'none'; }}
-                />
-              )}
-              <div style={{ padding: '1.5rem' }}>
-                <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.8rem', fontSize: '1.4rem' }}>{camp.title}</h2>
-                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{camp.description}</p>
-                <div style={{ marginTop: '1rem', textAlign: 'right' }}>
-                  <span className="btn btn-primary" style={{ display: 'inline-block', padding: '0.6rem 1.5rem' }}>詳細を見る ＞</span>
+            <div key={camp.id} className="glass-panel hover-card" style={{ padding: '0', overflow: 'hidden', border: '2px solid transparent', transition: 'all 0.3s' }}>
+              {/* HTMLコードが登録されている場合はウィジェットとして表示 */}
+              {camp.html_code ? (
+                <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <h2 style={{ color: 'var(--text-primary)', marginBottom: '1.5rem', fontSize: '1.4rem', textAlign: 'center' }}>{camp.title}</h2>
+                  <HtmlWidgetRenderer htmlContent={camp.html_code} />
+                  {camp.description && (
+                    <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', whiteSpace: 'pre-wrap', marginTop: '1.5rem', textAlign: 'center' }}>{camp.description}</p>
+                  )}
                 </div>
-              </div>
-            </a>
+              ) : (
+                /* 通常の画像＋リンク型の表示 */
+                <a 
+                  href={camp.link_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ display: 'block', textDecoration: 'none' }}
+                  onMouseEnter={e => e.currentTarget.parentElement.style.borderColor = 'var(--primary-color)'}
+                  onMouseLeave={e => e.currentTarget.parentElement.style.borderColor = 'transparent'}
+                >
+                  {camp.image_url && (
+                    <img 
+                      src={camp.image_url} 
+                      alt={camp.title} 
+                      style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--border-color)' }} 
+                      onError={e => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  )}
+                  <div style={{ padding: '1.5rem' }}>
+                    <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.8rem', fontSize: '1.4rem' }}>{camp.title}</h2>
+                    <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{camp.description}</p>
+                    <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+                      <span className="btn btn-primary" style={{ display: 'inline-block', padding: '0.6rem 1.5rem' }}>詳細を見る ＞</span>
+                    </div>
+                  </div>
+                </a>
+              )}
+            </div>
           ))}
         </div>
       )}
@@ -2512,7 +2561,7 @@ function CampaignAdmin() {
   
   // フォーム状態
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ title: '', description: '', image_url: '', link_url: '', is_active: true, display_order: 0 });
+  const [formData, setFormData] = useState({ title: '', description: '', image_url: '', link_url: '', html_code: '', is_active: true, display_order: 0 });
 
   useEffect(() => {
     fetchCampaigns();
@@ -2532,6 +2581,7 @@ function CampaignAdmin() {
       description: camp.description || '',
       image_url: camp.image_url || '',
       link_url: camp.link_url || '',
+      html_code: camp.html_code || '',
       is_active: camp.is_active,
       display_order: camp.display_order || 0
     });
@@ -2539,13 +2589,17 @@ function CampaignAdmin() {
 
   const resetForm = () => {
     setEditingId(null);
-    setFormData({ title: '', description: '', image_url: '', link_url: '', is_active: true, display_order: 0 });
+    setFormData({ title: '', description: '', image_url: '', link_url: '', html_code: '', is_active: true, display_order: 0 });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.link_url) {
-      alert('タイトルとリンクURLは必須です');
+    if (!formData.title) {
+      alert('タイトルは必須です');
+      return;
+    }
+    if (!formData.html_code && !formData.link_url) {
+      alert('リンクURLかHTMLコードのいずれかを入力してください');
       return;
     }
 
@@ -2606,8 +2660,13 @@ function CampaignAdmin() {
             <input type="text" value={formData.image_url} onChange={e => setFormData({...formData, image_url: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} placeholder="https://..." />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>リンクURL (必須)</label>
-            <input type="text" value={formData.link_url} onChange={e => setFormData({...formData, link_url: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} placeholder="アフィリエイトリンク等" required />
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>リンクURL (通常用)</label>
+            <input type="text" value={formData.link_url} onChange={e => setFormData({...formData, link_url: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} placeholder="アフィリエイトリンク等" />
+          </div>
+          <div style={{ background: 'rgba(var(--primary-color-rgb), 0.05)', padding: '1rem', borderRadius: '8px', border: '1px dashed var(--primary-color)' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>カスタムHTML / スクリプト (上級者用)</label>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>※ここにDMMのバナーウィジェットのコードなどを貼り付けると、画像・リンクの代わりに出力されます。</p>
+            <textarea value={formData.html_code} onChange={e => setFormData({...formData, html_code: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', minHeight: '100px', fontFamily: 'monospace' }} placeholder="<ins class='widget-banner'></ins><script ...></script>" />
           </div>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
