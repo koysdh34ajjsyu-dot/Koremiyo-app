@@ -2477,7 +2477,13 @@ function CampaignsPage() {
         .order('created_at', { ascending: false });
 
       if (data) {
-        setCampaigns(data);
+        // 現在日時を取得し、期限切れ（expires_at が過去の日時）のものを除外する
+        const now = new Date();
+        const validCampaigns = data.filter(camp => {
+          if (!camp.expires_at) return true; // 期限設定なしは常に表示
+          return new Date(camp.expires_at) > now;
+        });
+        setCampaigns(validCampaigns);
       }
       setLoading(false);
     };
@@ -2561,7 +2567,7 @@ function CampaignAdmin() {
   
   // フォーム状態
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ title: '', description: '', image_url: '', link_url: '', html_code: '', is_active: true, display_order: 0 });
+  const [formData, setFormData] = useState({ title: '', description: '', image_url: '', link_url: '', html_code: '', is_active: true, display_order: 0, expires_at: '' });
 
   useEffect(() => {
     fetchCampaigns();
@@ -2583,13 +2589,14 @@ function CampaignAdmin() {
       link_url: camp.link_url || '',
       html_code: camp.html_code || '',
       is_active: camp.is_active,
-      display_order: camp.display_order || 0
+      display_order: camp.display_order || 0,
+      expires_at: camp.expires_at ? camp.expires_at.slice(0, 16) : '' // YYYY-MM-DDTHH:mm形式にする
     });
   };
 
   const resetForm = () => {
     setEditingId(null);
-    setFormData({ title: '', description: '', image_url: '', link_url: '', html_code: '', is_active: true, display_order: 0 });
+    setFormData({ title: '', description: '', image_url: '', link_url: '', html_code: '', is_active: true, display_order: 0, expires_at: '' });
   };
 
   const handleSubmit = async (e) => {
@@ -2606,6 +2613,7 @@ function CampaignAdmin() {
     setLoading(true);
     const method = editingId ? 'PUT' : 'POST';
     const payload = { ...formData, secret: 'admin1234' };
+    if (!payload.expires_at) payload.expires_at = null; // 空文字の場合はnullにする
     if (editingId) payload.id = editingId;
 
     try {
@@ -2674,9 +2682,15 @@ function CampaignAdmin() {
               <span>公開する (ユーザーに表示)</span>
             </label>
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>表示順 (数字が小さいほど上)</label>
-            <input type="number" value={formData.display_order} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value) || 0})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>表示順 (数字が小さいほど上)</label>
+              <input type="number" value={formData.display_order} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value) || 0})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>表示期限 (空欄で無期限)</label>
+              <input type="datetime-local" value={formData.expires_at} onChange={e => setFormData({...formData, expires_at: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+            </div>
           </div>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
             {editingId && <button type="button" className="btn btn-outline" onClick={resetForm}>キャンセル</button>}
@@ -2699,6 +2713,10 @@ function CampaignAdmin() {
                 <div style={{ flex: 1 }}>
                   <h3 style={{ margin: 0, fontSize: '1rem' }}>{camp.title}</h3>
                   <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>順序: {camp.display_order} | 状態: {camp.is_active ? '公開中' : '非公開'}</p>
+                  <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: camp.expires_at && new Date(camp.expires_at) < new Date() ? '#ff4444' : 'var(--text-secondary)' }}>
+                    期限: {camp.expires_at ? new Date(camp.expires_at).toLocaleString() : '無期限'}
+                    {camp.expires_at && new Date(camp.expires_at) < new Date() && ' (期限切れ)'}
+                  </p>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.8rem', justifyContent: 'flex-end' }}>
