@@ -2560,9 +2560,6 @@ function CampaignsPage() {
                 </a>
               )}
             </div>
-                </a>
-              )}
-            </div>
           ))}
         </div>
       )}
