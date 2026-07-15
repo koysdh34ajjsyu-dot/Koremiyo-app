@@ -2519,17 +2519,22 @@ function CampaignsPage() {
       )}
 
       {!loading && campaigns.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
           {campaigns.map(camp => (
-            <div key={camp.id} className="glass-panel hover-card" style={{ padding: '0', overflow: 'hidden', border: '2px solid transparent', transition: 'all 0.3s' }}>
+            <div key={camp.id} className="glass-panel hover-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border-color)', transition: 'transform 0.2s, box-shadow 0.2s', display: 'flex', flexDirection: 'column', background: '#fff' }}>
               {/* HTMLコードが登録されている場合はウィジェットとして表示 */}
               {camp.html_code ? (
-                <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <h2 style={{ color: 'var(--text-primary)', marginBottom: '1.5rem', fontSize: '1.4rem', textAlign: 'center' }}>{camp.title}</h2>
-                  <HtmlWidgetRenderer htmlContent={camp.html_code} />
-                  {camp.description && (
-                    <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', whiteSpace: 'pre-wrap', marginTop: '1.5rem', textAlign: 'center' }}>{camp.description}</p>
-                  )}
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '1rem' }}>
+                  <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                    <HtmlWidgetRenderer htmlContent={camp.html_code} />
+                  </div>
+                  <div style={{ marginTop: '1rem' }}>
+                    <div style={{ display: 'inline-block', background: '#e6005c', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', fontWeight: 'bold' }}>CAMPAIGN</div>
+                    <h2 style={{ color: 'var(--text-primary)', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
+                    {camp.description && (
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.description}</p>
+                    )}
+                  </div>
                 </div>
               ) : (
                 /* 通常の画像＋リンク型の表示 */
@@ -2537,25 +2542,24 @@ function CampaignsPage() {
                   href={camp.link_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  style={{ display: 'block', textDecoration: 'none' }}
-                  onMouseEnter={e => e.currentTarget.parentElement.style.borderColor = 'var(--primary-color)'}
-                  onMouseLeave={e => e.currentTarget.parentElement.style.borderColor = 'transparent'}
+                  style={{ display: 'flex', flexDirection: 'column', flex: 1, textDecoration: 'none' }}
                 >
                   {camp.image_url && (
                     <img 
                       src={camp.image_url} 
                       alt={camp.title} 
-                      style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--border-color)' }} 
+                      style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--border-color)' }} 
                       onError={e => { e.currentTarget.style.display = 'none'; }}
                     />
                   )}
-                  <div style={{ padding: '1.5rem' }}>
-                    <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.8rem', fontSize: '1.4rem' }}>{camp.title}</h2>
-                    <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{camp.description}</p>
-                    <div style={{ marginTop: '1rem', textAlign: 'right' }}>
-                      <span className="btn btn-primary" style={{ display: 'inline-block', padding: '0.6rem 1.5rem' }}>詳細を見る ＞</span>
-                    </div>
+                  <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'inline-block', background: '#e6005c', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', alignSelf: 'flex-start', fontWeight: 'bold' }}>CAMPAIGN</div>
+                    <h2 style={{ color: 'var(--text-primary)', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, flex: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.description}</p>
                   </div>
+                </a>
+              )}
+            </div>
                 </a>
               )}
             </div>
