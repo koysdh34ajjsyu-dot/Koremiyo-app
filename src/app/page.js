@@ -2426,37 +2426,45 @@ function RankingAdmin() {
 // HtmlWidgetRenderer: 危険なHTML文字列や<script>タグを安全に展開・実行するコンポーネント
 // ============================================================
 function HtmlWidgetRenderer({ htmlContent }) {
-  const containerRef = useRef(null);
+  const iframeRef = useRef(null);
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-    
-    // まず普通にHTMLをセットする（<ins>などの要素が作られる）
-    containerRef.current.innerHTML = htmlContent;
+  const srcDocHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <base target="_blank">
+        <style>
+          body { 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: transparent; 
+            overflow: hidden;
+          }
+        </style>
+      </head>
+      <body>
+        ${htmlContent}
+      </body>
+    </html>
+  `;
 
-    // セットされたHTMLの中から<script>タグを探し出す
-    const scripts = containerRef.current.querySelectorAll('script');
-    
-    // ReactはinnerHTMLで挿入された<script>を実行しないため、手動で再構築してDOMにアペンドする
-    scripts.forEach((oldScript) => {
-      const newScript = document.createElement('script');
-      
-      // 元のscriptタグの属性をすべてコピーする（srcなど）
-      Array.from(oldScript.attributes).forEach(attr => {
-        newScript.setAttribute(attr.name, attr.value);
-      });
-      
-      // インラインスクリプトの内容もコピーする
-      newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-      
-      // 古いscriptタグを新しい実行可能なものに置き換える
-      if (oldScript.parentNode) {
-        oldScript.parentNode.replaceChild(newScript, oldScript);
-      }
-    });
-  }, [htmlContent]);
-
-  return <div ref={containerRef} style={{ width: '100%', display: 'flex', justifyContent: 'center' }} />;
+  return (
+    <iframe
+      ref={iframeRef}
+      srcDoc={srcDocHtml}
+      style={{ 
+        width: '100%', 
+        border: 'none', 
+        minHeight: '350px', // DMMの一般的なバナーサイズ(300x250等)をカバーする高さ
+        overflow: 'hidden' 
+      }}
+      scrolling="no"
+    />
+  );
 }
 
 // ============================================================
