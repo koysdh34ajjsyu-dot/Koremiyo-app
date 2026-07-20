@@ -180,7 +180,7 @@ function RealProductSearch() {
 
         <div style={{ flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>サービス（カテゴリ）</label>
-          <select value={service} onChange={(e) => setService(e.target.value)} style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem', background: '#fff' }}>
+          <select value={service} onChange={(e) => setService(e.target.value)} style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem', background: 'var(--panel-bg)' }}>
             <option value="all">すべて</option>
             <option value="digital">動画 (ビデオ/素人)</option>
             <option value="doujin">同人 (音声/CG/ゲーム)</option>
@@ -191,7 +191,7 @@ function RealProductSearch() {
         </div>
         <div style={{ flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>並び順</label>
-          <select value={sort} onChange={(e) => setSort(e.target.value)} style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem', background: '#fff' }}>
+          <select value={sort} onChange={(e) => setSort(e.target.value)} style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem', background: 'var(--panel-bg)' }}>
             <option value="-date">新着順</option>
             <option value="rank">人気順</option>
             <option value="review">評価順</option>
@@ -682,7 +682,7 @@ function ProductDeepInspector() {
                   <h5 style={{ fontSize: '1.3rem', margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>{act.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>{act.ruby}</span></h5>
                   
                   <div style={{ background: 'rgba(255,179,198,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                    <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold', color: '#ff758c', textAlign: 'center', fontSize: '1.2rem' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold', color: 'var(--accent-color)', textAlign: 'center', fontSize: '1.2rem' }}>
                       B{act.bust || '?'} ({act.cup || '?'}カップ) / W{act.waist || '?'} / H{act.hip || '?'}
                     </p>
                   </div>
@@ -1107,7 +1107,7 @@ function DlsiteBlogPage({ articles = [] }) {
   }, []);
 
   const categories = [
-    { title: 'フェ◯チオが好きな方はこちら！！', desc: 'フェラ・フェラチオ好きへ管理者オススメのDLsite同人作品を紹介。フェラ音声・フェラ同人を厳選！', color: '#ff758c' },
+    { title: 'フェ◯チオが好きな方はこちら！！', desc: 'フェラ・フェラチオ好きへ管理者オススメのDLsite同人作品を紹介。フェラ音声・フェラ同人を厳選！', color: 'var(--accent-color)' },
     { title: 'スクール水着が好きな方はこちら！！', desc: 'スク水・スクール水着エロ好きへ管理者オススメのDLsite同人作品を紹介。スク水エロCG・音声を厳選！', color: '#84b6f4' },
     { title: '全年齢 ASMR', desc: '癒やしを求める方向けの音声作品レビュー', color: '#b088f9' }
   ];
@@ -1210,7 +1210,7 @@ function DlsiteBlogPage({ articles = [] }) {
             {/* NEW バッジ */}
             <div style={{
               position: 'absolute', top: '1rem', left: '1rem', zIndex: 10,
-              background: 'linear-gradient(135deg, var(--primary-color), #ff758c)',
+              background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
               color: 'white', padding: '0.3rem 0.9rem', borderRadius: '50px',
               fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '0.05em',
               boxShadow: '0 4px 12px rgba(255,117,140,0.4)',
@@ -1337,16 +1337,16 @@ function DmmBlogPage({ articles = [] }) {
           <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
           
           {showCampaign && (
-            <div style={{ background: 'var(--glass-bg)', border: '2px solid #ff758c', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: 'linear-gradient(90deg, #ff758c, #ff7eb3)' }}></div>
-              <h4 style={{ color: '#ff758c', margin: '0 0 1rem 0', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ background: 'var(--glass-bg)', border: '2px solid var(--accent-color)', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: 'linear-gradient(90deg, var(--accent-color), var(--primary-color))' }}></div>
+              <h4 style={{ color: 'var(--accent-color)', margin: '0 0 1rem 0', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 🔥 期間限定キャンペーン実施中！
               </h4>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.5rem', marginBottom: '1rem' }}>
                 <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '1.2rem' }}>{campaign.originalPrice}円</span>
                 <span style={{ color: '#ff0033', fontSize: '2.5rem', fontWeight: '900', lineHeight: '1', textShadow: '0 2px 4px rgba(255,0,51,0.2)' }}>{campaign.discountPrice}円</span>
               </div>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 'bold', background: 'rgba(255,117,140,0.1)', display: 'inline-block', padding: '0.4rem 1rem', borderRadius: '50px' }}>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 'bold', background: 'rgba(244,63,94,0.1)', display: 'inline-block', padding: '0.4rem 1rem', borderRadius: '50px' }}>
                 ⏰ 割引期限: <span style={{ color: '#e63946' }}>{new Date(campaign.discountExpiry).toLocaleDateString('ja-JP')} 23:59 まで</span>
               </p>
             </div>
@@ -1393,7 +1393,7 @@ function DmmBlogPage({ articles = [] }) {
           >
             <div style={{
               position: 'absolute', top: '1rem', left: '1rem', zIndex: 10,
-              background: 'linear-gradient(135deg, var(--primary-color), #ff758c)',
+              background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
               color: 'white', padding: '0.3rem 0.9rem', borderRadius: '50px',
               fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '0.05em',
               boxShadow: '0 4px 12px rgba(255,117,140,0.4)',
@@ -1401,7 +1401,7 @@ function DmmBlogPage({ articles = [] }) {
             {showCampaign && (
               <div style={{
                 position: 'absolute', top: '1rem', right: '1rem', zIndex: 10,
-                background: 'linear-gradient(45deg, #ff0033, #ff758c)',
+                background: 'linear-gradient(45deg, #ff0033, var(--accent-color))',
                 color: 'white', padding: '0.3rem 0.9rem', borderRadius: '50px',
                 fontWeight: 'bold', fontSize: '0.8rem',
               }}>🔥 キャンペーン中</div>
@@ -1444,7 +1444,7 @@ function DmmBlogPage({ articles = [] }) {
           return (
             <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative' }}>
               {showCampaign && (
-                <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'linear-gradient(45deg, #ff0033, #ff758c)', color: 'white', padding: '0.4rem 1rem', borderRadius: '50px', fontWeight: 'bold', fontSize: '0.8rem', boxShadow: '0 4px 10px rgba(255,0,51,0.3)', zIndex: 10 }}>
+                <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'linear-gradient(45deg, #ff0033, var(--accent-color))', color: 'white', padding: '0.4rem 1rem', borderRadius: '50px', fontWeight: 'bold', fontSize: '0.8rem', boxShadow: '0 4px 10px rgba(255,0,51,0.3)', zIndex: 10 }}>
                   🔥 キャンペーン中
                 </div>
               )}
@@ -1715,7 +1715,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
           </div>
           <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
           
-          <div style={{ marginBottom: '1rem', background: '#fff', borderRadius: '12px', border: '2px solid var(--border-color)', overflow: 'hidden' }}>
+          <div style={{ marginBottom: '1rem', background: 'var(--panel-bg)', borderRadius: '12px', border: '2px solid var(--border-color)', overflow: 'hidden' }}>
             {!isHtmlMode ? (
               <ReactQuill 
                 ref={quillRef}
@@ -1738,7 +1738,7 @@ function DlsiteAdmin({ articles, refreshPosts }) {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <div style={{ padding: '0.5rem', background: '#1e1e1e', borderBottom: '1px solid #444', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="color: #ff758c;">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🎨 文字色</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="color: var(--accent-color);">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🎨 文字色</button>
                   <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="font-size: 1.5rem; font-weight: bold;">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🅰️ 大文字</button>
                   <button className="btn btn-outline" onClick={() => insertHtmlSnippet('\\n<ul>\\n  <li>リスト1</li>\\n  <li>リスト2</li>\\n</ul>\\n')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>📝 リスト</button>
                   <button className="btn btn-outline" onClick={() => insertHtmlSnippet('\\n<table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">\\n  <tr><th style="padding: 0.5rem; background: #444;">見出し</th></tr>\\n  <tr><td style="padding: 0.5rem;">内容</td></tr>\\n</table>\\n')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>📊 表</button>
@@ -1963,7 +1963,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
           </div>
           <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="記事のタイトルを入力..." style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '12px', border: '2px solid var(--border-color)', marginBottom: '1rem', outline: 'none' }} />
           
-          <div style={{ marginBottom: '1rem', background: '#fff', borderRadius: '12px', border: '2px solid var(--border-color)', overflow: 'hidden' }}>
+          <div style={{ marginBottom: '1rem', background: 'var(--panel-bg)', borderRadius: '12px', border: '2px solid var(--border-color)', overflow: 'hidden' }}>
             {!isHtmlMode ? (
               <ReactQuill 
                 ref={quillRef}
@@ -1986,7 +1986,7 @@ function DmmBlogAdmin({ articles, refreshPosts }) {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <div style={{ padding: '0.5rem', background: '#1e1e1e', borderBottom: '1px solid #444', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="color: #ff758c;">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🎨 文字色</button>
+                  <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="color: var(--accent-color);">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🎨 文字色</button>
                   <button className="btn btn-outline" onClick={() => insertHtmlSnippet('<span style="font-size: 1.5rem; font-weight: bold;">ここにテキスト</span>')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>🅰️ 大文字</button>
                   <button className="btn btn-outline" onClick={() => insertHtmlSnippet('\\n<ul>\\n  <li>リスト1</li>\\n  <li>リスト2</li>\\n</ul>\\n')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>📝 リスト</button>
                   <button className="btn btn-outline" onClick={() => insertHtmlSnippet('\\n<table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">\\n  <tr><th style="padding: 0.5rem; background: #444;">見出し</th></tr>\\n  <tr><td style="padding: 0.5rem;">内容</td></tr>\\n</table>\\n')} style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: '#666', color: '#ccc' }}>📊 表</button>
@@ -2103,8 +2103,8 @@ function FeedbackAdmin() {
 
   const getStatusLabel = (status) => {
     switch(status) {
-      case 'new': return <span style={{ color: '#ff758c', fontWeight: 'bold', background: 'rgba(255,117,140,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>新規</span>;
-      case 'in_progress': return <span style={{ color: '#ff7eb3', fontWeight: 'bold', background: 'rgba(255,126,179,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>対応中</span>;
+      case 'new': return <span style={{ color: 'var(--accent-color)', fontWeight: 'bold', background: 'rgba(244,63,94,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>新規</span>;
+      case 'in_progress': return <span style={{ color: 'var(--primary-color)', fontWeight: 'bold', background: 'rgba(59,130,246,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>対応中</span>;
       case 'resolved': return <span style={{ color: '#aaa', fontWeight: 'bold', background: 'rgba(170,170,170,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>完了</span>;
       default: return status;
     }
@@ -2521,7 +2521,7 @@ function CampaignsPage() {
       {!loading && campaigns.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
           {campaigns.map(camp => (
-            <div key={camp.id} className="glass-panel hover-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border-color)', transition: 'transform 0.2s, box-shadow 0.2s', display: 'flex', flexDirection: 'column', background: '#fff' }}>
+            <div key={camp.id} className="glass-panel hover-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border-color)', transition: 'transform 0.2s, box-shadow 0.2s', display: 'flex', flexDirection: 'column', background: 'var(--panel-bg)' }}>
               {/* HTMLコードが登録されている場合はウィジェットとして表示 */}
               {camp.html_code ? (
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '1rem' }}>
@@ -2529,7 +2529,7 @@ function CampaignsPage() {
                     <HtmlWidgetRenderer htmlContent={camp.html_code} />
                   </div>
                   <div style={{ marginTop: '1rem' }}>
-                    <div style={{ display: 'inline-block', background: '#e6005c', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', fontWeight: 'bold' }}>CAMPAIGN</div>
+                    <div style={{ display: 'inline-block', background: 'var(--accent-color)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', fontWeight: 'bold' }}>CAMPAIGN</div>
                     <h2 style={{ color: 'var(--text-primary)', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
                     {camp.description && (
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.description}</p>
@@ -2553,7 +2553,7 @@ function CampaignsPage() {
                     />
                   )}
                   <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'inline-block', background: '#e6005c', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', alignSelf: 'flex-start', fontWeight: 'bold' }}>CAMPAIGN</div>
+                    <div style={{ display: 'inline-block', background: 'var(--accent-color)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', alignSelf: 'flex-start', fontWeight: 'bold' }}>CAMPAIGN</div>
                     <h2 style={{ color: 'var(--text-primary)', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, flex: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.description}</p>
                   </div>

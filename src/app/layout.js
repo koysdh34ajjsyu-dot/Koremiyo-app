@@ -152,7 +152,7 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {/* 追加SEOタグ */}
-        <meta name="theme-color" content="#ffb3c6" />
+        <meta name="theme-color" content="#0f172a" />
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body>{children}</body>
