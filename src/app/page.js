@@ -743,6 +743,26 @@ function TopPage({ navigateTo }) {
             DLsiteブログへ →
           </button>
         </div>
+
+        <div className="glass-panel delay-3">
+          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>👑 人気ランキング</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+            いま一番売れている話題の同人作品や動画をランキング形式でご紹介。迷ったらまずはここから！
+          </p>
+          <button className="btn btn-outline" onClick={() => navigateTo('ranking')} style={{ width: '100%' }}>
+            ランキングを見る →
+          </button>
+        </div>
+
+        <div className="glass-panel delay-3" style={{ animationDelay: '0.4s' }}>
+          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>🎁 お得なキャンペーン</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+            期間限定のセール情報や、ポイント還元キャンペーンなど、見逃せないお得な情報をピックアップ。
+          </p>
+          <button className="btn btn-outline" onClick={() => navigateTo('campaign')} style={{ width: '100%' }}>
+            キャンペーン情報を見る →
+          </button>
+        </div>
       </div>
     </div>
   );
