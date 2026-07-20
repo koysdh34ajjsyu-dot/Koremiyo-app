@@ -2161,6 +2161,63 @@ function FeedbackAdmin() {
 }
 
 // ============================================================
+// DLsiteランキングバナー（iframeで隔離）
+// ============================================================
+function DlsiteRankingBanner() {
+  const iframeRef = useRef(null);
+
+  const dlsiteScript = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <base target="_blank">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: transparent; overflow-x: hidden; }
+  </style>
+</head>
+<body>
+  <script type="text/javascript">
+    blogparts = {
+      "base": "https://www.dlsite.com/",
+      "type": "ranking",
+      "site": "maniax",
+      "query": { "period": "24h" },
+      "title": "同人ランキング",
+      "display": "vertical",
+      "detail": "1",
+      "column": "h",
+      "image": "large",
+      "count": "10",
+      "wrapper": "1",
+      "autorotate": true,
+      "aid": "Koremiyoonline"
+    };
+  <\/script>
+  <script type="text/javascript" src="https://www.dlsite.com/js/blogparts.js" charset="UTF-8"><\/script>
+</body>
+</html>
+`;
+
+  return (
+    <iframe
+      ref={iframeRef}
+      srcDoc={dlsiteScript}
+      style={{
+        width: '100%',
+        minHeight: '1200px',
+        border: 'none',
+        display: 'block',
+      }}
+      sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      title="DLsiteランキング"
+      loading="lazy"
+    />
+  );
+}
+
+// ============================================================
 // 公開ランキングページ（エンドユーザー向け）
 // ============================================================
 function RankedProductsPage() {
@@ -2203,108 +2260,150 @@ function RankedProductsPage() {
     <div className="container animate-fade-in">
       <div style={{ textAlign: 'center', marginBottom: '3rem', marginTop: '2rem' }}>
         <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
-          🏆 人気作品ランキング
+          👑 人気ランキング
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-          管理者が厳選した最新の人気作品をランキング形式でご紹介します
+          DMMとDLsiteの最新人気ランキングをチェック
         </p>
-        {updatedAt && (
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.7 }}>
-            最終更新: {formatDate(updatedAt)}
-            <span style={{ marginLeft: '0.5rem', fontSize: '0.72rem' }}>
-              ※ 表示価格はAPIデータに基づくものであり、実際と異なる場合があります
-            </span>
-          </p>
-        )}
       </div>
 
-      {loading && (
-        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-          <p>ランキングを読み込み中...</p>
-        </div>
-      )}
+      {/* 2カラムレイアウト PC:2列 / スマホ:1列 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+        gap: '2rem',
+        alignItems: 'start',
+      }}>
 
-      {fetchError && (
-        <div style={{ textAlign: 'center', padding: '2rem', margin: '2rem', background: 'rgba(255,80,80,0.1)', border: '2px solid rgba(255,80,80,0.3)', borderRadius: '12px' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
-          <h3 style={{ color: '#ff4444', marginBottom: '0.5rem' }}>データの読み込みに失敗しました</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{fetchError}</p>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '1rem' }}>※ Supabaseのテーブル定義やRLSポリシーを確認してください。</p>
-        </div>
-      )}
-
-      {!loading && products.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
-          <p>現在ランキングデータを準備中です。しばらくお待ちください。</p>
-        </div>
-      )}
-
-      {!loading && products.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-          {products.map((item, idx) => (
-            <div key={item.id} className="glass-panel hover-card animate-fade-in"
-              style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', padding: '1.2rem', border: idx < 3 ? '2px solid var(--primary-color)' : '1px solid var(--border-color)' }}>
-
-              {/* ランク表示 */}
+        {/* ====== DMM / FANZA ランキング ====== */}
+        <div>
+          <div className="glass-panel" style={{ marginBottom: '1.5rem', padding: '1rem 1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
               <div style={{
-                minWidth: '60px', height: '60px', borderRadius: '50%',
-                background: idx === 0 ? 'linear-gradient(135deg, #FFD700, #FFA500)'
-                  : idx === 1 ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
-                  : idx === 2 ? 'linear-gradient(135deg, #CD7F32, #A05010)'
-                  : 'var(--glass-bg)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: idx < 3 ? '1.4rem' : '1.1rem', fontWeight: 'bold',
-                color: idx < 3 ? '#fff' : 'var(--text-secondary)',
-                flexShrink: 0, boxShadow: idx < 3 ? '0 4px 12px rgba(0,0,0,0.2)' : 'none'
-              }}>
-                {idx < 3 ? ['🥇','🥈','🥉'][idx] : `${idx+1}位`}
-              </div>
-
-              {/* サムネイル */}
-              <img
-                src={item.image_url || ''}
-                alt={item.title}
-                style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '12px', flexShrink: 0, background: '#f0f0f0' }}
-                onError={e => { e.currentTarget.style.display = 'none'; }}
-              />
-
-              {/* 情報 */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: 0 }}>
-                <h3 style={{ fontSize: '1rem', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                  {item.title}
-                </h3>
-                {item.actress && (
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>👩 {item.actress}</span>
-                )}
-                {item.genre && (
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', opacity: 0.8 }}>🏷️ {item.genre}</span>
-                )}
-                {item.maker && (
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', opacity: 0.8 }}>🏢 {item.maker}</span>
-                )}
-              </div>
-
-              {/* 価格 + ボタン */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.8rem', flexShrink: 0 }}>
-                <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-hover)' }}>
-                  {item.price ? `¥${item.price}` : '価格未定'}
-                </div>
-                <a
-                  href={item.affiliate_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-primary"
-                  style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem', textDecoration: 'none', whiteSpace: 'nowrap' }}
-                >
-                  👀 作品を見る
-                </a>
-              </div>
+                background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+                borderRadius: '8px',
+                padding: '0.4rem 0.9rem',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                color: '#fff',
+                letterSpacing: '0.04em',
+              }}>DMM / FANZA</div>
+              <h2 style={{ margin: 0, fontSize: '1.2rem' }}>🎬 FANZA人気作品ランキング</h2>
             </div>
-          ))}
+            {updatedAt && (
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.7 }}>
+                最終更新: {formatDate(updatedAt)}
+                <span style={{ marginLeft: '0.5rem', fontSize: '0.7rem' }}>※ APIデータに基づくものです</span>
+              </p>
+            )}
+          </div>
+
+          {loading && (
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+              <p>ランキングを読み込み中...</p>
+            </div>
+          )}
+
+          {fetchError && (
+            <div style={{ textAlign: 'center', padding: '2rem', background: 'rgba(255,80,80,0.1)', border: '2px solid rgba(255,80,80,0.3)', borderRadius: '12px' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+              <h3 style={{ color: '#ff4444', marginBottom: '0.5rem' }}>データの読み込みに失敗しました</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{fetchError}</p>
+            </div>
+          )}
+
+          {!loading && products.length === 0 && !fetchError && (
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
+              <p>現在ランキングデータを準備中です。しばらくお待ちください。</p>
+            </div>
+          )}
+
+          {!loading && products.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {products.map((item, idx) => (
+                <div key={item.id} className="glass-panel hover-card animate-fade-in"
+                  style={{ display: 'flex', gap: '1rem', alignItems: 'center', padding: '1rem', border: idx < 3 ? '2px solid var(--primary-color)' : '1px solid var(--border-color)' }}>
+
+                  <div style={{
+                    minWidth: '52px', height: '52px', borderRadius: '50%',
+                    background: idx === 0 ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+                      : idx === 1 ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
+                      : idx === 2 ? 'linear-gradient(135deg, #CD7F32, #A05010)'
+                      : 'var(--panel-bg)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: idx < 3 ? '1.3rem' : '1rem', fontWeight: 'bold',
+                    color: idx < 3 ? '#fff' : 'var(--text-secondary)',
+                    flexShrink: 0, boxShadow: idx < 3 ? '0 4px 12px rgba(0,0,0,0.2)' : 'none',
+                    border: '1px solid var(--border-color)',
+                  }}>
+                    {idx < 3 ? ['🥇','🥈','🥉'][idx] : `${idx+1}位`}
+                  </div>
+
+                  <img
+                    src={item.image_url || ''}
+                    alt={item.title}
+                    style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0, background: '#334155' }}
+                    onError={e => { e.currentTarget.style.display = 'none'; }}
+                  />
+
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem', minWidth: 0 }}>
+                    <h3 style={{ fontSize: '0.9rem', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {item.title}
+                    </h3>
+                    {item.actress && (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>👩 {item.actress}</span>
+                    )}
+                    {item.genre && (
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', opacity: 0.8 }}>🏷️ {item.genre}</span>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                        {item.price ? `¥${item.price}` : '価格未定'}
+                      </span>
+                      <a
+                        href={item.affiliate_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-primary"
+                        style={{ padding: '0.4rem 0.9rem', fontSize: '0.78rem', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                      >
+                        👀 見る
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* ====== DLsite ランキング ====== */}
+        <div>
+          <div className="glass-panel" style={{ marginBottom: '1.5rem', padding: '1rem 1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                borderRadius: '8px',
+                padding: '0.4rem 0.9rem',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                color: '#fff',
+                letterSpacing: '0.04em',
+              }}>DLsite</div>
+              <h2 style={{ margin: 0, fontSize: '1.2rem' }}>🎧 DLsite同人ランキング</h2>
+            </div>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.7 }}>
+              過去24時間の人気作品ランキング（DLsite提供）
+            </p>
+          </div>
+
+          <div className="glass-panel" style={{ padding: '0.5rem', overflow: 'hidden' }}>
+            <DlsiteRankingBanner />
+          </div>
+        </div>
+      </div>
 
       <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.75rem', color: 'var(--text-secondary)', opacity: 0.6 }}>
         ※ 本ページのリンクはアフィリエイトリンクを含みます。表示価格はAPIデータに基づくものであり、実際の販売価格と異なる場合があります。最新情報は各作品の詳細ページでご確認ください。
