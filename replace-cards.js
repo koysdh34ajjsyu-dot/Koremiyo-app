@@ -1,0 +1,6 @@
+﻿const fs = require('fs');
+let c = fs.readFileSync('src/app/page.js', 'utf8');
+const searchStr =           </button>\n        </div>\n      </div>\n    </div>;
+const replacement =           </button>\n        </div>\n\n        <div className="glass-panel delay-3">\n          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>👑 人気ランキング</h2>\n          <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>\n            いま一番売れている話題の同人作品や動画をランキング形式でご紹介。迷ったらまずはここから！\n          </p>\n          <button className="btn btn-outline" onClick={() => navigateTo('ranking')} style={{ width: '100%' }}>\n            ランキングを見る\n          </button>\n        </div>\n\n        <div className="glass-panel delay-3" style={{ animationDelay: '0.4s' }}>\n          <h2 style={{ marginBottom: '1rem', fontSize: '1.4rem' }}>🎁 お得なキャンペーン</h2>\n          <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>\n            期間限定のセール情報や、ポイント還元キャンペーンなど、見逃せないお得な情報をピックアップ。\n          </p>\n          <button className="btn btn-outline" onClick={() => navigateTo('campaign')} style={{ width: '100%' }}>\n            キャンペーン情報を見る\n          </button>\n        </div>\n      </div>\n    </div>;
+c = c.replace(searchStr, replacement);
+fs.writeFileSync('src/app/page.js', c, 'utf8');

@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { supabase } from '../lib/supabase';
 import './globals.css';
@@ -707,7 +709,7 @@ function ProductDeepInspector() {
 }
 
 // --- Pages ---
-function TopPage({ navigateTo }) {
+export function TopPage({ navigateTo }) {
   return (
     <div className="container animate-fade-in">
       <div style={{ textAlign: 'center', marginBottom: '4rem', marginTop: '2rem' }}>
@@ -729,9 +731,9 @@ function TopPage({ navigateTo }) {
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             FANZA・DMMのオススメ動画作品を管理者が熱量込めて徹底レビュー。新作・人気作を随時更新。
           </p>
-          <button className="btn btn-primary" onClick={() => navigateTo('dmm-blog')} style={{ width: '100%' }}>
+          <Link href="/dmm" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%' }}>
             DMMブログへ →
-          </button>
+          </Link>
         </div>
 
         <div className="glass-panel delay-2">
@@ -739,9 +741,9 @@ function TopPage({ navigateTo }) {
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             <strong>フェラ音声・スク水エロ・スクール水着</strong>などDLsiteオススメ作品を管理者がマニアックにレビュー。
           </p>
-          <button className="btn btn-outline" onClick={() => navigateTo('dlsite')} style={{ width: '100%' }}>
+          <Link href="/dlsite" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%' }}>
             DLsiteブログへ →
-          </button>
+          </Link>
         </div>
 
         <div className="glass-panel delay-3">
@@ -749,9 +751,9 @@ function TopPage({ navigateTo }) {
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             いま一番売れている話題の同人作品や動画をランキング形式でご紹介。迷ったらまずはここから！
           </p>
-          <button className="btn btn-outline" onClick={() => navigateTo('ranking')} style={{ width: '100%' }}>
+          <Link href="/ranking" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%' }}>
             ランキングを見る →
-          </button>
+          </Link>
         </div>
 
         <div className="glass-panel delay-3" style={{ animationDelay: '0.4s' }}>
@@ -759,9 +761,9 @@ function TopPage({ navigateTo }) {
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             期間限定のセール情報や、ポイント還元キャンペーンなど、見逃せないお得な情報をピックアップ。
           </p>
-          <button className="btn btn-outline" onClick={() => navigateTo('campaign')} style={{ width: '100%' }}>
+          <Link href="/campaign" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%' }}>
             キャンペーン情報を見る →
-          </button>
+          </Link>
         </div>
       </div>
     </div>
@@ -1110,8 +1112,18 @@ const renderCampaign = (contentRaw) => {
   return { campaign, showCampaign, cleanContent };
 };
 
-function DlsiteBlogPage({ articles = [] }) {
+export function DlsiteBlogPage({ articles: initialArticles = [] }) {
+  const [articles, setArticles] = useState(initialArticles);
   const [selectedArticle, setSelectedArticle] = useState(null);
+
+  useEffect(() => {
+    if (initialArticles.length > 0) {
+      setArticles(initialArticles);
+    } else {
+      supabase.from('posts').select('*').eq('site', 'dlsite').order('created_at', { ascending: false })
+        .then(({ data }) => { if (data) setArticles(data); });
+    }
+  }, [initialArticles]);
   const [activeCategory, setActiveCategory] = useState(null);
   const [iframeHeight, setIframeHeight] = useState(400);
 
@@ -1343,8 +1355,18 @@ function DlsiteBlogPage({ articles = [] }) {
   );
 }
 
-function DmmBlogPage({ articles = [] }) {
+export function DmmBlogPage({ articles: initialArticles = [] }) {
+  const [articles, setArticles] = useState(initialArticles);
   const [selectedArticle, setSelectedArticle] = useState(null);
+
+  useEffect(() => {
+    if (initialArticles.length > 0) {
+      setArticles(initialArticles);
+    } else {
+      supabase.from('posts').select('*').eq('site', 'dmm').order('created_at', { ascending: false })
+        .then(({ data }) => { if (data) setArticles(data); });
+    }
+  }, [initialArticles]);
 
   if (selectedArticle) {
     const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
@@ -2220,7 +2242,7 @@ function DlsiteRankingBanner() {
 // ============================================================
 // 公開ランキングページ（エンドユーザー向け）
 // ============================================================
-function RankedProductsPage() {
+export function RankedProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState(null);
@@ -2589,7 +2611,7 @@ function HtmlWidgetRenderer({ htmlContent }) {
 // ============================================================
 // 公開キャンペーンページ（エンドユーザー向け）
 // ============================================================
-function CampaignsPage() {
+export function CampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -2859,7 +2881,7 @@ function CampaignAdmin() {
   );
 }
 
-function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
+export function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [adminMode, setAdminMode] = useState(null);
 
@@ -3006,71 +3028,59 @@ function FeedbackWidget() {
   );
 }
 
-// --- App Root ---
-export default function Page() {
-  const [currentPage, setCurrentPage] = useState('top');
+// --- Navbar Component with Suspense Boundary ---
+function NavbarContent() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [showAdmin, setShowAdmin] = useState(false);
-  
-  // ブログ記事のステート (Supabase連携)
-  const [dlsiteArticles, setDlsiteArticles] = useState([]);
-  const [dmmArticles, setDmmArticles] = useState([]);
-
-  const fetchPosts = async () => {
-    const { data, error } = await supabase
-      .from('posts')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (data) {
-      setDlsiteArticles(data.filter(post => post.site === 'dlsite'));
-      setDmmArticles(data.filter(post => post.site === 'dmm'));
-    }
-    if (error) {
-      console.error('Failed to fetch posts:', error);
-    }
-  };
 
   useEffect(() => {
-    fetchPosts();
-    
-    // 隠しURLのチェック (?secret=admin1234)
     if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search);
-      if (searchParams.get('secret') === 'admin1234') {
+      const searchParamsObj = new URLSearchParams(window.location.search);
+      const isSecret = searchParamsObj.get('secret') === 'admin1234' || (searchParams && searchParams.get('secret') === 'admin1234');
+      const isSavedAdmin = localStorage.getItem('isAdmin') === 'true';
+      if (isSecret || isSavedAdmin) {
         setShowAdmin(true);
-        setCurrentPage('admin');
-        
-        // オプション: URLからパラメータを消去して綺麗にする場合
-        // window.history.replaceState({}, document.title, window.location.pathname);
+        if (isSecret) localStorage.setItem('isAdmin', 'true');
       }
     }
-  }, []);
+  }, [searchParams]);
 
   return (
+    <nav className="navbar">
+      <Link href="/" className="nav-brand text-gradient" style={{ fontSize: '1.3rem', textDecoration: 'none' }}>
+        次、コレ見よ
+      </Link>
+      <div className="nav-links">
+        <Link href="/" className={`nav-link ${pathname === '/' ? 'active' : ''}`}>ホーム</Link>
+        <Link href="/ranking" className={`nav-link ${pathname === '/ranking' ? 'active' : ''}`}>🏆 ランキング</Link>
+        <Link href="/campaign" className={`nav-link ${pathname === '/campaign' ? 'active' : ''}`}>🌟 キャンペーン</Link>
+        <Link href="/dmm" className={`nav-link ${pathname === '/dmm' ? 'active' : ''}`}>DMMブログ</Link>
+        <Link href="/dlsite" className={`nav-link ${pathname === '/dlsite' ? 'active' : ''}`}>DLsiteブログ</Link>
+        {showAdmin && (
+          <Link href="/admin" className={`nav-link ${pathname === '/admin' ? 'active' : ''}`} style={{ marginLeft: '1rem', background: 'var(--secondary-color)', color: 'white' }}>
+            管理者 🔒
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+// --- App Layout Wrapper ---
+export function AppLayoutWrapper({ children }) {
+  return (
     <>
-      <nav className="navbar">
-        <div className="nav-brand text-gradient" onClick={() => setCurrentPage('top')} style={{ fontSize: '1.3rem' }}>
-          次、コレ見よ
-        </div>
-        <div className="nav-links">
-          <a className={`nav-link ${currentPage === 'top' ? 'active' : ''}`} onClick={() => setCurrentPage('top')}>ホーム</a>
-          <a className={`nav-link ${currentPage === 'ranking' ? 'active' : ''}`} onClick={() => setCurrentPage('ranking')}>🏆 ランキング</a>
-          <a className={`nav-link ${currentPage === 'campaign' ? 'active' : ''}`} onClick={() => setCurrentPage('campaign')}>🌟 キャンペーン</a>
-          <a className={`nav-link ${currentPage === 'dmm-blog' ? 'active' : ''}`} onClick={() => setCurrentPage('dmm-blog')}>DMMブログ</a>
-          <a className={`nav-link ${currentPage === 'dlsite' ? 'active' : ''}`} onClick={() => setCurrentPage('dlsite')}>DLsiteブログ</a>
-          {showAdmin && (
-            <a className={`nav-link ${currentPage === 'admin' ? 'active' : ''}`} onClick={() => setCurrentPage('admin')} style={{ marginLeft: '1rem', background: 'var(--secondary-color)', color: 'white' }}>管理者 🔒</a>
-          )}
-        </div>
-      </nav>
+      <Suspense fallback={
+        <nav className="navbar">
+          <Link href="/" className="nav-brand text-gradient" style={{ fontSize: '1.3rem', textDecoration: 'none' }}>次、コレ見よ</Link>
+        </nav>
+      }>
+        <NavbarContent />
+      </Suspense>
 
       <main style={{ flex: 1, padding: '2rem 0' }}>
-        {currentPage === 'top' && <TopPage navigateTo={setCurrentPage} />}
-        {currentPage === 'ranking' && <RankedProductsPage />}
-        {currentPage === 'campaign' && <CampaignsPage />}
-        {currentPage === 'dmm-blog' && <DmmBlogPage articles={dmmArticles} />}
-        {currentPage === 'dlsite' && <DlsiteBlogPage articles={dlsiteArticles} />}
-        {currentPage === 'admin' && showAdmin && <AdminDashboard dlsiteArticles={dlsiteArticles} dmmArticles={dmmArticles} refreshPosts={fetchPosts} />}
+        {children}
       </main>
       
       <footer style={{ padding: '2rem', textAlign: 'center', borderTop: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
@@ -3086,5 +3096,14 @@ export default function Page() {
       </footer>
       <FeedbackWidget />
     </>
+  );
+}
+
+// --- App Root ---
+export default function Page() {
+  return (
+    <AppLayoutWrapper>
+      <TopPage />
+    </AppLayoutWrapper>
   );
 }

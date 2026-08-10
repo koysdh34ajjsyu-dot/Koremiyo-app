@@ -131,21 +131,25 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ja" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
-        {/* Google Analytics */}
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-PQBTDZSEZZ"
-        ></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-PQBTDZSEZZ');
-            `,
-          }}
-        />
+        {/* Google Analytics - 本番環境のみ読み込み */}
+        {process.env.NODE_ENV === 'production' && (
+          <>
+            <script
+              async
+              src="https://www.googletagmanager.com/gtag/js?id=G-PQBTDZSEZZ"
+            ></script>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', 'G-PQBTDZSEZZ');
+                `,
+              }}
+            />
+          </>
+        )}
         {/* 構造化データ JSON-LD */}
         <script
           type="application/ld+json"
