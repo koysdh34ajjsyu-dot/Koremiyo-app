@@ -3092,7 +3092,22 @@ export function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
   if (adminMode === null) {
     return (
       <div className="container animate-fade-in" style={{ marginTop: '2rem' }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>管理者ダッシュボード</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+          <h1 style={{ margin: 0, color: '#0f172a' }}>管理者ダッシュボード</h1>
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('isAdmin');
+              }
+              setIsLoggedIn(false);
+              window.location.href = '/';
+            }}
+            className="btn btn-outline"
+            style={{ fontSize: '0.85rem', padding: '0.5rem 1rem', color: '#e63946', borderColor: '#e63946', background: '#ffffff' }}
+          >
+            🔒 管理者ログアウト（ボタンを非表示）
+          </button>
+        </div>
         <div className="grid grid-cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
           <div className="glass-panel" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setAdminMode('dmm-tools')}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🛠</div>
