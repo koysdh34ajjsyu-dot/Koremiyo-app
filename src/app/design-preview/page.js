@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 export default function DesignPreviewPage() {
-  const [activeTab, setActiveTab] = useState('B'); // Default to Option B
+  const [activeTab, setActiveTab] = useState('GW'); // Default to Option B
 
   // Sample sample products
   const sampleProducts = [
@@ -115,11 +115,28 @@ export default function DesignPreviewPage() {
               fontWeight: 'bold',
               fontSize: '0.85rem',
               transition: 'all 0.2s',
-              background: activeTab === 'C' ? 'linear-gradient(135deg, #10b981, #f59e0b)' : 'transparent',
+              background: activeTab === 'C' ? 'linear-gradient(135deg, #64748b, #475569)' : 'transparent',
               color: activeTab === 'C' ? '#fff' : '#94a3b8'
             }}
           >
-            案C: ハイブリッドエレガンス 🌿
+            案C: エレガンス 🌿
+          </button>
+
+          <button
+            onClick={() => setActiveTab('GW')}
+            style={{
+              padding: '0.6rem 1.2rem',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '0.85rem',
+              transition: 'all 0.2s',
+              background: activeTab === 'GW' ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
+              color: activeTab === 'GW' ? '#fff' : '#34d399'
+            }}
+          >
+            ✨ 確定採用: グリーン＆ホワイト (Visual Portal)
           </button>
         </div>
 
@@ -388,6 +405,139 @@ export default function DesignPreviewPage() {
       )}
 
       {/* ============================================================ */}
+      {/* 確定採用: グリーン＆ホワイト (Visual Portal) */}
+      {/* ============================================================ */}
+      {activeTab === 'GW' && (
+        <div style={{ background: '#060e17', minHeight: 'calc(100vh - 80px)', padding: '2rem 1rem', color: '#ffffff' }}>
+          <div style={{ maxWidth: '1150px', margin: '0 auto' }}>
+            
+            {/* ヘッダー演出 */}
+            <div style={{ textAlign: 'center', margin: '2rem 0 3rem' }}>
+              <span style={{
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid #10b981',
+                color: '#34d399',
+                padding: '0.35rem 1.2rem',
+                borderRadius: '50px',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                letterSpacing: '0.08em',
+                display: 'inline-block',
+                marginBottom: '1rem'
+              }}>
+                GREEN & WHITE SIMPLE VISUAL PORTAL
+              </span>
+              <h2 style={{
+                fontSize: '2.8rem',
+                fontWeight: '900',
+                margin: '0.5rem 0',
+                background: 'linear-gradient(135deg, #ffffff, #34d399)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                次、コレ見よ
+              </h2>
+              <p style={{ color: '#cbd5e1', fontSize: '0.95rem' }}>緑と白を基調とした、シンプルで清潔感・視認性の高い最新デザイン</p>
+            </div>
+
+            {/* ヒーロー ピックアップ バナー */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 78, 59, 0.25))',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              borderRadius: '20px',
+              padding: '2rem',
+              marginBottom: '3rem',
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'space-between',
+              flexWrap: 'wrap',
+              gap: '2rem',
+              boxShadow: '0 12px 30px rgba(0,0,0,0.3)'
+            }}>
+              <div style={{ flex: '1 1 400px' }}>
+                <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.8rem' }}>
+                  <span style={{ background: '#10b981', color: '#000', fontWeight: 'bold', padding: '0.25rem 0.8rem', borderRadius: '50px', fontSize: '0.78rem' }}>
+                    🔥 本日のイチオシ特集
+                  </span>
+                  <span style={{ background: 'rgba(255,255,255,0.1)', color: '#ffffff', fontWeight: 'bold', padding: '0.25rem 0.8rem', borderRadius: '50px', fontSize: '0.78rem' }}>
+                    ★ 4.9 高評価作品
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.7rem', fontWeight: 'bold', margin: '0 0 1rem 0', lineHeight: '1.4', color: '#ffffff' }}>
+                  【耳舐めASMR】最高級の癒やしと極上フェラチオ音声
+                </h3>
+                <p style={{ color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                  バイノーラル3D音響で頭がとろけるような最高の没入体験。期間限定50%OFFセール実施中！
+                </p>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <button style={{
+                    background: '#10b981',
+                    color: '#000', border: 'none', padding: '0.75rem 1.8rem', borderRadius: '12px',
+                    fontWeight: 'bold', fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(16,185,129,0.3)'
+                  }}>
+                    ▶ レビューと作品をチェック
+                  </button>
+                  <span style={{ color: '#34d399', fontSize: '1.3rem', fontWeight: '900' }}>50% OFF (¥1,320)</span>
+                </div>
+              </div>
+              
+              <div style={{ width: '260px', height: '160px', background: '#0f172a', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', fontSize: '2.5rem', color: '#64748b' }}>
+                🖼️ サムネイル
+              </div>
+            </div>
+
+            {/* 作品カード一覧 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+              {sampleProducts.map(p => (
+                <div key={p.id} style={{
+                  background: '#0f172a',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  border: '1px solid #1e293b',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <div style={{ position: 'relative', height: '180px', background: '#1e293b' }}>
+                    <span style={{ position: 'absolute', top: '12px', left: '12px', background: '#10b981', color: '#000', fontSize: '0.75rem', fontWeight: 'bold', padding: '0.25rem 0.7rem', borderRadius: '6px' }}>
+                      {p.category}
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#64748b', fontSize: '2.5rem' }}>
+                      🖼️ 画像
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '1.2rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                    <h4 style={{ fontSize: '1.05rem', margin: 0, lineHeight: '1.4', color: '#ffffff' }}>{p.title}</h4>
+                    <p style={{ fontSize: '0.85rem', color: '#cbd5e1', margin: 0, lineHeight: '1.5' }}>{p.description}</p>
+                    
+                    <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid #1e293b' }}>
+                      <div>
+                        <span style={{ fontSize: '0.75rem', color: '#64748b', textDecoration: 'line-through', marginRight: '0.4rem' }}>¥{p.originalPrice}</span>
+                        <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#34d399' }}>¥{p.price}</span>
+                      </div>
+                      <button style={{
+                        background: 'transparent',
+                        color: '#ffffff',
+                        border: '1px solid #10b981',
+                        padding: '0.5rem 1.2rem',
+                        borderRadius: '8px',
+                        fontWeight: 'bold',
+                        fontSize: '0.85rem',
+                        cursor: 'pointer'
+                      }}>
+                        見る 👀
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
+      )}
+
+            {/* ============================================================ */}
       {/* 案C: ハイブリッド・シックエレガンス */}
       {/* ============================================================ */}
       {activeTab === 'C' && (

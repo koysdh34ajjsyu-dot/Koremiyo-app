@@ -1,13 +1,13 @@
 :root {
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
-  --secondary-color: #8b5cf6;
-  --accent-color: #f43f5e;
-  --bg-color: #0f172a;
-  --panel-bg: #1e293b;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --border-color: #334155;
+  --primary-color: #10b981;
+  --primary-hover: #059669;
+  --secondary-color: #34d399;
+  --accent-color: #10b981;
+  --bg-color: #060e17;
+  --panel-bg: #0f172a;
+  --text-primary: #ffffff;
+  --text-secondary: #cbd5e1;
+  --border-color: #1e293b;
   --shadow-color: rgba(0, 0, 0, 0.4);
   --font-family: 'Inter', 'Helvetica Neue', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
 }
@@ -73,7 +73,7 @@ h1, h2, h3 {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #60a5fa, #818cf8);
+  background: linear-gradient(135deg, #ffffff, #34d399);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
