@@ -1,5 +1,11 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# Koremiyo (次、コレ見よ) AI Agent Rules & Project Specs
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+## プロジェクト基本ルール
+1. **回答言語**: すべて日本語で作成すること。
+2. **仕様書の参照**: プロジェクトの最新仕様・コンポーネント構造・カラーパレット・DB設計はリポジトリ直下の `PROJECT_SPEC.md` にすべて網羅されています。開発作業を開始する前に必ず `PROJECT_SPEC.md` を確認してください。
+3. **デザインルール**:
+   - 背景色: 目に優しいソフトスレートグレー (`--bg-color: #edf2f7`)
+   - 文字色: 高コントラストの濃いチャコールブラック (`--text-primary: #0f172a`, `--text-secondary: #334155`)
+   - アクセント: エメラルドグリーン (`--primary-color: #059669`)
+4. **セキュリティルール**:
+   - 管理者ボタンはデフォルトで一般非表示。解錠用URL `?admin_key=koremiyo2026` 経由でのみ表示される仕様を保持すること。
