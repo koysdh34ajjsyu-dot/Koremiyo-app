@@ -136,7 +136,7 @@ export default function DesignPreviewPage() {
               color: activeTab === 'WHITE' ? '#ffffff' : '#34d399'
             }}
           >
-            ✨ 確定適用: ホワイト＆グリーン (White Clean Portal)
+            ✨ 確定適用: ソフトスレート＆グリーン (Eye-Friendly Warm Portal)
           </button>
         </div>
 
@@ -408,7 +408,7 @@ export default function DesignPreviewPage() {
       {/* 確定適用: ホワイト＆グリーン (White Clean Portal) */}
       {/* ============================================================ */}
       {activeTab === 'WHITE' && (
-        <div style={{ background: '#f8fafc', minHeight: 'calc(100vh - 80px)', padding: '2rem 1rem', color: '#0f172a' }}>
+        <div style={{ background: '#edf2f7', minHeight: 'calc(100vh - 80px)', padding: '2rem 1rem', color: '#0f172a' }}>
           <div style={{ maxWidth: '1150px', margin: '0 auto' }}>
             
             {/* ヘッダー演出 */}

@@ -1,14 +1,14 @@
 :root {
   --primary-color: #059669;
   --primary-hover: #047857;
-  --secondary-color: #10b981;
+  --secondary-color: #0d9488;
   --accent-color: #059669;
-  --bg-color: #f8fafc;
+  --bg-color: #edf2f7; /* 目に優しい落ち着いたソフトスレートグレー */
   --panel-bg: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --border-color: #e2e8f0;
-  --shadow-color: rgba(15, 23, 42, 0.06);
+  --text-primary: #0f172a; /* 濃いチャコールブラック（はっきり読める） */
+  --text-secondary: #334155; /* 深みのあるスレートグレー（高コントラスト） */
+  --border-color: #cbd5e1;
+  --shadow-color: rgba(15, 23, 42, 0.08);
   --font-family: 'Inter', 'Helvetica Neue', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
 }
 
@@ -145,7 +145,7 @@ h1, h2, h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(237, 242, 247, 0.95);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
@@ -164,7 +164,7 @@ h1, h2, h3 {
 .nav-links {
   display: flex;
   gap: 0.5rem;
-  background: #f1f5f9;
+  background: #e2e8f0;
   padding: 0.3rem 0.5rem;
   border-radius: 10px;
   border: 1px solid var(--border-color);

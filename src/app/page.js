@@ -141,7 +141,7 @@ function RealProductSearch() {
 
         {!useMeasurements ? (
           <div style={{ flex: '1 1 300px' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>キーワード</label>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#0f172a' }}>キーワード</label>
             <input 
               type="text" 
               value={keyword}
@@ -153,7 +153,7 @@ function RealProductSearch() {
         ) : (
           <div style={{ flex: '1 1 100%', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 150px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>バスト (cm)</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#0f172a' }}>バスト (cm)</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <input type="number" placeholder="Min" value={measurements.bustMin} onChange={e => setMeasurements({...measurements, bustMin: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
                 <span>〜</span>
@@ -161,7 +161,7 @@ function RealProductSearch() {
               </div>
             </div>
             <div style={{ flex: '1 1 150px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>ウエスト (cm)</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#0f172a' }}>ウエスト (cm)</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <input type="number" placeholder="Min" value={measurements.waistMin} onChange={e => setMeasurements({...measurements, waistMin: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
                 <span>〜</span>
@@ -169,7 +169,7 @@ function RealProductSearch() {
               </div>
             </div>
             <div style={{ flex: '1 1 150px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>ヒップ (cm)</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#0f172a' }}>ヒップ (cm)</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <input type="number" placeholder="Min" value={measurements.hipMin} onChange={e => setMeasurements({...measurements, hipMin: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
                 <span>〜</span>
@@ -181,7 +181,7 @@ function RealProductSearch() {
         )}
 
         <div style={{ flex: '1 1 200px' }}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>サービス（カテゴリ）</label>
+          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#0f172a' }}>サービス（カテゴリ）</label>
           <select value={service} onChange={(e) => setService(e.target.value)} style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem', background: 'var(--panel-bg)' }}>
             <option value="all">すべて</option>
             <option value="digital">動画 (ビデオ/素人)</option>
@@ -192,7 +192,7 @@ function RealProductSearch() {
           </select>
         </div>
         <div style={{ flex: '1 1 200px' }}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>並び順</label>
+          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#0f172a' }}>並び順</label>
           <select value={sort} onChange={(e) => setSort(e.target.value)} style={{ width: '100%', padding: '0.8rem 1.2rem', borderRadius: '12px', border: '2px solid var(--border-color)', outline: 'none', fontSize: '1rem', background: 'var(--panel-bg)' }}>
             <option value="-date">新着順</option>
             <option value="rank">人気順</option>
@@ -316,7 +316,7 @@ function RealActressSearch() {
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
               {actress.ruby}
             </p>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-primary)', marginBottom: '1rem', background: 'rgba(0,0,0,0.03)', padding: '0.5rem', borderRadius: '8px' }}>
+            <div style={{ fontSize: '0.8rem', color: '#0f172a', marginBottom: '1rem', background: 'rgba(0,0,0,0.03)', padding: '0.5rem', borderRadius: '8px' }}>
               バスト: {actress.bust || '非公開'}<br/>
               ウエスト: {actress.waist || '非公開'}<br/>
               ヒップ: {actress.hip || '非公開'}
@@ -662,7 +662,7 @@ function ProductDeepInspector() {
                 </div>
                 <div style={{ background: 'var(--panel-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                   <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>収録時間</p>
-                  <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{productData.volume ? `${productData.volume}分` : '不明'}</p>
+                  <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#0f172a' }}>{productData.volume ? `${productData.volume}分` : '不明'}</p>
                 </div>
                 <div style={{ background: 'var(--panel-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                   <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>平均評価</p>
@@ -670,7 +670,7 @@ function ProductDeepInspector() {
                 </div>
                 <div style={{ background: 'var(--panel-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                   <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>配信開始日</p>
-                  <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.3rem' }}>{productData.date ? productData.date.substring(0,10) : '不明'}</p>
+                  <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold', color: '#0f172a', marginTop: '0.3rem' }}>{productData.date ? productData.date.substring(0,10) : '不明'}</p>
                 </div>
               </div>
             </div>
@@ -681,7 +681,7 @@ function ProductDeepInspector() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
               {actressesData.map(act => (
                 <div key={act.id} style={{ background: 'var(--panel-bg)', padding: '1.5rem', borderRadius: '12px', border: '2px solid var(--primary-color)', position: 'relative', boxShadow: '0 4px 12px rgba(255,179,198,0.2)' }}>
-                  <h5 style={{ fontSize: '1.3rem', margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>{act.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>{act.ruby}</span></h5>
+                  <h5 style={{ fontSize: '1.3rem', margin: '0 0 1rem 0', color: '#0f172a' }}>{act.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>{act.ruby}</span></h5>
                   
                   <div style={{ background: 'rgba(255,179,198,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
                     <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold', color: 'var(--accent-color)', textAlign: 'center', fontSize: '1.2rem' }}>
@@ -690,11 +690,11 @@ function ProductDeepInspector() {
                   </div>
 
                   <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '0.95rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <li><strong style={{ color: 'var(--text-primary)' }}>身長:</strong> {act.height ? `${act.height}cm` : '不明'}</li>
-                    <li><strong style={{ color: 'var(--text-primary)' }}>誕生日:</strong> {act.birthday || '不明'}</li>
-                    <li><strong style={{ color: 'var(--text-primary)' }}>血液型:</strong> {act.blood_type ? `${act.blood_type}型` : '不明'}</li>
-                    <li><strong style={{ color: 'var(--text-primary)' }}>趣味・特技:</strong> {act.hobby || '不明'}</li>
-                    <li><strong style={{ color: 'var(--text-primary)' }}>出身地:</strong> {act.prefectures || '不明'}</li>
+                    <li><strong style={{ color: '#0f172a' }}>身長:</strong> {act.height ? `${act.height}cm` : '不明'}</li>
+                    <li><strong style={{ color: '#0f172a' }}>誕生日:</strong> {act.birthday || '不明'}</li>
+                    <li><strong style={{ color: '#0f172a' }}>血液型:</strong> {act.blood_type ? `${act.blood_type}型` : '不明'}</li>
+                    <li><strong style={{ color: '#0f172a' }}>趣味・特技:</strong> {act.hobby || '不明'}</li>
+                    <li><strong style={{ color: '#0f172a' }}>出身地:</strong> {act.prefectures || '不明'}</li>
                   </ul>
                 </div>
               ))}
@@ -747,7 +747,7 @@ export function TopPage() {
         boxShadow: '0 8px 25px rgba(16, 185, 129, 0.08)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-          <span style={{ background: '#059669', color: 'var(--text-primary)', fontWeight: 'bold', padding: '0.3rem 0.9rem', borderRadius: '50px', fontSize: '0.78rem' }}>
+          <span style={{ background: '#059669', color: '#0f172a', fontWeight: 'bold', padding: '0.3rem 0.9rem', borderRadius: '50px', fontSize: '0.78rem' }}>
             🔥 本日のイチオシ特集
           </span>
           <span style={{ background: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', fontWeight: 'bold', padding: '0.3rem 0.9rem', borderRadius: '50px', fontSize: '0.78rem' }}>
@@ -771,7 +771,7 @@ export function TopPage() {
       </div>
 
       {/* ナビゲーションカード（ビジュアルポータル） */}
-      <h3 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <h3 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         📁 コンテンツを選択
       </h3>
 
@@ -779,12 +779,12 @@ export function TopPage() {
         <div className="glass-panel delay-1" style={{ borderTop: '4px solid #10b981' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
             <span style={{ fontSize: '1.8rem' }}>📖</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>DMMブログ / FANZAレビュー</h2>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#0f172a' }}>DMMブログ / FANZAレビュー</h2>
           </div>
-          <p style={{ color: '#cbd5e1', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+          <p style={{ color: '#334155', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             FANZA・DMMのオススメ動画作品を管理者が徹底レビュー。新作・高評価作を随時更新。
           </p>
-          <Link href="/dmm" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%' }}>
+          <Link href="/dmm" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', color: '#ffffff', background: '#059669' }}>
             DMMブログへ →
           </Link>
         </div>
@@ -792,12 +792,12 @@ export function TopPage() {
         <div className="glass-panel delay-2" style={{ borderTop: '4px solid #34d399' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
             <span style={{ fontSize: '1.8rem' }}>✍️</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>DLsiteブログ / 音声・同人</h2>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#0f172a' }}>DLsiteブログ / 音声・同人</h2>
           </div>
-          <p style={{ color: '#cbd5e1', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+          <p style={{ color: '#334155', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             <strong>フェラ音声・スク水エロ・スクール水着</strong>などDLsiteのオススメ作品をマニアックに紹介。
           </p>
-          <Link href="/dlsite" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', background: 'linear-gradient(135deg, #059669, #10b981)' }}>
+          <Link href="/dlsite" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', color: '#ffffff', background: 'linear-gradient(135deg, #059669, #047857)' }}>
             DLsiteブログへ →
           </Link>
         </div>
@@ -805,12 +805,12 @@ export function TopPage() {
         <div className="glass-panel delay-3" style={{ borderTop: '4px solid #10b981' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
             <span style={{ fontSize: '1.8rem' }}>👑</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>人気作品ランキング</h2>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#0f172a' }}>人気作品ランキング</h2>
           </div>
-          <p style={{ color: '#cbd5e1', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+          <p style={{ color: '#334155', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             いま一番売れている話題の同人作品や動画をDMM & DLsiteからダブル集計して紹介！
           </p>
-          <Link href="/ranking" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', borderColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}>
+          <Link href="/ranking" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', borderColor: 'rgba(255,255,255,0.2)', color: '#0f172a' }}>
             ランキングを見る →
           </Link>
         </div>
@@ -818,12 +818,12 @@ export function TopPage() {
         <div className="glass-panel delay-3" style={{ animationDelay: '0.4s', borderTop: '4px solid #34d399' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
             <span style={{ fontSize: '1.8rem' }}>🎁</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>お得なキャンペーン情報</h2>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#0f172a' }}>お得なキャンペーン情報</h2>
           </div>
-          <p style={{ color: '#cbd5e1', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+          <p style={{ color: '#334155', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             期間限定の50%OFFセールやポイント還元キャンペーンなど、お得な割引作品をピックアップ。
           </p>
-          <Link href="/campaign" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', borderColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}>
+          <Link href="/campaign" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', borderColor: 'rgba(255,255,255,0.2)', color: '#0f172a' }}>
             キャンペーンを見る →
           </Link>
         </div>
@@ -899,7 +899,7 @@ function ProductCompare() {
           style={{
             flex: 1, minWidth: '200px', padding: '0.8rem 1.2rem',
             borderRadius: '12px', border: '2px solid var(--border-color)',
-            background: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '1rem'
+            background: 'var(--bg-color)', color: '#0f172a', fontSize: '1rem'
           }}
         />
         <button className="btn btn-primary" onClick={handleSearch} disabled={loading}
@@ -1334,7 +1334,7 @@ export function DlsiteBlogPage({ articles: initialArticles = [] }) {
                 <span style={{ color: 'var(--accent-color)', fontSize: '0.85rem', fontWeight: 'bold' }}>{latest.category || latest.tag}</span>
                 {postedDate && <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>📅 {postedDate}</span>}
               </div>
-              <h2 style={{ fontSize: '1.5rem', lineHeight: '1.4', margin: 0, color: 'var(--text-primary)' }}>{latest.title}</h2>
+              <h2 style={{ fontSize: '1.5rem', lineHeight: '1.4', margin: 0, color: '#0f172a' }}>{latest.title}</h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
                 {(latest.content || '').replace(/<[^>]+>/g, '').slice(0, 120)}{(latest.content || '').length > 120 ? '…' : ''}
               </p>
@@ -2733,7 +2733,7 @@ export function CampaignsPage() {
                   </div>
                   <div style={{ marginTop: '1rem' }}>
                     <div style={{ display: 'inline-block', background: 'var(--accent-color)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', fontWeight: 'bold' }}>CAMPAIGN</div>
-                    <h2 style={{ color: 'var(--text-primary)', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
+                    <h2 style={{ color: '#0f172a', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
                     {camp.description && (
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.description}</p>
                     )}
@@ -2757,7 +2757,7 @@ export function CampaignsPage() {
                   )}
                   <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: 'inline-block', background: 'var(--accent-color)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', alignSelf: 'flex-start', fontWeight: 'bold' }}>CAMPAIGN</div>
-                    <h2 style={{ color: 'var(--text-primary)', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
+                    <h2 style={{ color: '#0f172a', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, flex: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.description}</p>
                   </div>
                 </a>
@@ -2869,24 +2869,24 @@ function CampaignAdmin() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>タイトル (必須)</label>
-            <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} placeholder="例：最大50%OFF 冬の特大セール" required />
+            <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: '#0f172a' }} placeholder="例：最大50%OFF 冬の特大セール" required />
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>説明文</label>
-            <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', minHeight: '100px' }} placeholder="キャンペーンの詳細説明" />
+            <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: '#0f172a', minHeight: '100px' }} placeholder="キャンペーンの詳細説明" />
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>バナー画像URL</label>
-            <input type="text" value={formData.image_url} onChange={e => setFormData({...formData, image_url: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} placeholder="https://..." />
+            <input type="text" value={formData.image_url} onChange={e => setFormData({...formData, image_url: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: '#0f172a' }} placeholder="https://..." />
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>リンクURL (通常用)</label>
-            <input type="text" value={formData.link_url} onChange={e => setFormData({...formData, link_url: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} placeholder="アフィリエイトリンク等" />
+            <input type="text" value={formData.link_url} onChange={e => setFormData({...formData, link_url: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: '#0f172a' }} placeholder="アフィリエイトリンク等" />
           </div>
           <div style={{ background: 'rgba(var(--primary-color-rgb), 0.05)', padding: '1rem', borderRadius: '8px', border: '1px dashed var(--primary-color)' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>カスタムHTML / スクリプト (上級者用)</label>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>※ここにDMMのバナーウィジェットのコードなどを貼り付けると、画像・リンクの代わりに出力されます。</p>
-            <textarea value={formData.html_code} onChange={e => setFormData({...formData, html_code: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', minHeight: '100px', fontFamily: 'monospace' }} placeholder="<ins class='widget-banner'></ins><script ...></script>" />
+            <textarea value={formData.html_code} onChange={e => setFormData({...formData, html_code: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: '#0f172a', minHeight: '100px', fontFamily: 'monospace' }} placeholder="<ins class='widget-banner'></ins><script ...></script>" />
           </div>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -2897,11 +2897,11 @@ function CampaignAdmin() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>表示順 (数字が小さいほど上)</label>
-              <input type="number" value={formData.display_order} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value) || 0})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+              <input type="number" value={formData.display_order} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value) || 0})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: '#0f172a' }} />
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>表示期限 (空欄で無期限)</label>
-              <input type="datetime-local" value={formData.expires_at} onChange={e => setFormData({...formData, expires_at: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+              <input type="datetime-local" value={formData.expires_at} onChange={e => setFormData({...formData, expires_at: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: '#0f172a' }} />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
@@ -3075,7 +3075,7 @@ function FeedbackWidget() {
                   value={content}
                   onChange={e => setContent(e.target.value)}
                   placeholder="要望を入力..."
-                  style={{ width: '100%', minHeight: '150px', padding: '1rem', borderRadius: '8px', border: '2px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', marginBottom: '1rem', resize: 'vertical' }}
+                  style={{ width: '100%', minHeight: '150px', padding: '1rem', borderRadius: '8px', border: '2px solid var(--border-color)', background: 'var(--bg-color)', color: '#0f172a', marginBottom: '1rem', resize: 'vertical' }}
                 />
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
                   <button className="btn btn-outline" onClick={() => setIsOpen(false)} disabled={loading}>キャンセル</button>
