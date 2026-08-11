@@ -715,9 +715,9 @@ export function TopPage() {
       {/* ヒーローセクション Header */}
       <div style={{ textAlign: 'center', marginBottom: '3rem', marginTop: '1rem' }}>
         <span style={{
-          background: 'rgba(16, 185, 129, 0.1)',
-          border: '1px solid #10b981',
-          color: '#34d399',
+          background: '#ecfdf5',
+          border: '1px solid #a7f3d0',
+          color: '#059669',
           padding: '0.35rem 1.2rem',
           borderRadius: '50px',
           fontSize: '0.8rem',
@@ -731,47 +731,47 @@ export function TopPage() {
         <h1 className="text-gradient" style={{ fontSize: '3.2rem', marginBottom: '1rem', fontWeight: '900' }}>
           次、コレ見よ
         </h1>
-        <p style={{ fontSize: '1.1rem', color: '#cbd5e1', maxWidth: '750px', margin: '0 auto 1.5rem', lineHeight: '1.8' }}>
+        <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', maxWidth: '750px', margin: '0 auto 1.5rem', lineHeight: '1.8' }}>
           <strong>音声作品・フェラ・スク水（スクール水着）</strong>などのオススメ同人作品を厳選レビュー。<br/>
           DLsite・FANZA・DMMから管理者イチオシの話題作をシンプルかつスッキリお届けします。
         </p>
       </div>
 
-      {/* ヒーロー ピックアップ バナー (ビジュアルポータル) */}
+      {/* ヒーロー ピックアップ バナー (ホワイト・グリーンポータル) */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 78, 59, 0.25))',
-        border: '1px solid rgba(16, 185, 129, 0.4)',
+        background: 'linear-gradient(135deg, #ecfdf5, #f0fdf4)',
+        border: '1px solid #a7f3d0',
         borderRadius: '20px',
-        padding: '2rem',
+        padding: '2.5rem 2rem',
         marginBottom: '3.5rem',
-        boxShadow: '0 12px 30px rgba(0, 0, 0, 0.3)'
+        boxShadow: '0 8px 25px rgba(16, 185, 129, 0.08)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-          <span style={{ background: '#10b981', color: '#000', fontWeight: 'bold', padding: '0.25rem 0.8rem', borderRadius: '50px', fontSize: '0.78rem' }}>
+          <span style={{ background: '#059669', color: 'var(--text-primary)', fontWeight: 'bold', padding: '0.3rem 0.9rem', borderRadius: '50px', fontSize: '0.78rem' }}>
             🔥 本日のイチオシ特集
           </span>
-          <span style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff', fontWeight: 'bold', padding: '0.25rem 0.8rem', borderRadius: '50px', fontSize: '0.78rem' }}>
+          <span style={{ background: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', fontWeight: 'bold', padding: '0.3rem 0.9rem', borderRadius: '50px', fontSize: '0.78rem' }}>
             ★ 4.9 高評価作品ピックアップ
           </span>
         </div>
-        <h2 style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#ffffff', marginBottom: '0.8rem', lineHeight: '1.4' }}>
+        <h2 style={{ fontSize: '1.7rem', fontWeight: 'bold', color: '#0f172a', marginBottom: '0.8rem', lineHeight: '1.4' }}>
           【2026年最新】管理者厳選！同人音声・人気動画ランキング＆セール特集
         </h2>
-        <p style={{ color: '#cbd5e1', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '1.5rem', maxWidth: '800px' }}>
+        <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem', maxWidth: '800px' }}>
           最新のヒット作品から、隠れた名作・スク水エロ・フェラ音声まで、損しないおすすめ作品を完全網羅。
         </p>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <Link href="/ranking" className="btn btn-primary" style={{ textDecoration: 'none', padding: '0.75rem 1.8rem' }}>
             👑 最新ランキングを見る
           </Link>
-          <Link href="/campaign" className="btn btn-outline" style={{ textDecoration: 'none', padding: '0.75rem 1.8rem', color: '#ffffff', borderColor: 'rgba(255,255,255,0.2)' }}>
+          <Link href="/campaign" className="btn btn-outline" style={{ textDecoration: 'none', padding: '0.75rem 1.8rem', color: '#0f172a', borderColor: '#cbd5e1', background: '#ffffff' }}>
             🎁 お得なセール情報
           </Link>
         </div>
       </div>
 
       {/* ナビゲーションカード（ビジュアルポータル） */}
-      <h3 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <h3 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         📁 コンテンツを選択
       </h3>
 
@@ -779,7 +779,7 @@ export function TopPage() {
         <div className="glass-panel delay-1" style={{ borderTop: '4px solid #10b981' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
             <span style={{ fontSize: '1.8rem' }}>📖</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#ffffff' }}>DMMブログ / FANZAレビュー</h2>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>DMMブログ / FANZAレビュー</h2>
           </div>
           <p style={{ color: '#cbd5e1', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             FANZA・DMMのオススメ動画作品を管理者が徹底レビュー。新作・高評価作を随時更新。
@@ -792,7 +792,7 @@ export function TopPage() {
         <div className="glass-panel delay-2" style={{ borderTop: '4px solid #34d399' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
             <span style={{ fontSize: '1.8rem' }}>✍️</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#ffffff' }}>DLsiteブログ / 音声・同人</h2>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>DLsiteブログ / 音声・同人</h2>
           </div>
           <p style={{ color: '#cbd5e1', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             <strong>フェラ音声・スク水エロ・スクール水着</strong>などDLsiteのオススメ作品をマニアックに紹介。
@@ -805,7 +805,7 @@ export function TopPage() {
         <div className="glass-panel delay-3" style={{ borderTop: '4px solid #10b981' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
             <span style={{ fontSize: '1.8rem' }}>👑</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#ffffff' }}>人気作品ランキング</h2>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>人気作品ランキング</h2>
           </div>
           <p style={{ color: '#cbd5e1', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             いま一番売れている話題の同人作品や動画をDMM & DLsiteからダブル集計して紹介！
@@ -818,7 +818,7 @@ export function TopPage() {
         <div className="glass-panel delay-3" style={{ animationDelay: '0.4s', borderTop: '4px solid #34d399' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
             <span style={{ fontSize: '1.8rem' }}>🎁</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#ffffff' }}>お得なキャンペーン情報</h2>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>お得なキャンペーン情報</h2>
           </div>
           <p style={{ color: '#cbd5e1', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
             期間限定の50%OFFセールやポイント還元キャンペーンなど、お得な割引作品をピックアップ。

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 export default function DesignPreviewPage() {
-  const [activeTab, setActiveTab] = useState('GW'); // Default to Option B
+  const [activeTab, setActiveTab] = useState('WHITE'); // Default to Option B
 
   // Sample sample products
   const sampleProducts = [
@@ -123,7 +123,7 @@ export default function DesignPreviewPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab('GW')}
+            onClick={() => setActiveTab('WHITE')}
             style={{
               padding: '0.6rem 1.2rem',
               borderRadius: '8px',
@@ -132,11 +132,11 @@ export default function DesignPreviewPage() {
               fontWeight: 'bold',
               fontSize: '0.85rem',
               transition: 'all 0.2s',
-              background: activeTab === 'GW' ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
-              color: activeTab === 'GW' ? '#fff' : '#34d399'
+              background: activeTab === 'WHITE' ? 'linear-gradient(135deg, #059669, #10b981)' : 'transparent',
+              color: activeTab === 'WHITE' ? '#ffffff' : '#34d399'
             }}
           >
-            ✨ 確定採用: グリーン＆ホワイト (Visual Portal)
+            ✨ 確定適用: ホワイト＆グリーン (White Clean Portal)
           </button>
         </div>
 
@@ -393,6 +393,140 @@ export default function DesignPreviewPage() {
                         cursor: 'pointer'
                       }}>
                         レビューを読む 👀
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* 確定適用: ホワイト＆グリーン (White Clean Portal) */}
+      {/* ============================================================ */}
+      {activeTab === 'WHITE' && (
+        <div style={{ background: '#f8fafc', minHeight: 'calc(100vh - 80px)', padding: '2rem 1rem', color: '#0f172a' }}>
+          <div style={{ maxWidth: '1150px', margin: '0 auto' }}>
+            
+            {/* ヘッダー演出 */}
+            <div style={{ textAlign: 'center', margin: '2rem 0 3rem' }}>
+              <span style={{
+                background: '#ecfdf5',
+                border: '1px solid #a7f3d0',
+                color: '#059669',
+                padding: '0.35rem 1.2rem',
+                borderRadius: '50px',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                letterSpacing: '0.08em',
+                display: 'inline-block',
+                marginBottom: '1rem'
+              }}>
+                WHITE & GREEN CLEAN PORTAL
+              </span>
+              <h2 style={{
+                fontSize: '2.8rem',
+                fontWeight: '900',
+                margin: '0.5rem 0',
+                background: 'linear-gradient(135deg, #0f172a, #059669)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                次、コレ見よ
+              </h2>
+              <p style={{ color: '#475569', fontSize: '0.95rem' }}>清潔感のある純白背景と読みやすいダークテキストのシンプルデザイン</p>
+            </div>
+
+            {/* ヒーロー ピックアップ バナー */}
+            <div style={{
+              background: 'linear-gradient(135deg, #ecfdf5, #f0fdf4)',
+              border: '1px solid #a7f3d0',
+              borderRadius: '20px',
+              padding: '2.5rem 2rem',
+              marginBottom: '3rem',
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'space-between',
+              flexWrap: 'wrap',
+              gap: '2rem',
+              boxShadow: '0 8px 25px rgba(16,185,129,0.08)'
+            }}>
+              <div style={{ flex: '1 1 400px' }}>
+                <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.8rem' }}>
+                  <span style={{ background: '#059669', color: '#ffffff', fontWeight: 'bold', padding: '0.25rem 0.8rem', borderRadius: '50px', fontSize: '0.78rem' }}>
+                    🔥 本日のイチオシ特集
+                  </span>
+                  <span style={{ background: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', fontWeight: 'bold', padding: '0.25rem 0.8rem', borderRadius: '50px', fontSize: '0.78rem' }}>
+                    ★ 4.9 高評価作品
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.7rem', fontWeight: 'bold', margin: '0 0 1rem 0', lineHeight: '1.4', color: '#0f172a' }}>
+                  【耳舐めASMR】最高級の癒やしと極上フェラチオ音声
+                </h3>
+                <p style={{ color: '#475569', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                  バイノーラル3D音響で頭がとろけるような最高の没入体験。期間限定50%OFFセール実施中！
+                </p>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <button style={{
+                    background: '#059669',
+                    color: '#ffffff', border: 'none', padding: '0.75rem 1.8rem', borderRadius: '12px',
+                    fontWeight: 'bold', fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(5,150,105,0.25)'
+                  }}>
+                    ▶ レビューと作品をチェック
+                  </button>
+                  <span style={{ color: '#059669', fontSize: '1.3rem', fontWeight: '900' }}>50% OFF (¥1,320)</span>
+                </div>
+              </div>
+              
+              <div style={{ width: '260px', height: '160px', background: '#ffffff', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0', fontSize: '2.5rem', color: '#94a3b8', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+                🖼️ サムネイル
+              </div>
+            </div>
+
+            {/* 作品カード一覧 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+              {sampleProducts.map(p => (
+                <div key={p.id} style={{
+                  background: '#ffffff',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 4px 20px rgba(15, 23, 42, 0.05)',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <div style={{ position: 'relative', height: '180px', background: '#f1f5f9' }}>
+                    <span style={{ position: 'absolute', top: '12px', left: '12px', background: '#059669', color: '#ffffff', fontSize: '0.75rem', fontWeight: 'bold', padding: '0.25rem 0.7rem', borderRadius: '6px' }}>
+                      {p.category}
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: '2.5rem' }}>
+                      🖼️ 画像
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '1.2rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                    <h4 style={{ fontSize: '1.05rem', margin: 0, lineHeight: '1.4', color: '#0f172a' }}>{p.title}</h4>
+                    <p style={{ fontSize: '0.85rem', color: '#475569', margin: 0, lineHeight: '1.5' }}>{p.description}</p>
+                    
+                    <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+                      <div>
+                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', textDecoration: 'line-through', marginRight: '0.4rem' }}>¥{p.originalPrice}</span>
+                        <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#059669' }}>¥{p.price}</span>
+                      </div>
+                      <button style={{
+                        background: '#ffffff',
+                        color: '#0f172a',
+                        border: '1px solid #059669',
+                        padding: '0.5rem 1.2rem',
+                        borderRadius: '8px',
+                        fontWeight: 'bold',
+                        fontSize: '0.85rem',
+                        cursor: 'pointer'
+                      }}>
+                        見る 👀
                       </button>
                     </div>
                   </div>
