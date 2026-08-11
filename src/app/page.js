@@ -710,10 +710,57 @@ function ProductDeepInspector() {
 
 // --- Pages ---
 export function TopPage() {
+  const [latestPosts, setLatestPosts] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+  const [selectedArticle, setSelectedArticle] = useState(null);
+
+  useEffect(() => {
+    supabase
+      .from('posts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(6)
+      .then(({ data, error }) => {
+        if (data) setLatestPosts(data);
+        setLoadingPosts(false);
+      });
+  }, []);
+
+  if (selectedArticle) {
+    const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
+
+    return (
+      <div className="container animate-fade-in" style={{ maxWidth: '800px' }}>
+        <button className="btn btn-outline" onClick={() => setSelectedArticle(null)} style={{ marginBottom: '2rem', background: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}>← 記事一覧に戻る</button>
+        <div className="glass-panel" style={{ padding: '3rem' }}>
+          <span style={{ color: '#059669', fontSize: '0.9rem', fontWeight: 'bold' }}>{selectedArticle.category || selectedArticle.tag || (selectedArticle.site === 'dmm' ? 'FANZA動画' : 'DLsite同人')}</span>
+          <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem', color: '#0f172a' }}>{selectedArticle.title}</h1>
+          
+          {showCampaign && (
+            <div style={{ background: '#ecfdf5', border: '2px solid #059669', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', position: 'relative', overflow: 'hidden' }}>
+              <h4 style={{ color: '#059669', margin: '0 0 1rem 0', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                🔥 期間限定キャンペーン実施中！
+              </h4>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.5rem', marginBottom: '1rem' }}>
+                <span style={{ textDecoration: 'line-through', color: '#64748b', fontSize: '1.2rem' }}>{campaign.originalPrice}円</span>
+                <span style={{ color: '#e63946', fontSize: '2.5rem', fontWeight: '900', lineHeight: '1' }}>{campaign.discountPrice}円</span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#334155', fontWeight: 'bold', background: 'rgba(5,150,105,0.1)', display: 'inline-block', padding: '0.4rem 1rem', borderRadius: '50px' }}>
+                ⏰ 割引期限: <span style={{ color: '#e63946' }}>{new Date(campaign.discountExpiry).toLocaleDateString('ja-JP')} 23:59 まで</span>
+              </p>
+            </div>
+          )}
+
+          <SafeHtmlRenderer html={cleanContent} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container animate-fade-in">
-      {/* ヒーローセクション Header */}
-      <div style={{ textAlign: 'center', marginBottom: '3rem', marginTop: '1rem' }}>
+      {/* ヒーロー Header */}
+      <div style={{ textAlign: 'center', marginBottom: '2.5rem', marginTop: '1rem' }}>
         <span style={{
           background: '#ecfdf5',
           border: '1px solid #a7f3d0',
@@ -731,102 +778,193 @@ export function TopPage() {
         <h1 className="text-gradient" style={{ fontSize: '3.2rem', marginBottom: '1rem', fontWeight: '900' }}>
           次、コレ見よ
         </h1>
-        <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', maxWidth: '750px', margin: '0 auto 1.5rem', lineHeight: '1.8' }}>
+        <p style={{ fontSize: '1.1rem', color: '#334155', maxWidth: '750px', margin: '0 auto 1.5rem', lineHeight: '1.8' }}>
           <strong>音声作品・フェラ・スク水（スクール水着）</strong>などのオススメ同人作品を厳選レビュー。<br/>
-          DLsite・FANZA・DMMから管理者イチオシの話題作をシンプルかつスッキリお届けします。
+          DLsite・FANZA・DMMから管理者イチオシの話題作をお届けします。
         </p>
       </div>
 
-      {/* ヒーロー ピックアップ バナー (ホワイト・グリーンポータル) */}
+      {/* 1. 【クイックジャンルフィルター】 */}
+      <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
+        <p style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'bold', marginBottom: '0.8rem' }}>🔍 目的のジャンルから探す</p>
+        <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link href="/dlsite" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a', padding: '0.5rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 'bold', textDecoration: 'none', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+            🎧 音声作品
+          </Link>
+          <Link href="/dlsite" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a', padding: '0.5rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 'bold', textDecoration: 'none', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+            👙 スク水・水着
+          </Link>
+          <Link href="/dlsite" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a', padding: '0.5rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 'bold', textDecoration: 'none', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+            💋 フェラ特集
+          </Link>
+          <Link href="/dmm" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a', padding: '0.5rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 'bold', textDecoration: 'none', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+            🎬 FANZA動画
+          </Link>
+          <Link href="/ranking" style={{ background: '#059669', color: '#ffffff', padding: '0.5rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 'bold', textDecoration: 'none', boxShadow: '0 2px 8px rgba(5,150,105,0.2)' }}>
+            👑 人気ランキング
+          </Link>
+          <Link href="/campaign" style={{ background: '#ffffff', border: '1px solid #059669', color: '#059669', padding: '0.5rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 'bold', textDecoration: 'none', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+            🎁 セール情報
+          </Link>
+        </div>
+      </div>
+
+      {/* 2. 【ヒーローバナー / ピックアップ作品】 */}
       <div style={{
-        background: 'linear-gradient(135deg, #ecfdf5, #f0fdf4)',
-        border: '1px solid #a7f3d0',
+        background: 'linear-gradient(135deg, #e6f4ea, #f1f8f3)',
+        border: '1px solid #a3d9b1',
         borderRadius: '20px',
         padding: '2.5rem 2rem',
         marginBottom: '3.5rem',
-        boxShadow: '0 8px 25px rgba(16, 185, 129, 0.08)'
+        boxShadow: '0 4px 20px rgba(5, 150, 105, 0.08)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-          <span style={{ background: '#059669', color: '#0f172a', fontWeight: 'bold', padding: '0.3rem 0.9rem', borderRadius: '50px', fontSize: '0.78rem' }}>
+          <span style={{ background: '#059669', color: '#ffffff', fontWeight: 'bold', padding: '0.3rem 0.9rem', borderRadius: '50px', fontSize: '0.78rem' }}>
             🔥 本日のイチオシ特集
           </span>
-          <span style={{ background: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', fontWeight: 'bold', padding: '0.3rem 0.9rem', borderRadius: '50px', fontSize: '0.78rem' }}>
+          <span style={{ background: '#ffffff', color: '#0f172a', border: '1px solid #94a3b8', fontWeight: 'bold', padding: '0.3rem 0.9rem', borderRadius: '50px', fontSize: '0.78rem' }}>
             ★ 4.9 高評価作品ピックアップ
           </span>
         </div>
         <h2 style={{ fontSize: '1.7rem', fontWeight: 'bold', color: '#0f172a', marginBottom: '0.8rem', lineHeight: '1.4' }}>
           【2026年最新】管理者厳選！同人音声・人気動画ランキング＆セール特集
         </h2>
-        <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem', maxWidth: '800px' }}>
+        <p style={{ color: '#334155', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem', maxWidth: '800px' }}>
           最新のヒット作品から、隠れた名作・スク水エロ・フェラ音声まで、損しないおすすめ作品を完全網羅。
         </p>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <Link href="/ranking" className="btn btn-primary" style={{ textDecoration: 'none', padding: '0.75rem 1.8rem' }}>
+          <Link href="/ranking" className="btn btn-primary" style={{ textDecoration: 'none', padding: '0.75rem 1.8rem', color: '#ffffff', background: '#059669' }}>
             👑 最新ランキングを見る
           </Link>
-          <Link href="/campaign" className="btn btn-outline" style={{ textDecoration: 'none', padding: '0.75rem 1.8rem', color: '#0f172a', borderColor: '#cbd5e1', background: '#ffffff' }}>
+          <Link href="/campaign" className="btn btn-outline" style={{ textDecoration: 'none', padding: '0.75rem 1.8rem', color: '#0f172a', borderColor: '#94a3b8', background: '#ffffff' }}>
             🎁 お得なセール情報
           </Link>
         </div>
       </div>
 
-      {/* ナビゲーションカード（ビジュアルポータル） */}
+      {/* 3. 【画像アイキャッチ付きメインナビゲーションカード】 */}
       <h3 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        📁 コンテンツを選択
+        📁 メインコンテンツ
       </h3>
 
-      <div className="grid grid-cols-2">
-        <div className="glass-panel delay-1" style={{ borderTop: '4px solid #10b981' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
-            <span style={{ fontSize: '1.8rem' }}>📖</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#0f172a' }}>DMMブログ / FANZAレビュー</h2>
+      <div className="grid grid-cols-2" style={{ marginBottom: '4rem' }}>
+        <div className="glass-panel delay-1" style={{ padding: 0, overflow: 'hidden', borderTop: '4px solid #059669' }}>
+          <div style={{ height: '140px', background: 'linear-gradient(135deg, #059669, #0d9488)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem', position: 'relative' }}>
+            🎬
+            <span style={{ position: 'absolute', bottom: '10px', left: '15px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>FANZA / DMM</span>
           </div>
-          <p style={{ color: '#334155', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
-            FANZA・DMMのオススメ動画作品を管理者が徹底レビュー。新作・高評価作を随時更新。
-          </p>
-          <Link href="/dmm" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', color: '#ffffff', background: '#059669' }}>
-            DMMブログへ →
+          <div style={{ padding: '1.5rem' }}>
+            <h2 style={{ margin: '0 0 0.6rem 0', fontSize: '1.3rem', color: '#0f172a' }}>📖 DMMブログ / FANZAレビュー</h2>
+            <p style={{ color: '#475569', marginBottom: '1.5rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+              FANZA・DMMのオススメ動画作品を管理者が徹底レビュー。新作・高評価作を随時更新。
+            </p>
+            <Link href="/dmm" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', color: '#ffffff', background: '#059669' }}>
+              DMMブログへ →
+            </Link>
+          </div>
+        </div>
+
+        <div className="glass-panel delay-2" style={{ padding: 0, overflow: 'hidden', borderTop: '4px solid #10b981' }}>
+          <div style={{ height: '140px', background: 'linear-gradient(135deg, #0d9488, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem', position: 'relative' }}>
+            🎧
+            <span style={{ position: 'absolute', bottom: '10px', left: '15px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>DLsite同人 / 音声</span>
+          </div>
+          <div style={{ padding: '1.5rem' }}>
+            <h2 style={{ margin: '0 0 0.6rem 0', fontSize: '1.3rem', color: '#0f172a' }}>✍️ DLsiteブログ / 音声・同人</h2>
+            <p style={{ color: '#475569', marginBottom: '1.5rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+              <strong>フェラ音声・スク水エロ・スクール水着</strong>などDLsiteのオススメ作品をマニアックに紹介。
+            </p>
+            <Link href="/dlsite" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', color: '#ffffff', background: 'linear-gradient(135deg, #059669, #047857)' }}>
+              DLsiteブログへ →
+            </Link>
+          </div>
+        </div>
+
+        <div className="glass-panel delay-3" style={{ padding: 0, overflow: 'hidden', borderTop: '4px solid #059669' }}>
+          <div style={{ height: '140px', background: 'linear-gradient(135deg, #15803d, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem', position: 'relative' }}>
+            🏆
+            <span style={{ position: 'absolute', bottom: '10px', left: '15px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>ダブル集計ランキング</span>
+          </div>
+          <div style={{ padding: '1.5rem' }}>
+            <h2 style={{ margin: '0 0 0.6rem 0', fontSize: '1.3rem', color: '#0f172a' }}>👑 人気作品ランキング</h2>
+            <p style={{ color: '#475569', marginBottom: '1.5rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+              いま一番売れている話題の同人作品や動画をDMM & DLsiteからダブル集計して紹介！
+            </p>
+            <Link href="/ranking" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', borderColor: '#cbd5e1', color: '#0f172a', background: '#ffffff' }}>
+              ランキングを見る →
+            </Link>
+          </div>
+        </div>
+
+        <div className="glass-panel delay-3" style={{ animationDelay: '0.4s', padding: 0, overflow: 'hidden', borderTop: '4px solid #10b981' }}>
+          <div style={{ height: '140px', background: 'linear-gradient(135deg, #047857, #0d9488)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem', position: 'relative' }}>
+            🎁
+            <span style={{ position: 'absolute', bottom: '10px', left: '15px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>セール・還元情報</span>
+          </div>
+          <div style={{ padding: '1.5rem' }}>
+            <h2 style={{ margin: '0 0 0.6rem 0', fontSize: '1.3rem', color: '#0f172a' }}>🎁 お得なキャンペーン情報</h2>
+            <p style={{ color: '#475569', marginBottom: '1.5rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
+              期間限定の50%OFFセールやポイント還元キャンペーンなど、お得な割引作品をピックアップ。
+            </p>
+            <Link href="/campaign" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', borderColor: '#cbd5e1', color: '#0f172a', background: '#ffffff' }}>
+              キャンペーンを見る →
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. 【最新のレビュー記事（画像サムネイル付き）直出エリア】 */}
+      <div style={{ marginBottom: '3rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
+          <div>
+            <span style={{ color: '#059669', fontSize: '0.8rem', fontWeight: 'bold', letterSpacing: '0.05em' }}>NEW REVIEWS</span>
+            <h3 style={{ fontSize: '1.5rem', margin: 0, color: '#0f172a' }}>✨ 最新のレビュー記事</h3>
+          </div>
+          <Link href="/dlsite" style={{ color: '#059669', fontWeight: 'bold', fontSize: '0.9rem', textDecoration: 'none' }}>
+            すべての記事を見る →
           </Link>
         </div>
 
-        <div className="glass-panel delay-2" style={{ borderTop: '4px solid #34d399' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
-            <span style={{ fontSize: '1.8rem' }}>✍️</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#0f172a' }}>DLsiteブログ / 音声・同人</h2>
+        {loadingPosts ? (
+          <p style={{ color: '#64748b' }}>記事を読み込み中...</p>
+        ) : latestPosts.length === 0 ? (
+          <div className="glass-panel" style={{ textAlign: 'center', padding: '2rem' }}>
+            <p style={{ color: '#64748b', margin: 0 }}>まだ投稿された記事がありません。</p>
           </div>
-          <p style={{ color: '#334155', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
-            <strong>フェラ音声・スク水エロ・スクール水着</strong>などDLsiteのオススメ作品をマニアックに紹介。
-          </p>
-          <Link href="/dlsite" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', color: '#ffffff', background: 'linear-gradient(135deg, #059669, #047857)' }}>
-            DLsiteブログへ →
-          </Link>
-        </div>
-
-        <div className="glass-panel delay-3" style={{ borderTop: '4px solid #10b981' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
-            <span style={{ fontSize: '1.8rem' }}>👑</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#0f172a' }}>人気作品ランキング</h2>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            {latestPosts.map(article => {
+              const thumb = extractThumbnail(article.content || article.contentHTML);
+              return (
+                <div key={article.id} className="glass-panel" style={{ padding: 0, cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column' }} onClick={() => setSelectedArticle(article)}>
+                  <div style={{ height: '160px', background: '#e2e8f0', position: 'relative', overflow: 'hidden' }}>
+                    {thumb ? (
+                      <img src={thumb} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: '2.5rem' }}>
+                        {article.site === 'dmm' ? '🎬' : '🎧'}
+                      </div>
+                    )}
+                    <span style={{ position: 'absolute', top: '10px', left: '10px', background: '#059669', color: '#ffffff', fontSize: '0.75rem', fontWeight: 'bold', padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+                      {article.site === 'dmm' ? 'FANZA動画' : 'DLsite同人'}
+                    </span>
+                  </div>
+                  <div style={{ padding: '1.2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.4rem' }}>
+                      {new Date(article.created_at).toLocaleDateString('ja-JP')}
+                    </span>
+                    <h4 style={{ fontSize: '1rem', margin: '0 0 0.8rem 0', lineHeight: '1.4', color: '#0f172a', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {article.title}
+                    </h4>
+                    <button className="btn btn-outline" style={{ marginTop: 'auto', width: '100%', fontSize: '0.85rem', padding: '0.4rem', borderColor: '#cbd5e1', color: '#059669', background: '#ffffff' }}>
+                      記事を読む 📖
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <p style={{ color: '#334155', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
-            いま一番売れている話題の同人作品や動画をDMM & DLsiteからダブル集計して紹介！
-          </p>
-          <Link href="/ranking" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', borderColor: 'rgba(255,255,255,0.2)', color: '#0f172a' }}>
-            ランキングを見る →
-          </Link>
-        </div>
-
-        <div className="glass-panel delay-3" style={{ animationDelay: '0.4s', borderTop: '4px solid #34d399' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.8rem' }}>
-            <span style={{ fontSize: '1.8rem' }}>🎁</span>
-            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#0f172a' }}>お得なキャンペーン情報</h2>
-          </div>
-          <p style={{ color: '#334155', marginBottom: '1.8rem', lineHeight: '1.6', fontSize: '0.9rem' }}>
-            期間限定の50%OFFセールやポイント還元キャンペーンなど、お得な割引作品をピックアップ。
-          </p>
-          <Link href="/campaign" className="btn btn-outline" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', borderColor: 'rgba(255,255,255,0.2)', color: '#0f172a' }}>
-            キャンペーンを見る →
-          </Link>
-        </div>
+        )}
       </div>
     </div>
   );
