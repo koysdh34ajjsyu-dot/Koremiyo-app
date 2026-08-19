@@ -1,0 +1,19 @@
+# 「次、コレ見よ」(Koremiyo App) - LLM & AI Context Guide
+
+> This file is a standardized context document for LLMs and AI coding assistants (Antigravity, Cursor, Claude Code, ChatGPT, Copilot).
+
+## Summary
+Koremiyo is an affiliate review portal for DMM (FANZA) and DLsite adult doujin, voice, and video content built with Next.js 16 (App Router) and Supabase.
+
+## Key Files to Read First
+- `README.md`: Primary system architecture, directory map, design tokens, and database schemas.
+- `PROJECT_SPEC.md`: Full master specification document.
+- `src/app/globals.css`: Design system CSS tokens (`#edf2f7` bg, `#0f172a` dark text, `#059669` green accent).
+- `src/app/page.js`: Main React components (`TopPage`, `ProductRanking`, `CampaignsPage`, `AdminDashboard`).
+- `src/lib/supabase.js`: Database client configuration with no-store cache setting.
+
+## Rules & Constraints
+- Language: Always write responses and code comments in Japanese unless instructed otherwise.
+- Background Color: Maintain the eye-friendly soft slate background (`#edf2f7`) and dark charcoal text (`#0f172a`).
+- Admin Security: Admin button is hidden by default. Only reveal when URL contains `?admin_key=koremiyo2026` or `?secret=admin1234`.
+- Build Validation: Always run `npx next build` to verify before completing tasks.
