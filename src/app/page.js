@@ -809,7 +809,85 @@ export function TopPage() {
         </div>
       </div>
 
-      {/* 2. 【ヒーローバナー / ピックアップ作品】 */}
+      {/* 2. 【最新のレビュー記事（上部の目立つ位置へ配置）】 */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240,253,244,0.8))',
+        border: '2px solid #a7f3d0',
+        borderRadius: '24px',
+        padding: '2rem 1.8rem',
+        marginBottom: '3.5rem',
+        boxShadow: '0 8px 30px rgba(5, 150, 105, 0.12)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+              <span style={{ background: '#059669', color: '#ffffff', fontSize: '0.75rem', fontWeight: 'bold', padding: '0.25rem 0.8rem', borderRadius: '50px', letterSpacing: '0.05em' }}>
+                🔥 NEW REVIEWS
+              </span>
+              <span style={{ color: '#059669', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                最新のイチオシレビュー記事
+              </span>
+            </div>
+            <h2 style={{ fontSize: '1.8rem', margin: 0, color: '#0f172a', fontWeight: '800' }}>
+              ✨ 最新レビュー記事
+            </h2>
+            <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.9rem', color: '#475569' }}>
+              話題の作品・管理者厳選の最新レビューをイチ早くお届け！
+            </p>
+          </div>
+          <Link href="/dlsite" className="btn btn-outline" style={{ textDecoration: 'none', color: '#059669', borderColor: '#059669', background: '#ffffff', fontWeight: 'bold', fontSize: '0.9rem', padding: '0.5rem 1.2rem', borderRadius: '50px' }}>
+            すべての記事を見る →
+          </Link>
+        </div>
+
+        {loadingPosts ? (
+          <p style={{ color: '#64748b', textAlign: 'center', padding: '2rem' }}>記事を読み込み中...</p>
+        ) : latestPosts.length === 0 ? (
+          <div className="glass-panel" style={{ textAlign: 'center', padding: '2rem' }}>
+            <p style={{ color: '#64748b', margin: 0 }}>まだ投稿された記事がありません。</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            {latestPosts.map(article => {
+              const thumb = extractThumbnail(article.content || article.contentHTML);
+              return (
+                <div 
+                  key={article.id} 
+                  className="glass-panel hover-card" 
+                  style={{ padding: 0, cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '16px', border: '1px solid #cbd5e1', transition: 'all 0.3s ease' }} 
+                  onClick={() => setSelectedArticle(article)}
+                >
+                  <div style={{ height: '170px', background: '#e2e8f0', position: 'relative', overflow: 'hidden' }}>
+                    {thumb ? (
+                      <img src={thumb} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: '2.5rem' }}>
+                        {article.site === 'dmm' ? '🎬' : '🎧'}
+                      </div>
+                    )}
+                    <span style={{ position: 'absolute', top: '10px', left: '10px', background: '#059669', color: '#ffffff', fontSize: '0.75rem', fontWeight: 'bold', padding: '0.25rem 0.7rem', borderRadius: '50px', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+                      {article.site === 'dmm' ? 'FANZA動画' : 'DLsite同人'}
+                    </span>
+                  </div>
+                  <div style={{ padding: '1.2rem', flex: 1, display: 'flex', flexDirection: 'column', background: '#ffffff' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.4rem', fontWeight: '500' }}>
+                      📅 {new Date(article.created_at).toLocaleDateString('ja-JP')}
+                    </span>
+                    <h3 style={{ fontSize: '1.05rem', margin: '0 0 0.8rem 0', lineHeight: '1.4', color: '#0f172a', fontWeight: 'bold', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {article.title}
+                    </h3>
+                    <button className="btn btn-outline" style={{ marginTop: 'auto', width: '100%', fontSize: '0.85rem', padding: '0.5rem', borderColor: '#a7f3d0', color: '#059669', background: '#ecfdf5', fontWeight: 'bold' }}>
+                      記事を読む 📖
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* 3. 【ヒーローバナー / ピックアップ作品】 */}
       <div style={{
         background: 'linear-gradient(135deg, #e6f4ea, #f1f8f3)',
         border: '1px solid #a3d9b1',
@@ -842,7 +920,7 @@ export function TopPage() {
         </div>
       </div>
 
-      {/* 3. 【画像アイキャッチ付きメインナビゲーションカード】 */}
+      {/* 4. 【画像アイキャッチ付きメインナビゲーションカード】 */}
       <h3 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         📁 メインコンテンツ
       </h3>
