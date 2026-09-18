@@ -1567,7 +1567,7 @@ export function DlsiteBlogPage({ articles: initialArticles = [] }) {
     return (
       <div className="container animate-fade-in" style={{ maxWidth: '800px' }}>
         <button className="btn btn-outline" onClick={() => setSelectedArticle(null)} style={{ marginBottom: '2rem' }}>← 記事一覧に戻る</button>
-        <div className="glass-panel" style={{ padding: '3rem' }}>
+        <div className="glass-panel" style={{ padding: '3rem', transform: 'none', transition: 'none' }}>
           <span style={{ color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: 'bold' }}>{selectedArticle.category || selectedArticle.tag}</span>
           <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
           

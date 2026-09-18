@@ -59,10 +59,22 @@ body {
   opacity: 0.8;
 }
 
-.glass-panel:hover {
+.hover-card {
+  transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.hover-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-  border-color: #475569;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.15);
+  border-color: var(--primary-color);
+}
+
+/* Video & Media Player stability (prevents jitter/flickering) */
+video, audio {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Typography */
