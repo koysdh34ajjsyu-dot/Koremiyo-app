@@ -69,12 +69,10 @@ body {
   border-color: var(--primary-color);
 }
 
-/* Video & Media Player stability (prevents jitter/flickering) */
+/* Media Player standard styles */
 video, audio {
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  max-width: 100%;
+  display: block;
 }
 
 /* Typography */

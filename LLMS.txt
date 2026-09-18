@@ -6,13 +6,15 @@
 Koremiyo is an affiliate review portal for DMM (FANZA) and DLsite adult doujin, voice, and video content built with Next.js 16 (App Router) and Supabase.
 
 ## Key Files to Read First
-- `README.md`: Primary system architecture, directory map, design tokens, and database schemas.
+- `AI_SHARED_CONTEXT.md`: Machine-optimized inter-AI shared memory and development state protocol (Highest Priority).
 - `PROJECT_SPEC.md`: Full master specification document.
+- `README.md`: Primary system architecture, directory map, design tokens, and database schemas.
 - `src/app/globals.css`: Design system CSS tokens (`#edf2f7` bg, `#0f172a` dark text, `#059669` green accent).
 - `src/app/page.js`: Main React components (`TopPage`, `ProductRanking`, `CampaignsPage`, `AdminDashboard`).
 - `src/lib/supabase.js`: Database client configuration with no-store cache setting.
 
 ## Rules & Constraints
+- Mandatory Update Protocol: Any AI session that alters features, APIs, DB schemas, or UI must immediately update `AI_SHARED_CONTEXT.md`.
 - Language: Always write responses and code comments in Japanese unless instructed otherwise.
 - Background Color: Maintain the eye-friendly soft slate background (`#edf2f7`) and dark charcoal text (`#0f172a`).
 - Admin Security: Admin button is hidden by default. Only reveal when URL contains `?admin_key=koremiyo2026` or `?secret=admin1234`.

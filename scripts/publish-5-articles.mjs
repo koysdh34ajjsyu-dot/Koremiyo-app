@@ -61,20 +61,6 @@ for (const file of targetFiles) {
   const meta = JSON.parse(metaMatch[1].trim());
   const bodyContent = rawContent.replace(metaMatch[0], '').trim();
 
-  // 既存記事の重複チェック
-  if (meta.dmm_id) {
-    const { data: existing } = await supabase
-      .from('posts')
-      .select('id, title')
-      .eq('dmm_id', meta.dmm_id)
-      .limit(1);
-
-    if (existing && existing.length > 0) {
-      console.log(`\n⏭️  既に公開済みのためスキップします: [${meta.dmm_id}] ${existing[0].title}`);
-      continue;
-    }
-  }
-
   const parsedTags = typeof meta.tags === 'string'
     ? meta.tags.split(',').map(t => t.trim()).filter(Boolean)
     : (Array.isArray(meta.tags) ? meta.tags : null);
@@ -86,18 +72,48 @@ for (const file of targetFiles) {
     category: meta.category || '3Dゲーム',
     tags: parsedTags,
     dmm_id: meta.dmm_id || null,
-    created_at: new Date().toISOString()
   };
 
-  const { data, error } = await supabase.from('posts').insert([record]).select();
-  if (error) {
-    console.error(`❌ 公開失敗: ${file}`, error.message);
+  // 既存記事の重複チェック
+  let existingPost = null;
+  if (meta.dmm_id) {
+    const { data: existing } = await supabase
+      .from('posts')
+      .select('id, title')
+      .eq('dmm_id', meta.dmm_id)
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      existingPost = existing[0];
+    }
+  }
+
+  if (existingPost) {
+    const { data, error } = await supabase
+      .from('posts')
+      .update(record)
+      .eq('id', existingPost.id)
+      .select();
+
+    if (error) {
+      console.error(`❌ 更新失敗: ${file}`, error.message);
+    } else {
+      const post = data[0];
+      console.log(`\n🔄 記事本文を最新HTMLに更新しました: [${post.dmm_id}] ${post.title}`);
+      published.push(post);
+    }
   } else {
-    const post = data[0];
-    console.log(`\n✅ 正常に公開されました！ [ID: ${post.id}]`);
-    console.log(`   タイトル: ${post.title}`);
-    console.log(`   カテゴリ: ${post.category} | 作品番号: ${post.dmm_id}`);
-    published.push(post);
+    record.created_at = new Date().toISOString();
+    const { data, error } = await supabase.from('posts').insert([record]).select();
+    if (error) {
+      console.error(`❌ 新規公開失敗: ${file}`, error.message);
+    } else {
+      const post = data[0];
+      console.log(`\n✅ 正常に公開されました！ [ID: ${post.id}]`);
+      console.log(`   タイトル: ${post.title}`);
+      console.log(`   カテゴリ: ${post.category} | 作品番号: ${post.dmm_id}`);
+      published.push(post);
+    }
   }
 }
 

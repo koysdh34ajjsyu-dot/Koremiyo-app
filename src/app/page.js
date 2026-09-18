@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, memo } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
@@ -17,7 +17,7 @@ const extractThumbnail = (html) => {
   return match ? match[1] : null;
 };
 
-function SafeHtmlRenderer({ html, className, style }) {
+const SafeHtmlRenderer = memo(function SafeHtmlRenderer({ html, className, style }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ function SafeHtmlRenderer({ html, className, style }) {
   }, [html]);
 
   return <div ref={containerRef} className={className} style={style} dangerouslySetInnerHTML={{ __html: html }} />;
-}
+});
 
 // --- Components ---
 function RealProductSearch() {
@@ -1536,19 +1536,19 @@ function DlsiteRankingWidget() {
   );
 }
 
-export function DlsiteBlogPage({ articles: initialArticles = [] }) {
-  const [articles, setArticles] = useState(initialArticles);
+export function DlsiteBlogPage({ articles: initialArticles = null }) {
+  const [articles, setArticles] = useState(initialArticles || []);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [activeCategory, setActiveCategory] = useState('すべて');
 
   useEffect(() => {
-    if (initialArticles.length > 0) {
+    if (initialArticles && initialArticles.length > 0) {
       setArticles(initialArticles);
     } else {
       supabase.from('posts').select('*').eq('site', 'dlsite').order('created_at', { ascending: false })
         .then(({ data }) => { if (data) setArticles(data); });
     }
-  }, [initialArticles]);
+  }, []);
 
   // 記事に存在するすべてのカテゴリーを動的に抽出
   const availableCategories = ['すべて', ...Array.from(new Set(articles.map(a => a.category).filter(Boolean)))];
@@ -1755,18 +1755,18 @@ export function DlsiteBlogPage({ articles: initialArticles = [] }) {
   );
 }
 
-export function DmmBlogPage({ articles: initialArticles = [] }) {
-  const [articles, setArticles] = useState(initialArticles);
+export function DmmBlogPage({ articles: initialArticles = null }) {
+  const [articles, setArticles] = useState(initialArticles || []);
   const [selectedArticle, setSelectedArticle] = useState(null);
 
   useEffect(() => {
-    if (initialArticles.length > 0) {
+    if (initialArticles && initialArticles.length > 0) {
       setArticles(initialArticles);
     } else {
       supabase.from('posts').select('*').eq('site', 'dmm').order('created_at', { ascending: false })
         .then(({ data }) => { if (data) setArticles(data); });
     }
-  }, [initialArticles]);
+  }, []);
 
   if (selectedArticle) {
     const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
