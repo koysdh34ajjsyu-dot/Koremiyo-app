@@ -1390,9 +1390,156 @@ const renderCampaign = (contentRaw) => {
   return { campaign, showCampaign, cleanContent };
 };
 
+// --- DLsite 24時間ランキングウィジェット（ネイティブコンポーネント） ---
+function DlsiteRankingWidget() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/dlsite/ranking')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.items) {
+          setItems(data.items.slice(0, 6));
+        }
+      })
+      .catch(err => console.error('DLsite ranking widget error:', err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-secondary)' }}>
+        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⏳</div>
+        <p style={{ margin: 0, fontSize: '0.9rem' }}>DLsiteランキングを取得中...</p>
+      </div>
+    );
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <div style={{ marginTop: '4rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.8rem', margin: 0 }}>📊 DLsite 24時間ランキング速報</h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.4rem' }}>
+          いま売れている同人作品トップ6（公式APIより常時更新）
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3" style={{ gap: '1.5rem' }}>
+        {items.map((item, idx) => (
+          <div 
+            key={item.id || idx} 
+            className="glass-panel hover-card" 
+            style={{ 
+              padding: '1.2rem', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              position: 'relative',
+              borderRadius: '16px',
+              background: 'var(--panel-bg)',
+              border: '1px solid var(--border-color)'
+            }}
+          >
+            {/* 順位バッジ */}
+            <div style={{
+              position: 'absolute',
+              top: '0.8rem',
+              left: '0.8rem',
+              zIndex: 2,
+              background: idx === 0 ? 'linear-gradient(135deg, #f59e0b, #d97706)' : idx === 1 ? 'linear-gradient(135deg, #94a3b8, #64748b)' : idx === 2 ? 'linear-gradient(135deg, #b45309, #78350f)' : 'rgba(15,23,42,0.8)',
+              color: '#ffffff',
+              padding: '0.2rem 0.6rem',
+              borderRadius: '6px',
+              fontWeight: 'bold',
+              fontSize: '0.8rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.25)'
+            }}>
+              {idx === 0 ? '👑 1位' : idx === 1 ? '🥈 2位' : idx === 2 ? '🥉 3位' : `${idx + 1}位`}
+            </div>
+
+            {/* 割引バッジ */}
+            {item.is_discount && item.discount_rate > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '0.8rem',
+                right: '0.8rem',
+                zIndex: 2,
+                background: '#ef4444',
+                color: '#ffffff',
+                padding: '0.2rem 0.6rem',
+                borderRadius: '6px',
+                fontWeight: 'bold',
+                fontSize: '0.8rem',
+                boxShadow: '0 2px 8px rgba(239,68,68,0.3)'
+              }}>
+                🔥 {item.discount_rate}% OFF
+              </div>
+            )}
+
+            {/* サムネイル */}
+            <div style={{ width: '100%', height: '160px', marginBottom: '1rem', overflow: 'hidden', borderRadius: '10px', background: 'rgba(0,0,0,0.05)' }}>
+              {item.image_url ? (
+                <img 
+                  src={item.image_url} 
+                  alt={item.title} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🎮</div>
+              )}
+            </div>
+
+            {/* 作品情報 */}
+            <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginBottom: '0.3rem' }}>
+                🏷️ {item.maker || item.category || 'DLsite同人'}
+              </span>
+              <h3 style={{ 
+                margin: '0 0 1rem 0', 
+                fontSize: '0.95rem', 
+                lineHeight: '1.4', 
+                flexGrow: 1,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+              }}>
+                {item.title}
+              </h3>
+              <a
+                href={item.affiliate_url}
+                target="_blank"
+                rel="noopener sponsored"
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '0.6rem',
+                  fontSize: '0.85rem',
+                  textAlign: 'center',
+                  textDecoration: 'none',
+                  display: 'inline-block'
+                }}
+              >
+                👉 公式で詳細・サンプルを見る
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+        ※ ランキングデータはDLsite公式APIより定期取得しています
+      </p>
+    </div>
+  );
+}
+
 export function DlsiteBlogPage({ articles: initialArticles = [] }) {
   const [articles, setArticles] = useState(initialArticles);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('すべて');
 
   useEffect(() => {
     if (initialArticles.length > 0) {
@@ -1402,25 +1549,17 @@ export function DlsiteBlogPage({ articles: initialArticles = [] }) {
         .then(({ data }) => { if (data) setArticles(data); });
     }
   }, [initialArticles]);
-  const [activeCategory, setActiveCategory] = useState(null);
-  const [iframeHeight, setIframeHeight] = useState(400);
 
-  // iframeからのpostMessageを受け取ってiframe高さを自動調整する
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.data && e.data.type === 'dlsite-widget-height' && e.data.height) {
-        setIframeHeight(e.data.height + 8); // 8pxのバッファを追加
-      }
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
-  }, []);
+  // 記事に存在するすべてのカテゴリーを動的に抽出
+  const availableCategories = ['すべて', ...Array.from(new Set(articles.map(a => a.category).filter(Boolean)))];
 
-  const categories = [
-    { title: 'フェ◯チオが好きな方はこちら！！', desc: 'フェラ・フェラチオ好きへ管理者オススメのDLsite同人作品を紹介。フェラ音声・フェラ同人を厳選！', color: 'var(--accent-color)' },
-    { title: 'スクール水着が好きな方はこちら！！', desc: 'スク水・スクール水着エロ好きへ管理者オススメのDLsite同人作品を紹介。スク水エロCG・音声を厳選！', color: '#84b6f4' },
-    { title: '全年齢 ASMR', desc: '癒やしを求める方向けの音声作品レビュー', color: '#b088f9' }
-  ];
+  // 絞り込みフィルター
+  const filteredArticles = activeCategory === 'すべて'
+    ? articles
+    : articles.filter(a =>
+        a.category === activeCategory ||
+        (Array.isArray(a.tags) && a.tags.includes(activeCategory))
+      );
 
   if (selectedArticle) {
     const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
@@ -1458,44 +1597,62 @@ export function DlsiteBlogPage({ articles: initialArticles = [] }) {
     );
   }
 
-  const filteredArticles = activeCategory ? articles.filter(a => a.category === activeCategory) : articles;
+  const isAll = activeCategory === 'すべて';
 
   return (
     <div className="container animate-fade-in">
-      <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
+      <div style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
         <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>DLsiteレビューブログ</h1>
         <p style={{ color: 'var(--text-secondary)' }}>ニッチな需要に深く刺さる、熱量重視の作品紹介</p>
       </div>
 
-      <div className="grid grid-cols-3" style={{ marginBottom: '3rem' }}>
-        {categories.map((cat, idx) => {
-          const isActive = activeCategory === cat.title;
+      {/* 動的カテゴリータブバー */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '0.6rem', 
+        flexWrap: 'wrap', 
+        justifyContent: 'center', 
+        marginBottom: '2.5rem',
+        padding: '0.5rem',
+        background: 'var(--panel-bg)',
+        borderRadius: '50px',
+        border: '1px solid var(--border-color)',
+        maxWidth: 'fit-content',
+        margin: '0 auto 2.5rem auto'
+      }}>
+        {availableCategories.map((cat, idx) => {
+          const isActive = activeCategory === cat;
           return (
-            <div 
-              key={idx} 
-              className="glass-panel hover-card" 
-              onClick={() => setActiveCategory(isActive ? null : cat.title)}
-              style={{ 
-                textAlign: 'center', 
+            <button
+              key={idx}
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                padding: '0.5rem 1.2rem',
+                borderRadius: '50px',
+                border: 'none',
                 cursor: 'pointer',
-                borderColor: isActive ? cat.color : `rgba(${parseInt(cat.color.slice(1,3),16)}, ${parseInt(cat.color.slice(3,5),16)}, ${parseInt(cat.color.slice(5,7),16)}, 0.3)`,
-                background: isActive ? `rgba(${parseInt(cat.color.slice(1,3),16)}, ${parseInt(cat.color.slice(3,5),16)}, ${parseInt(cat.color.slice(5,7),16)}, 0.1)` : 'var(--glass-bg)',
-                transform: isActive ? 'translateY(-5px)' : 'none'
+                fontWeight: 'bold',
+                fontSize: '0.9rem',
+                transition: 'all 0.2s',
+                background: isActive 
+                  ? 'linear-gradient(135deg, var(--primary-color), var(--accent-color))' 
+                  : 'transparent',
+                color: isActive ? '#ffffff' : 'var(--text-secondary)',
+                boxShadow: isActive ? '0 4px 12px rgba(255,117,140,0.3)' : 'none'
               }}
             >
-              <h3 style={{ color: cat.color, marginBottom: '1rem', fontSize: '1.1rem' }}>{cat.title}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                {cat.desc}
-              </p>
-            </div>
+              {cat}
+            </button>
           );
         })}
       </div>
 
-      <h2 style={{ marginBottom: '1.5rem' }}>{activeCategory ? `「${activeCategory}」のレビュー` : '最新のレビュー'}</h2>
+      <h2 style={{ marginBottom: '1.5rem' }}>
+        {isAll ? '最新のレビュー' : `「${activeCategory}」のレビュー (${filteredArticles.length}件)`}
+      </h2>
 
-      {/* 最新記事をフィーチャードカードとして強調表示 */}
-      {filteredArticles.length > 0 && !activeCategory && (() => {
+      {/* 「すべて」表示の時は先頭1件を注目カードとして大きく表示 */}
+      {filteredArticles.length > 0 && isAll && (() => {
         const latest = filteredArticles[0];
         const thumbUrl = extractThumbnail(latest.content || latest.contentHTML);
         const { showCampaign } = renderCampaign(latest.content || latest.contentHTML);
@@ -1564,9 +1721,9 @@ export function DlsiteBlogPage({ articles: initialArticles = [] }) {
         );
       })()}
 
-      {/* 残りの記事グリッド */}
+      {/* 記事一覧グリッド（「すべて」の時は2件目以降、カテゴリ選択時は全件を表示） */}
       <div className="grid grid-cols-3" style={{ gap: '2rem' }}>
-        {(activeCategory ? filteredArticles : filteredArticles.slice(1)).map(item => {
+        {(isAll ? filteredArticles.slice(1) : filteredArticles).map(item => {
           const thumbUrl = extractThumbnail(item.content || item.contentHTML);
           const { showCampaign } = renderCampaign(item.content || item.contentHTML);
           return (
@@ -1589,46 +1746,11 @@ export function DlsiteBlogPage({ articles: initialArticles = [] }) {
             </div>
           );
         })}
-        {filteredArticles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
+        {filteredArticles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>該当する記事はありません。</p>}
       </div>
 
-      {/* DLsite 週間ランキングウィジェット */}
-      <div style={{ marginTop: '4rem' }}>
-        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>📊 DLsite 週間ランキング</h2>
-        <div 
-          style={{ 
-            background: 'var(--panel-bg)',
-            border: '3px solid var(--border-color)',
-            borderRadius: '24px',
-            padding: '1.5rem',
-            boxShadow: '0 10px 25px var(--shadow-color)',
-            overflowX: 'auto',
-            WebkitOverflowScrolling: 'touch',
-          }}
-        >
-          {/*
-            iframeで静的HTMLを読み込む方式。
-            DLsiteのblogparts.jsはdocument.writeを使っているため
-            動的スクリプト挿入ではなくiframeが最も確実な表示方法。
-          */}
-          <iframe
-            src="/dlsite-widget.html"
-            style={{
-              width: '100%',
-              minWidth: '300px',
-              height: `${iframeHeight}px`,
-              border: 'none',
-              borderRadius: '12px',
-              display: 'block',
-            }}
-            title="DLsite週間ランキング"
-            scrolling="no"
-          />
-        </div>
-        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-          ※ ランキングはDLsiteより提供されています
-        </p>
-      </div>
+      {/* DLsite 週間ランキングウィジェット（レスポンシブ・ネイティブコンポーネント） */}
+      <DlsiteRankingWidget />
     </div>
   );
 }
