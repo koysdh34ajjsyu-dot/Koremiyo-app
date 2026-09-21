@@ -3011,9 +3011,12 @@ function HtmlWidgetRenderer({ htmlContent }) {
 // ============================================================
 // 公開キャンペーンページ（エンドユーザー向け）
 // ============================================================
-export function CampaignsPage() {
+export function CampaignsPage({ lang = 'ja' }) {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCamp, setSelectedCamp] = useState(null);
+
+  const isEn = lang === 'en';
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -3039,69 +3042,307 @@ export function CampaignsPage() {
     fetchCampaigns();
   }, []);
 
+  // 残り日数の計算ヘルパー
+  const getDaysRemaining = (dateStr) => {
+    if (!dateStr) return null;
+    const diff = new Date(dateStr) - new Date();
+    if (diff <= 0) return 0;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
   return (
-    <div className="container animate-fade-in" style={{ maxWidth: '800px', margin: '2rem auto' }}>
+    <div className="container animate-fade-in" style={{ maxWidth: '900px', margin: '2rem auto', padding: '0 1rem' }}>
       <h1 className="text-gradient" style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '2.5rem' }}>
-        🌟 お得なキャンペーン情報
+        {isEn ? '🌟 Special Campaigns & Sales' : '🌟 お得なキャンペーン情報'}
       </h1>
 
       {loading && (
         <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-          <p>キャンペーン情報を読み込み中...</p>
+          <p>{isEn ? 'Loading campaigns...' : 'キャンペーン情報を読み込み中...'}</p>
         </div>
       )}
 
       {!loading && campaigns.length === 0 && (
         <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
-          <p>現在開催中のキャンペーンはありません。<br/>次回のお知らせをお待ちください！</p>
+          <p>{isEn ? 'No active campaigns at the moment.<br/>Please check back later!' : '現在開催中のキャンペーンはありません。<br/>次回のお知らせをお待ちください！'}</p>
         </div>
       )}
 
       {!loading && campaigns.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-          {campaigns.map(camp => (
-            <div key={camp.id} className="glass-panel hover-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border-color)', transition: 'transform 0.2s, box-shadow 0.2s', display: 'flex', flexDirection: 'column', background: 'var(--panel-bg)' }}>
-              {/* HTMLコードが登録されている場合はウィジェットとして表示 */}
-              {camp.html_code ? (
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '1rem' }}>
-                  <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+          {campaigns.map(camp => {
+            const daysLeft = getDaysRemaining(camp.expires_at);
+            return (
+              <div 
+                key={camp.id} 
+                className="glass-panel hover-card" 
+                style={{ 
+                  padding: '0', 
+                  overflow: 'hidden', 
+                  border: '1px solid var(--border-color)', 
+                  transition: 'transform 0.2s, box-shadow 0.2s', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  background: 'var(--panel-bg)',
+                  borderRadius: '16px'
+                }}
+              >
+                {/* バナー表示エリア */}
+                {camp.html_code ? (
+                  <div style={{ width: '100%', display: 'flex', justifyContent: 'center', background: '#f8fafc', borderBottom: '1px solid var(--border-color)' }}>
                     <HtmlWidgetRenderer htmlContent={camp.html_code} />
                   </div>
-                  <div style={{ marginTop: '1rem' }}>
-                    <div style={{ display: 'inline-block', background: 'var(--accent-color)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', fontWeight: 'bold' }}>CAMPAIGN</div>
-                    <h2 style={{ color: '#0f172a', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
-                    {camp.description && (
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.description}</p>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                /* 通常の画像＋リンク型の表示 */
-                <a 
-                  href={camp.link_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  style={{ display: 'flex', flexDirection: 'column', flex: 1, textDecoration: 'none' }}
-                >
-                  {camp.image_url && (
+                ) : camp.image_url ? (
+                  <a 
+                    href={camp.link_url || '#'} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ display: 'block', width: '100%', background: '#f8fafc', borderBottom: '1px solid var(--border-color)' }}
+                  >
                     <img 
                       src={camp.image_url} 
                       alt={camp.title} 
-                      style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--border-color)' }} 
+                      style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block' }} 
                       onError={e => { e.currentTarget.style.display = 'none'; }}
                     />
-                  )}
-                  <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'inline-block', background: 'var(--accent-color)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '4px', marginBottom: '0.4rem', alignSelf: 'flex-start', fontWeight: 'bold' }}>CAMPAIGN</div>
-                    <h2 style={{ color: '#0f172a', margin: '0 0 0.5rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.title}</h2>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, flex: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{camp.description}</p>
+                  </a>
+                ) : null}
+
+                {/* カード本文エリア */}
+                <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+                    <div style={{ background: 'var(--primary-color, #059669)', color: '#fff', fontSize: '0.7rem', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 'bold' }}>
+                      CAMPAIGN
+                    </div>
+                    {daysLeft !== null && (
+                      <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: daysLeft <= 3 ? '#dc2626' : '#d97706', background: daysLeft <= 3 ? '#fee2e2' : '#fef3c7', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
+                        🔥 {isEn ? `${daysLeft} days left` : `残り${daysLeft}日`}
+                      </span>
+                    )}
                   </div>
-                </a>
+
+                  <h2 style={{ color: '#0f172a', margin: '0 0 0.6rem 0', fontSize: '1.05rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontWeight: '700' }}>
+                    {camp.title}
+                  </h2>
+
+                  {camp.description && (
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.6', margin: '0 0 1rem 0', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
+                      {camp.description}
+                    </p>
+                  )}
+
+                  {/* アクションボタン群 */}
+                  <div style={{ marginTop: 'auto', display: 'flex', gap: '0.6rem', flexDirection: 'column' }}>
+                    <button
+                      onClick={() => setSelectedCamp(camp)}
+                      className="btn"
+                      style={{
+                        width: '100%',
+                        padding: '0.6rem',
+                        fontSize: '0.85rem',
+                        fontWeight: '700',
+                        background: '#f1f5f9',
+                        color: '#334155',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.4rem',
+                        transition: 'background 0.15s'
+                      }}
+                      onMouseOver={e => e.currentTarget.style.background = '#e2e8f0'}
+                      onMouseOut={e => e.currentTarget.style.background = '#f1f5f9'}
+                    >
+                      <span>🔍</span> {isEn ? 'View Full Details' : '詳細・見どころを見る'}
+                    </button>
+
+                    {camp.link_url && (
+                      <a
+                        href={camp.link_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-primary"
+                        style={{
+                          width: '100%',
+                          padding: '0.6rem',
+                          fontSize: '0.85rem',
+                          fontWeight: '700',
+                          textAlign: 'center',
+                          textDecoration: 'none',
+                          borderRadius: '8px',
+                          display: 'block',
+                          boxSizing: 'border-box'
+                        }}
+                      >
+                        👉 {isEn ? 'Go to Official Site' : '公式キャンペーン会場へ'}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ══════════════ 特集詳細ポップアップモーダル ══════════════ */}
+      {selectedCamp && (
+        <div 
+          onClick={() => setSelectedCamp(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(5px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#ffffff',
+              borderRadius: '20px',
+              maxWidth: '680px',
+              width: '100%',
+              maxHeight: '88vh',
+              overflowY: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              border: '1px solid #cbd5e1'
+            }}
+          >
+            {/* モーダルヘッダー */}
+            <div style={{ padding: '1.2rem 1.5rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: '#ffffff', zIndex: 10, borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ background: 'var(--primary-color, #059669)', color: '#fff', fontSize: '0.75rem', fontWeight: 'bold', padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+                  CAMPAIGN FEATURE
+                </span>
+                {selectedCamp.expires_at && (
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    📅 {new Date(selectedCamp.expires_at).toLocaleDateString(isEn ? 'en-US' : 'ja-JP')} {isEn ? 'Until' : 'まで'}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => setSelectedCamp(null)}
+                style={{
+                  background: '#f1f5f9',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.2rem',
+                  color: '#475569',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s'
+                }}
+                onMouseOver={e => e.currentTarget.style.background = '#e2e8f0'}
+                onMouseOut={e => e.currentTarget.style.background = '#f1f5f9'}
+                title={isEn ? 'Close' : '閉じる'}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* モーダルボディ */}
+            <div style={{ padding: '1.5rem', overflowY: 'auto' }}>
+              {/* バナー完全表示 */}
+              <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center', background: '#f8fafc', borderRadius: '12px', padding: '0.8rem', border: '1px solid #e2e8f0' }}>
+                {selectedCamp.html_code ? (
+                  <HtmlWidgetRenderer htmlContent={selectedCamp.html_code} />
+                ) : selectedCamp.image_url ? (
+                  <img 
+                    src={selectedCamp.image_url} 
+                    alt={selectedCamp.title} 
+                    style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} 
+                  />
+                ) : null}
+              </div>
+
+              {/* タイトル（全文表示） */}
+              <h2 style={{ fontSize: '1.35rem', fontWeight: '800', color: '#0f172a', lineHeight: '1.4', marginBottom: '1rem' }}>
+                {selectedCamp.title}
+              </h2>
+
+              {/* 残り時間バッジ */}
+              {selectedCamp.expires_at && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fef3c7', color: '#92400e', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '1.2rem' }}>
+                  <span>⏰</span>
+                  <span>
+                    {isEn 
+                      ? `Offer expires on ${new Date(selectedCamp.expires_at).toLocaleString('en-US')}` 
+                      : `開催期間：${new Date(selectedCamp.expires_at).toLocaleString('ja-JP')} まで`}
+                  </span>
+                </div>
+              )}
+
+              {/* 訴求概要文・見どころ全文 */}
+              <div style={{ background: '#f8fafc', padding: '1.2rem', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '1.8rem' }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#475569', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {isEn ? '💡 Campaign Highlights' : '💡 キャンペーンの見どころ・詳細'}
+                </h3>
+                <p style={{ color: '#1e293b', fontSize: '0.95rem', lineHeight: '1.8', margin: 0, whiteSpace: 'pre-wrap' }}>
+                  {selectedCamp.description || (isEn ? 'Check out the official campaign site for special discounts and exclusive items!' : '公式特設ページにて特別割引や限定商品を今すぐチェック！')}
+                </p>
+              </div>
+
+              {/* 特大公式CTAボタン */}
+              {selectedCamp.link_url && (
+                <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                  <a
+                    href={selectedCamp.link_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{
+                      display: 'inline-block',
+                      width: '100%',
+                      padding: '1rem 1.5rem',
+                      fontSize: '1.1rem',
+                      fontWeight: '800',
+                      borderRadius: '12px',
+                      textDecoration: 'none',
+                      boxShadow: '0 10px 25px -5px rgba(5, 150, 105, 0.4)',
+                      transition: 'transform 0.15s, box-shadow 0.15s',
+                      boxSizing: 'border-box'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                    onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    👉 {isEn ? 'Go to Official Campaign Page' : 'DMM公式キャンペーン会場へ今すぐ行く'}
+                  </a>
+                  <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem' }}>
+                    ※ Powered by {selectedCamp.title.includes('FANZA') ? 'FANZA' : 'DMM.com'} (アフィリエイト広告を含みます)
+                  </p>
+                </div>
               )}
             </div>
-          ))}
+
+            {/* モーダルフッター */}
+            <div style={{ padding: '0.8rem 1.5rem', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end', borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}>
+              <button
+                onClick={() => setSelectedCamp(null)}
+                className="btn btn-outline"
+                style={{ padding: '0.5rem 1.2rem', fontSize: '0.85rem' }}
+              >
+                {isEn ? 'Close' : '閉じる'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
