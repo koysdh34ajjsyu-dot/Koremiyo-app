@@ -35,6 +35,113 @@ const SafeHtmlRenderer = memo(function SafeHtmlRenderer({ html, className, style
   return <div ref={containerRef} className={className} style={style} dangerouslySetInnerHTML={{ __html: html }} />;
 });
 
+// --- Floating Navigation for Blog Posts ---
+function FloatingArticleNav({ onBack, theme = 'dlsite' }) {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const accentColor = theme === 'dlsite' ? '#059669' : '#e63946';
+
+  return (
+    <aside
+      aria-label="記事ナビゲーション"
+      style={{
+        position: 'fixed',
+        bottom: '24px',
+        left: '24px',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        pointerEvents: 'auto'
+      }}
+    >
+      {/* フローティング記事一覧に戻るボタン */}
+      <button
+        type="button"
+        onClick={onBack}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '10px 18px',
+          borderRadius: '50px',
+          background: 'rgba(15, 23, 42, 0.88)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          color: '#ffffff',
+          border: `1.5px solid ${accentColor}`,
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.28)',
+          fontWeight: 'bold',
+          fontSize: '0.9rem',
+          cursor: 'pointer',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          userSelect: 'none'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)';
+          e.currentTarget.style.boxShadow = `0 12px 28px rgba(0, 0, 0, 0.4), 0 0 16px ${accentColor}66`;
+          e.currentTarget.style.background = accentColor;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'none';
+          e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.28)';
+          e.currentTarget.style.background = 'rgba(15, 23, 42, 0.88)';
+        }}
+      >
+        <span style={{ fontSize: '1.1rem', lineHeight: 1, display: 'inline-block', transform: 'translateY(-1px)' }}>←</span>
+        <span>記事一覧に戻る</span>
+      </button>
+
+      {/* トップへ戻るボタン */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          title="ページ最上部へ戻る"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '42px',
+            height: '42px',
+            borderRadius: '50%',
+            background: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            color: '#ffffff',
+            border: '1.5px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+            cursor: 'pointer',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.background = 'rgba(15, 23, 42, 0.98)';
+            e.currentTarget.style.borderColor = accentColor;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'none';
+            e.currentTarget.style.background = 'rgba(15, 23, 42, 0.85)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+          }}
+        >
+          ↑
+        </button>
+      )}
+    </aside>
+  );
+}
+
 // --- Components ---
 function RealProductSearch() {
   const [keyword, setKeyword] = useState('');
@@ -729,9 +836,17 @@ export function TopPage() {
   if (selectedArticle) {
     const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
 
+    const handleBack = () => {
+      setSelectedArticle(null);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    };
+
     return (
-      <div className="container animate-fade-in" style={{ maxWidth: '800px' }}>
-        <button className="btn btn-outline" onClick={() => setSelectedArticle(null)} style={{ marginBottom: '2rem', background: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}>← 記事一覧に戻る</button>
+      <div className="container animate-fade-in" style={{ maxWidth: '800px', position: 'relative' }}>
+        {/* フローティングナビゲーション */}
+        <FloatingArticleNav onBack={handleBack} theme={selectedArticle.site === 'dmm' ? 'dmm' : 'dlsite'} />
+
+        <button className="btn btn-outline" onClick={handleBack} style={{ marginBottom: '2rem', background: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}>← 記事一覧に戻る</button>
         <div className="glass-panel" style={{ padding: '3rem' }}>
           <span style={{ color: '#059669', fontSize: '0.9rem', fontWeight: 'bold' }}>{selectedArticle.category || selectedArticle.tag || (selectedArticle.site === 'dmm' ? 'FANZA動画' : 'DLsite同人')}</span>
           <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem', color: '#0f172a' }}>{selectedArticle.title}</h1>
@@ -752,6 +867,25 @@ export function TopPage() {
           )}
 
           <SafeHtmlRenderer html={cleanContent} />
+
+          {/* 記事末尾の一覧へ戻るボタン */}
+          <div style={{ marginTop: '3.5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
+            <button
+              className="btn btn-outline"
+              onClick={handleBack}
+              style={{
+                padding: '0.8rem 2.2rem',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                borderRadius: '50px',
+                background: '#ffffff',
+                color: '#0f172a',
+                borderColor: '#cbd5e1'
+              }}
+            >
+              ← 記事一覧に戻る
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -1390,6 +1524,8 @@ const renderCampaign = (contentRaw) => {
   return { campaign, showCampaign, cleanContent };
 };
 
+
+
 // --- DLsite 24時間ランキングウィジェット（ネイティブコンポーネント） ---
 function DlsiteRankingWidget() {
   const [items, setItems] = useState([]);
@@ -1564,9 +1700,17 @@ export function DlsiteBlogPage({ articles: initialArticles = null }) {
   if (selectedArticle) {
     const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
 
+    const handleBack = () => {
+      setSelectedArticle(null);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    };
+
     return (
-      <div className="container animate-fade-in" style={{ maxWidth: '800px' }}>
-        <button className="btn btn-outline" onClick={() => setSelectedArticle(null)} style={{ marginBottom: '2rem' }}>← 記事一覧に戻る</button>
+      <div className="container animate-fade-in" style={{ maxWidth: '800px', position: 'relative' }}>
+        {/* フローティングナビゲーション */}
+        <FloatingArticleNav onBack={handleBack} theme="dlsite" />
+
+        <button className="btn btn-outline" onClick={handleBack} style={{ marginBottom: '2rem' }}>← 記事一覧に戻る</button>
         <div className="glass-panel" style={{ padding: '3rem', transform: 'none', transition: 'none' }}>
           <span style={{ color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: 'bold' }}>{selectedArticle.category || selectedArticle.tag}</span>
           <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
@@ -1592,6 +1736,22 @@ export function DlsiteBlogPage({ articles: initialArticles = null }) {
             style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
             html={cleanContent}
           />
+
+          {/* 記事末尾の一覧へ戻るボタン */}
+          <div style={{ marginTop: '3.5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
+            <button
+              className="btn btn-outline"
+              onClick={handleBack}
+              style={{
+                padding: '0.8rem 2.2rem',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                borderRadius: '50px'
+              }}
+            >
+              ← 記事一覧に戻る
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -1771,9 +1931,17 @@ export function DmmBlogPage({ articles: initialArticles = null }) {
   if (selectedArticle) {
     const { campaign, showCampaign, cleanContent } = renderCampaign(selectedArticle.content || selectedArticle.contentHTML);
 
+    const handleBack = () => {
+      setSelectedArticle(null);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    };
+
     return (
-      <div className="container animate-fade-in" style={{ maxWidth: '800px' }}>
-        <button className="btn btn-outline" onClick={() => setSelectedArticle(null)} style={{ marginBottom: '2rem' }}>← 記事一覧に戻る</button>
+      <div className="container animate-fade-in" style={{ maxWidth: '800px', position: 'relative' }}>
+        {/* フローティングナビゲーション */}
+        <FloatingArticleNav onBack={handleBack} theme="dmm" />
+
+        <button className="btn btn-outline" onClick={handleBack} style={{ marginBottom: '2rem' }}>← 記事一覧に戻る</button>
         <div className="glass-panel" style={{ padding: '3rem' }}>
           <span style={{ color: 'var(--primary-color)', fontSize: '0.9rem', fontWeight: 'bold' }}>FANZA動画</span>
           <h1 style={{ marginTop: '0.5rem', marginBottom: '2rem', fontSize: '2rem' }}>{selectedArticle.title}</h1>
@@ -1799,6 +1967,22 @@ export function DmmBlogPage({ articles: initialArticles = null }) {
             style={{ color: 'var(--text-color)', lineHeight: '1.8', fontSize: '1.05rem' }}
             html={cleanContent}
           />
+
+          {/* 記事末尾の一覧へ戻るボタン */}
+          <div style={{ marginTop: '3.5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
+            <button
+              className="btn btn-outline"
+              onClick={handleBack}
+              style={{
+                padding: '0.8rem 2.2rem',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                borderRadius: '50px'
+              }}
+            >
+              ← 記事一覧に戻る
+            </button>
+          </div>
         </div>
       </div>
     );
