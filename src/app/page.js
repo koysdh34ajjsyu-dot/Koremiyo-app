@@ -2839,6 +2839,12 @@ export function RankedProductsPage() {
   const [updatedAt, setUpdatedAt] = useState(null);
   const [fetchError, setFetchError] = useState(null);
 
+  // DLsiteランキング用ステート
+  const [dlsiteItems, setDlsiteItems] = useState([]);
+  const [dlsiteLoading, setDlsiteLoading] = useState(true);
+  const [dlsiteUpdatedAt, setDlsiteUpdatedAt] = useState(null);
+  const [dlsiteError, setDlsiteError] = useState(null);
+
   useEffect(() => {
     const fetchRanking = async () => {
       setLoading(true);
@@ -2860,7 +2866,29 @@ export function RankedProductsPage() {
       }
       setLoading(false);
     };
+
+    const fetchDlsiteRanking = async () => {
+      setDlsiteLoading(true);
+      try {
+        const res = await fetch('/api/dlsite/ranking');
+        const data = await res.json();
+        if (data && data.items && data.items.length > 0) {
+          setDlsiteItems(data.items);
+          setDlsiteUpdatedAt(data.updated_at);
+          setDlsiteError(null);
+        } else {
+          setDlsiteError(data?.error || 'データの取得に失敗しました');
+        }
+      } catch (err) {
+        console.error('DLsite ranking fetch error:', err);
+        setDlsiteError(err.message);
+      } finally {
+        setDlsiteLoading(false);
+      }
+    };
+
     fetchRanking();
+    fetchDlsiteRanking();
   }, []);
 
   const formatDate = (iso) => {
@@ -3007,14 +3035,103 @@ export function RankedProductsPage() {
               }}>DLsite</div>
               <h2 style={{ margin: 0, fontSize: '1.2rem' }}>🎧 DLsite同人ランキング</h2>
             </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.7 }}>
-              過去24時間の人気作品ランキング（DLsite提供）
-            </p>
+            {dlsiteUpdatedAt ? (
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.7 }}>
+                最終更新: {formatDate(dlsiteUpdatedAt)}
+                <span style={{ marginLeft: '0.5rem', fontSize: '0.7rem' }}>※ 公式24時間ランキングAPI</span>
+              </p>
+            ) : (
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.7 }}>
+                過去24時間の人気作品ランキング（DLsite提供）
+              </p>
+            )}
           </div>
 
-          <div className="glass-panel" style={{ padding: '0.5rem', overflow: 'hidden' }}>
-            <DlsiteRankingBanner />
-          </div>
+          {dlsiteLoading && (
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+              <p>ランキングを読み込み中...</p>
+            </div>
+          )}
+
+          {dlsiteError && (
+            <div style={{ textAlign: 'center', padding: '2rem', background: 'rgba(255,80,80,0.1)', border: '2px solid rgba(255,80,80,0.3)', borderRadius: '12px' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+              <h3 style={{ color: '#ff4444', marginBottom: '0.5rem' }}>データの読み込みに失敗しました</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{dlsiteError}</p>
+            </div>
+          )}
+
+          {!dlsiteLoading && dlsiteItems.length === 0 && !dlsiteError && (
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
+              <p>現在ランキングデータを準備中です。しばらくお待ちください。</p>
+            </div>
+          )}
+
+          {!dlsiteLoading && dlsiteItems.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {dlsiteItems.map((item, idx) => (
+                <div key={item.id || idx} className="glass-panel hover-card animate-fade-in"
+                  style={{ display: 'flex', gap: '1rem', alignItems: 'center', padding: '1rem', border: idx < 3 ? '2px solid #10b981' : '1px solid var(--border-color)' }}>
+
+                  <div style={{
+                    minWidth: '52px', height: '52px', borderRadius: '50%',
+                    background: idx === 0 ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+                      : idx === 1 ? 'linear-gradient(135deg, #C0C0C0, #A0A0A0)'
+                      : idx === 2 ? 'linear-gradient(135deg, #CD7F32, #A05010)'
+                      : 'var(--panel-bg)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: idx < 3 ? '1.3rem' : '1rem', fontWeight: 'bold',
+                    color: idx < 3 ? '#fff' : 'var(--text-secondary)',
+                    flexShrink: 0, boxShadow: idx < 3 ? '0 4px 12px rgba(0,0,0,0.2)' : 'none',
+                    border: '1px solid var(--border-color)',
+                  }}>
+                    {idx < 3 ? ['🥇','🥈','🥉'][idx] : `${idx+1}位`}
+                  </div>
+
+                  <img
+                    src={item.image_url || ''}
+                    alt={item.title}
+                    style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0, background: '#334155' }}
+                    onError={e => { e.currentTarget.style.display = 'none'; }}
+                  />
+
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem', minWidth: 0 }}>
+                    <h3 style={{ fontSize: '0.9rem', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {item.title}
+                    </h3>
+                    {item.maker && (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🏢 {item.maker}</span>
+                    )}
+                    {item.category && (
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', opacity: 0.8 }}>🏷️ {item.category}</span>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+                      {item.discount_rate > 0 ? (
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#ef4444', background: 'rgba(239,68,68,0.1)', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
+                          🔥 {item.discount_rate}% OFF
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                          公式人気作
+                        </span>
+                      )}
+                      <a
+                        href={item.affiliate_url}
+                        target="_blank"
+                        rel="noopener sponsored"
+                        className="btn btn-primary"
+                        style={{ padding: '0.4rem 0.9rem', fontSize: '0.78rem', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                      >
+                        👀 見る
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -3770,6 +3887,8 @@ export function AdminDashboard({ dlsiteArticles, dmmArticles, refreshPosts }) {
             onClick={() => {
               if (typeof window !== 'undefined') {
                 localStorage.removeItem('isAdmin');
+                localStorage.removeItem('koremiyo_admin_unlocked');
+                sessionStorage.removeItem('koremiyo_admin_unlocked');
               }
               setIsLoggedIn(false);
               window.location.href = '/';
@@ -3923,15 +4042,39 @@ function NavbarContent() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // 過去にlocalStorageに保存されたisAdminなどをクリーンアップ（通常アクセス時の常時表示を防止）
+      localStorage.removeItem('isAdmin');
+      localStorage.removeItem('koremiyo_admin_unlocked');
+
       const searchParamsObj = new URLSearchParams(window.location.search);
-      const isSecret = searchParamsObj.get('secret') === 'admin1234' || (searchParams && searchParams.get('secret') === 'admin1234');
-      const isSavedAdmin = localStorage.getItem('isAdmin') === 'true';
-      if (isSecret || isSavedAdmin) {
+      const isSecret = 
+        searchParamsObj.get('admin_key') === 'koremiyo2026' ||
+        searchParamsObj.get('secret') === 'admin1234' ||
+        (searchParams && (searchParams.get('admin_key') === 'koremiyo2026' || searchParams.get('secret') === 'admin1234'));
+
+      const isSessionUnlocked = sessionStorage.getItem('koremiyo_admin_unlocked') === 'true';
+
+      if (isSecret) {
         setShowAdmin(true);
-        if (isSecret) localStorage.setItem('isAdmin', 'true');
+        sessionStorage.setItem('koremiyo_admin_unlocked', 'true');
+      } else if (pathname === '/admin' || isSessionUnlocked) {
+        setShowAdmin(true);
+      } else {
+        setShowAdmin(false);
       }
     }
-  }, [searchParams]);
+  }, [searchParams, pathname]);
+
+  const handleHideAdmin = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('koremiyo_admin_unlocked');
+      localStorage.removeItem('isAdmin');
+      localStorage.removeItem('koremiyo_admin_unlocked');
+    }
+    setShowAdmin(false);
+  };
 
   return (
     <nav className="navbar">
@@ -3945,9 +4088,36 @@ function NavbarContent() {
         <Link href="/dmm" className={`nav-link ${pathname === '/dmm' ? 'active' : ''}`}>DMMブログ</Link>
         <Link href="/dlsite" className={`nav-link ${pathname === '/dlsite' ? 'active' : ''}`}>DLsiteブログ</Link>
         {showAdmin && (
-          <Link href="/admin" className={`nav-link ${pathname === '/admin' ? 'active' : ''}`} style={{ marginLeft: '1rem', background: 'var(--secondary-color)', color: 'white' }}>
-            管理者 🔒
-          </Link>
+          <div style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '0.5rem', background: 'var(--secondary-color)', borderRadius: '6px' }}>
+            <Link 
+              href="/admin" 
+              className={`nav-link ${pathname === '/admin' ? 'active' : ''}`} 
+              style={{ color: 'white', background: 'transparent', paddingRight: '0.4rem' }}
+            >
+              管理者 🔒
+            </Link>
+            <button
+              onClick={handleHideAdmin}
+              title="管理者ボタンを非表示にする"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'rgba(255, 255, 255, 0.8)',
+                cursor: 'pointer',
+                padding: '0.4rem 0.6rem 0.4rem 0.2rem',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.8)'}
+            >
+              ✕
+            </button>
+          </div>
         )}
       </div>
     </nav>
