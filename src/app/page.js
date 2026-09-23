@@ -3157,7 +3157,7 @@ function RankingAdmin() {
 // ============================================================
 // HtmlWidgetRenderer: 危険なHTML文字列や<script>タグを安全に展開・実行するコンポーネント
 // ============================================================
-function HtmlWidgetRenderer({ htmlContent }) {
+export function HtmlWidgetRenderer({ htmlContent }) {
   const iframeRef = useRef(null);
 
   const srcDocHtml = `
@@ -3326,30 +3326,55 @@ export function CampaignsPage({ lang = 'ja' }) {
 
                   {/* アクションボタン群 */}
                   <div style={{ marginTop: 'auto', display: 'flex', gap: '0.6rem', flexDirection: 'column' }}>
-                    <button
-                      onClick={() => setSelectedCamp(camp)}
-                      className="btn"
-                      style={{
-                        width: '100%',
-                        padding: '0.6rem',
-                        fontSize: '0.85rem',
-                        fontWeight: '700',
-                        background: '#f1f5f9',
-                        color: '#334155',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.4rem',
-                        transition: 'background 0.15s'
-                      }}
-                      onMouseOver={e => e.currentTarget.style.background = '#e2e8f0'}
-                      onMouseOut={e => e.currentTarget.style.background = '#f1f5f9'}
-                    >
-                      <span>🔍</span> {isEn ? 'View Full Details' : '詳細・見どころを見る'}
-                    </button>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                      <button
+                        onClick={() => setSelectedCamp(camp)}
+                        className="btn"
+                        style={{
+                          padding: '0.6rem 0.4rem',
+                          fontSize: '0.8rem',
+                          fontWeight: '700',
+                          background: '#f1f5f9',
+                          color: '#334155',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.3rem',
+                          transition: 'background 0.15s'
+                        }}
+                        onMouseOver={e => e.currentTarget.style.background = '#e2e8f0'}
+                        onMouseOut={e => e.currentTarget.style.background = '#f1f5f9'}
+                      >
+                        <span>🔍</span> {isEn ? 'Quick View' : 'ポップアップ'}
+                      </button>
+
+                      <a
+                        href={`/campaign/${camp.id}`}
+                        className="btn"
+                        style={{
+                          padding: '0.6rem 0.4rem',
+                          fontSize: '0.8rem',
+                          fontWeight: '700',
+                          background: '#ffffff',
+                          color: 'var(--primary-color, #059669)',
+                          border: '1px solid var(--primary-color, #059669)',
+                          borderRadius: '8px',
+                          textDecoration: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.3rem',
+                          transition: 'background 0.15s, color 0.15s'
+                        }}
+                        onMouseOver={e => { e.currentTarget.style.background = 'var(--primary-color, #059669)'; e.currentTarget.style.color = '#ffffff'; }}
+                        onMouseOut={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = 'var(--primary-color, #059669)'; }}
+                      >
+                        <span>📄</span> {isEn ? 'Detail Page' : '詳細ページ'}
+                      </a>
+                    </div>
 
                     {camp.link_url && (
                       <a
@@ -3524,7 +3549,22 @@ export function CampaignsPage({ lang = 'ja' }) {
             </div>
 
             {/* モーダルフッター */}
-            <div style={{ padding: '0.8rem 1.5rem', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end', borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}>
+            <div style={{ padding: '0.8rem 1.5rem', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}>
+              <a
+                href={`/campaign/${selectedCamp.id}`}
+                style={{
+                  fontSize: '0.85rem',
+                  color: 'var(--primary-color, #059669)',
+                  fontWeight: '700',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.3rem'
+                }}
+              >
+                <span>🔗</span> {isEn ? 'Open Dedicated Detail Page' : '専用の詳細ページを開く'}
+              </a>
+
               <button
                 onClick={() => setSelectedCamp(null)}
                 className="btn btn-outline"
