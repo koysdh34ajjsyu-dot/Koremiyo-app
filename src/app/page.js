@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, Suspense, memo } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
@@ -37,9 +38,11 @@ const SafeHtmlRenderer = memo(function SafeHtmlRenderer({ html, className, style
 
 // --- Floating Navigation for Blog Posts ---
 function FloatingArticleNav({ onBack, theme = 'dlsite' }) {
+  const [mounted, setMounted] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
@@ -47,16 +50,18 @@ function FloatingArticleNav({ onBack, theme = 'dlsite' }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  if (!mounted || typeof document === 'undefined') return null;
+
   const accentColor = theme === 'dlsite' ? '#059669' : '#e63946';
 
-  return (
+  const navContent = (
     <aside
       aria-label="記事ナビゲーション"
       style={{
         position: 'fixed',
         bottom: '24px',
         left: '24px',
-        zIndex: 9999,
+        zIndex: 99999,
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -140,6 +145,8 @@ function FloatingArticleNav({ onBack, theme = 'dlsite' }) {
       )}
     </aside>
   );
+
+  return createPortal(navContent, document.body);
 }
 
 // --- Components ---
