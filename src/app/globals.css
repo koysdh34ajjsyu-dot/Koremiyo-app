@@ -69,6 +69,14 @@ body {
   border-color: var(--primary-color);
 }
 
+.hover-card img {
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.hover-card:hover img {
+  transform: scale(1.05);
+}
+
 /* Media Player standard styles */
 video {
   max-width: 100%;

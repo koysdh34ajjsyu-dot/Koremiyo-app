@@ -11,11 +11,13 @@ import 'react-quill-new/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
-// --- Utilities ---
 const extractThumbnail = (html) => {
   if (!html) return null;
-  const match = html.match(/<img[^>]+src="([^">]+)"/);
-  return match ? match[1] : null;
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (!match) return null;
+  let url = match[1];
+  if (url.startsWith('//')) url = 'https:' + url;
+  return url;
 };
 
 const SafeHtmlRenderer = memo(function SafeHtmlRenderer({ html, className, style }) {
@@ -828,6 +830,14 @@ export function TopPage() {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
 
+  // メインコンテンツカード用の最新画像ステート
+  const [cardThumbs, setCardThumbs] = useState({
+    dmm: null,
+    dlsite: null,
+    ranking: null,
+    campaign: null,
+  });
+
   useEffect(() => {
     supabase
       .from('posts')
@@ -838,6 +848,34 @@ export function TopPage() {
         if (data) setLatestPosts(data);
         setLoadingPosts(false);
       });
+
+    // メインコンテンツ4枠の最新画像データを並列取得
+    const fetchCardImages = async () => {
+      try {
+        const [dmmRes, dlRes, rankRes, campRes] = await Promise.all([
+          supabase.from('posts').select('content, contentHTML').eq('site', 'dmm').order('created_at', { ascending: false }).limit(1),
+          supabase.from('posts').select('content, contentHTML').eq('site', 'dlsite').order('created_at', { ascending: false }).limit(1),
+          supabase.from('ranked_products').select('image_url').order('rank_position', { ascending: true }).limit(1),
+          supabase.from('campaigns').select('image_url').eq('is_active', true).neq('image_url', '').order('display_order', { ascending: true }).limit(1)
+        ]);
+
+        const dmmThumb = dmmRes.data?.[0] ? extractThumbnail(dmmRes.data[0].content || dmmRes.data[0].contentHTML) : null;
+        const dlThumb = dlRes.data?.[0] ? extractThumbnail(dlRes.data[0].content || dlRes.data[0].contentHTML) : null;
+        const rankThumb = rankRes.data?.[0]?.image_url || null;
+        const campThumb = campRes.data?.[0]?.image_url || null;
+
+        setCardThumbs({
+          dmm: dmmThumb,
+          dlsite: dlThumb,
+          ranking: rankThumb,
+          campaign: campThumb,
+        });
+      } catch (err) {
+        console.error('Failed to fetch card thumbnails:', err);
+      }
+    };
+
+    fetchCardImages();
   }, []);
 
   if (selectedArticle) {
@@ -1067,10 +1105,30 @@ export function TopPage() {
       </h3>
 
       <div className="grid grid-cols-2" style={{ marginBottom: '4rem' }}>
-        <div className="glass-panel delay-1" style={{ padding: 0, overflow: 'hidden', borderTop: '4px solid #059669' }}>
-          <div style={{ height: '140px', background: 'linear-gradient(135deg, #059669, #0d9488)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem', position: 'relative' }}>
-            🎬
-            <span style={{ position: 'absolute', bottom: '10px', left: '15px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>FANZA / DMM</span>
+        {/* 1. DMMブログ */}
+        <div className="glass-panel delay-1 hover-card" style={{ padding: 0, overflow: 'hidden', borderTop: '4px solid #059669' }}>
+          <div style={{ height: '160px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #059669, #0d9488)' }}>
+            {cardThumbs.dmm ? (
+              <>
+                <img
+                  src={cardThumbs.dmm}
+                  alt="DMM最新レビュー"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15,23,42,0.75) 100%)', pointerEvents: 'none' }} />
+              </>
+            ) : (
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem' }}>🎬</div>
+            )}
+            <span style={{ position: 'absolute', bottom: '12px', left: '15px', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', color: '#fff', fontSize: '0.75rem', padding: '0.25rem 0.65rem', borderRadius: '6px', fontWeight: 'bold', border: '1px solid rgba(255,255,255,0.2)', zIndex: 2 }}>
+              FANZA / DMM
+            </span>
+            {cardThumbs.dmm && (
+              <span style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(5, 150, 105, 0.9)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.7rem', padding: '0.2rem 0.55rem', borderRadius: '4px', fontWeight: 'bold', zIndex: 2 }}>
+                🔥 最新レビュー
+              </span>
+            )}
           </div>
           <div style={{ padding: '1.5rem' }}>
             <h2 style={{ margin: '0 0 0.6rem 0', fontSize: '1.3rem', color: '#0f172a' }}>📖 DMMブログ / FANZAレビュー</h2>
@@ -1083,10 +1141,30 @@ export function TopPage() {
           </div>
         </div>
 
-        <div className="glass-panel delay-2" style={{ padding: 0, overflow: 'hidden', borderTop: '4px solid #10b981' }}>
-          <div style={{ height: '140px', background: 'linear-gradient(135deg, #0d9488, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem', position: 'relative' }}>
-            🎧
-            <span style={{ position: 'absolute', bottom: '10px', left: '15px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>DLsite同人 / 音声</span>
+        {/* 2. DLsiteブログ */}
+        <div className="glass-panel delay-2 hover-card" style={{ padding: 0, overflow: 'hidden', borderTop: '4px solid #10b981' }}>
+          <div style={{ height: '160px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #0d9488, #10b981)' }}>
+            {cardThumbs.dlsite ? (
+              <>
+                <img
+                  src={cardThumbs.dlsite}
+                  alt="DLsite最新レビュー"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15,23,42,0.75) 100%)', pointerEvents: 'none' }} />
+              </>
+            ) : (
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem' }}>🎧</div>
+            )}
+            <span style={{ position: 'absolute', bottom: '12px', left: '15px', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', color: '#fff', fontSize: '0.75rem', padding: '0.25rem 0.65rem', borderRadius: '6px', fontWeight: 'bold', border: '1px solid rgba(255,255,255,0.2)', zIndex: 2 }}>
+              DLsite同人 / 音声
+            </span>
+            {cardThumbs.dlsite && (
+              <span style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(5, 150, 105, 0.9)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.7rem', padding: '0.2rem 0.55rem', borderRadius: '4px', fontWeight: 'bold', zIndex: 2 }}>
+                🔥 最新レビュー
+              </span>
+            )}
           </div>
           <div style={{ padding: '1.5rem' }}>
             <h2 style={{ margin: '0 0 0.6rem 0', fontSize: '1.3rem', color: '#0f172a' }}>✍️ DLsiteブログ / 音声・同人</h2>
@@ -1099,10 +1177,28 @@ export function TopPage() {
           </div>
         </div>
 
-        <div className="glass-panel delay-3" style={{ padding: 0, overflow: 'hidden', borderTop: '4px solid #059669' }}>
-          <div style={{ height: '140px', background: 'linear-gradient(135deg, #15803d, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem', position: 'relative' }}>
-            🏆
-            <span style={{ position: 'absolute', bottom: '10px', left: '15px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>ダブル集計ランキング</span>
+        {/* 3. 人気作品ランキング */}
+        <div className="glass-panel delay-3 hover-card" style={{ padding: 0, overflow: 'hidden', borderTop: '4px solid #059669' }}>
+          <div style={{ height: '160px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #15803d, #059669)' }}>
+            {cardThumbs.ranking ? (
+              <>
+                <img
+                  src={cardThumbs.ranking}
+                  alt="人気ランキング第1位作品"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15,23,42,0.75) 100%)', pointerEvents: 'none' }} />
+              </>
+            ) : (
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem' }}>🏆</div>
+            )}
+            <span style={{ position: 'absolute', bottom: '12px', left: '15px', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', color: '#fff', fontSize: '0.75rem', padding: '0.25rem 0.65rem', borderRadius: '6px', fontWeight: 'bold', border: '1px solid rgba(255,255,255,0.2)', zIndex: 2 }}>
+              ダブル集計ランキング
+            </span>
+            <span style={{ position: 'absolute', top: '12px', right: '12px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.7rem', padding: '0.2rem 0.55rem', borderRadius: '4px', fontWeight: 'bold', zIndex: 2 }}>
+              👑 ランキング第1位
+            </span>
           </div>
           <div style={{ padding: '1.5rem' }}>
             <h2 style={{ margin: '0 0 0.6rem 0', fontSize: '1.3rem', color: '#0f172a' }}>👑 人気作品ランキング</h2>
@@ -1115,10 +1211,28 @@ export function TopPage() {
           </div>
         </div>
 
-        <div className="glass-panel delay-3" style={{ animationDelay: '0.4s', padding: 0, overflow: 'hidden', borderTop: '4px solid #10b981' }}>
-          <div style={{ height: '140px', background: 'linear-gradient(135deg, #047857, #0d9488)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem', position: 'relative' }}>
-            🎁
-            <span style={{ position: 'absolute', bottom: '10px', left: '15px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>セール・還元情報</span>
+        {/* 4. お得なキャンペーン情報 */}
+        <div className="glass-panel delay-3 hover-card" style={{ animationDelay: '0.4s', padding: 0, overflow: 'hidden', borderTop: '4px solid #10b981' }}>
+          <div style={{ height: '160px', position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #047857, #0d9488)' }}>
+            {cardThumbs.campaign ? (
+              <>
+                <img
+                  src={cardThumbs.campaign}
+                  alt="お得なキャンペーン情報"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15,23,42,0.75) 100%)', pointerEvents: 'none' }} />
+              </>
+            ) : (
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '3.5rem' }}>🎁</div>
+            )}
+            <span style={{ position: 'absolute', bottom: '12px', left: '15px', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', color: '#fff', fontSize: '0.75rem', padding: '0.25rem 0.65rem', borderRadius: '6px', fontWeight: 'bold', border: '1px solid rgba(255,255,255,0.2)', zIndex: 2 }}>
+              セール・還元情報
+            </span>
+            <span style={{ position: 'absolute', top: '12px', right: '12px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.7rem', padding: '0.2rem 0.55rem', borderRadius: '4px', fontWeight: 'bold', zIndex: 2 }}>
+              🎉 期間限定セール
+            </span>
           </div>
           <div style={{ padding: '1.5rem' }}>
             <h2 style={{ margin: '0 0 0.6rem 0', fontSize: '1.3rem', color: '#0f172a' }}>🎁 お得なキャンペーン情報</h2>
