@@ -853,16 +853,16 @@ export function TopPage() {
     const fetchCardImages = async () => {
       try {
         const [dmmRes, dlRes, rankRes, campRes] = await Promise.all([
-          supabase.from('posts').select('content, contentHTML').eq('site', 'dmm').order('created_at', { ascending: false }).limit(1),
-          supabase.from('posts').select('content, contentHTML').eq('site', 'dlsite').order('created_at', { ascending: false }).limit(1),
+          supabase.from('posts').select('content').eq('site', 'dmm').order('created_at', { ascending: false }).limit(1),
+          supabase.from('posts').select('content').eq('site', 'dlsite').order('created_at', { ascending: false }).limit(1),
           supabase.from('ranked_products').select('image_url').order('rank_position', { ascending: true }).limit(1),
-          supabase.from('campaigns').select('image_url').eq('is_active', true).neq('image_url', '').order('display_order', { ascending: true }).limit(1)
+          supabase.from('campaigns').select('image_url').eq('is_active', true).not('image_url', 'is', null).neq('image_url', '').order('display_order', { ascending: true }).limit(1)
         ]);
 
-        const dmmThumb = dmmRes.data?.[0] ? extractThumbnail(dmmRes.data[0].content || dmmRes.data[0].contentHTML) : null;
-        const dlThumb = dlRes.data?.[0] ? extractThumbnail(dlRes.data[0].content || dlRes.data[0].contentHTML) : null;
+        const dmmThumb = dmmRes.data?.[0]?.content ? extractThumbnail(dmmRes.data[0].content) : null;
+        const dlThumb = dlRes.data?.[0]?.content ? extractThumbnail(dlRes.data[0].content) : null;
         const rankThumb = rankRes.data?.[0]?.image_url || null;
-        const campThumb = campRes.data?.[0]?.image_url || null;
+        const campThumb = campRes.data?.[0]?.image_url || 'https://pics.dmm.co.jp/af/a_book_26autumn/300_250.jpg';
 
         setCardThumbs({
           dmm: dmmThumb,
