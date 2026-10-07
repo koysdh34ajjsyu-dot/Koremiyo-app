@@ -112,6 +112,10 @@ export default async function CampaignDetailPage({ params }) {
             <span style={{ background: 'var(--primary-color, #059669)', color: '#fff', fontSize: '0.75rem', fontWeight: 'bold', padding: '0.25rem 0.7rem', borderRadius: '6px' }}>
               CAMPAIGN
             </span>
+            <span style={{ background: '#f1f5f9', color: '#334155', fontSize: '0.75rem', fontWeight: 'bold', padding: '0.25rem 0.6rem', borderRadius: '6px', border: '1px solid #cbd5e1', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+              <span>📢 PR</span>
+              <span style={{ fontSize: '0.7rem', color: '#64748b' }}>アフィリエイト広告</span>
+            </span>
             {camp.expires_at && (
               <span style={{ fontSize: '0.8rem', color: '#64748b', background: '#f1f5f9', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>
                 📅 {new Date(camp.expires_at).toLocaleDateString('ja-JP')} まで
@@ -125,9 +129,14 @@ export default async function CampaignDetailPage({ params }) {
           </div>
 
           {/* タイトル（全文・大見出し） */}
-          <h1 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#0f172a', lineHeight: '1.45', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#0f172a', lineHeight: '1.45', marginBottom: '1.2rem' }}>
             {camp.title}
           </h1>
+
+          {/* 景品表示法・ステマ規制準拠 広告明示バー */}
+          <div style={{ background: '#f8fafc', borderLeft: '4px solid #059669', padding: '0.6rem 1rem', marginBottom: '1.5rem', borderRadius: '0 8px 8px 0', fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5' }}>
+            ※当ページは公式キャンペーンおよびセール情報の紹介を含むPR・アフィリエイト広告コンテンツです。
+          </div>
 
           {/* バナー完全表示エリア */}
           <div style={{ marginBottom: '2rem', background: '#f8fafc', borderRadius: '16px', padding: '1rem', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>

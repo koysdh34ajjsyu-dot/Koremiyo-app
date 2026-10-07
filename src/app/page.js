@@ -20,7 +20,7 @@ const extractThumbnail = (html) => {
   return url;
 };
 
-const SafeHtmlRenderer = memo(function SafeHtmlRenderer({ html, className, style }) {
+export const SafeHtmlRenderer = memo(function SafeHtmlRenderer({ html, className, style }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -1029,12 +1029,13 @@ export function TopPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
             {latestPosts.map(article => {
               const thumb = extractThumbnail(article.content || article.contentHTML);
+              const articleHref = `/${article.site === 'dmm' ? 'dmm' : 'dlsite'}/${article.id}`;
               return (
-                <div 
+                <Link 
                   key={article.id} 
+                  href={articleHref}
                   className="glass-panel hover-card" 
-                  style={{ padding: 0, cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '16px', border: '1px solid #cbd5e1', transition: 'all 0.3s ease' }} 
-                  onClick={() => setSelectedArticle(article)}
+                  style={{ textDecoration: 'none', color: 'inherit', padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '16px', border: '1px solid #cbd5e1', transition: 'all 0.3s ease' }} 
                 >
                   <div style={{ height: '170px', background: '#e2e8f0', position: 'relative', overflow: 'hidden' }}>
                     {thumb ? (
@@ -1055,11 +1056,11 @@ export function TopPage() {
                     <h3 style={{ fontSize: '1.05rem', margin: '0 0 0.8rem 0', lineHeight: '1.4', color: '#0f172a', fontWeight: 'bold', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {article.title}
                     </h3>
-                    <button className="btn btn-outline" style={{ marginTop: 'auto', width: '100%', fontSize: '0.85rem', padding: '0.5rem', borderColor: '#a7f3d0', color: '#059669', background: '#ecfdf5', fontWeight: 'bold' }}>
+                    <span className="btn btn-outline" style={{ marginTop: 'auto', width: '100%', fontSize: '0.85rem', padding: '0.5rem', borderColor: '#a7f3d0', color: '#059669', background: '#ecfdf5', fontWeight: 'bold', textAlign: 'center' }}>
                       記事を読む 📖
-                    </button>
+                    </span>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
@@ -1625,7 +1626,7 @@ function UnifiedDmmDashboard() {
   );
 }
 
-const renderCampaign = (contentRaw) => {
+export const renderCampaign = (contentRaw) => {
   let campaign = null;
   let cleanContent = contentRaw || '';
   const match = cleanContent.match(/<!--CAMPAIGN:(.*?)-->/);
@@ -1939,7 +1940,8 @@ export function DlsiteBlogPage({ articles: initialArticles = null }) {
         const { showCampaign } = renderCampaign(latest.content || latest.contentHTML);
         const postedDate = latest.created_at ? new Date(latest.created_at).toLocaleDateString('ja-JP') : null;
         return (
-          <div
+          <Link
+            href={`/dlsite/${latest.id}`}
             className="glass-panel"
             style={{
               display: 'flex',
@@ -1950,10 +1952,10 @@ export function DlsiteBlogPage({ articles: initialArticles = null }) {
               borderColor: 'var(--primary-color)',
               boxShadow: '0 12px 35px rgba(255,143,171,0.25)',
               flexDirection: 'row',
-              cursor: 'pointer',
+              textDecoration: 'none',
+              color: 'inherit',
               position: 'relative',
             }}
-            onClick={() => setSelectedArticle(latest)}
           >
             {/* NEW バッジ */}
             <div style={{
@@ -1992,13 +1994,12 @@ export function DlsiteBlogPage({ articles: initialArticles = null }) {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
                 {(latest.content || '').replace(/<[^>]+>/g, '').slice(0, 120)}{(latest.content || '').length > 120 ? '…' : ''}
               </p>
-              <button
+              <span
                 className="btn btn-primary"
                 style={{ width: 'fit-content', padding: '0.6rem 1.8rem', fontSize: '0.95rem' }}
-                onClick={(e) => { e.stopPropagation(); setSelectedArticle(latest); }}
-              >記事を読む →</button>
+              >記事を読む →</span>
             </div>
-          </div>
+          </Link>
         );
       })()}
 
@@ -2008,7 +2009,7 @@ export function DlsiteBlogPage({ articles: initialArticles = null }) {
           const thumbUrl = extractThumbnail(item.content || item.contentHTML);
           const { showCampaign } = renderCampaign(item.content || item.contentHTML);
           return (
-            <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+            <Link key={item.id} href={`/dlsite/${item.id}`} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative', textDecoration: 'none', color: 'inherit' }}>
               {showCampaign && (
                 <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'linear-gradient(45deg, #84b6f4, #b088f9)', color: 'white', padding: '0.4rem 1rem', borderRadius: '50px', fontWeight: 'bold', fontSize: '0.8rem', boxShadow: '0 4px 10px rgba(132,182,244,0.3)', zIndex: 10 }}>
                   🔥 キャンペーン中
@@ -2023,8 +2024,8 @@ export function DlsiteBlogPage({ articles: initialArticles = null }) {
               )}
               <span style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>{item.category || item.tag}</span>
               <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem', flexGrow: 1 }}>{item.title}</h3>
-              <button className="btn btn-primary" onClick={() => setSelectedArticle(item)} style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem' }}>記事を読む</button>
-            </div>
+              <span className="btn btn-primary" style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem', textAlign: 'center' }}>記事を読む</span>
+            </Link>
           );
         })}
         {filteredArticles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>該当する記事はありません。</p>}
@@ -2123,7 +2124,8 @@ export function DmmBlogPage({ articles: initialArticles = null }) {
         const { showCampaign } = renderCampaign(latest.content || latest.contentHTML);
         const postedDate = latest.created_at ? new Date(latest.created_at).toLocaleDateString('ja-JP') : null;
         return (
-          <div
+          <Link
+            href={`/dmm/${latest.id}`}
             className="glass-panel"
             style={{
               display: 'flex',
@@ -2133,10 +2135,10 @@ export function DmmBlogPage({ articles: initialArticles = null }) {
               overflow: 'hidden',
               borderColor: 'var(--primary-color)',
               boxShadow: '0 12px 35px rgba(255,143,171,0.25)',
-              cursor: 'pointer',
+              textDecoration: 'none',
+              color: 'inherit',
               position: 'relative',
             }}
-            onClick={() => setSelectedArticle(latest)}
           >
             <div style={{
               position: 'absolute', top: '1rem', left: '1rem', zIndex: 10,
@@ -2172,13 +2174,12 @@ export function DmmBlogPage({ articles: initialArticles = null }) {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
                 {(latest.content || '').replace(/<[^>]+>/g, '').slice(0, 120)}{(latest.content || '').length > 120 ? '…' : ''}
               </p>
-              <button
+              <span
                 className="btn btn-primary"
                 style={{ width: 'fit-content', padding: '0.6rem 1.8rem', fontSize: '0.95rem' }}
-                onClick={(e) => { e.stopPropagation(); setSelectedArticle(latest); }}
-              >記事を読む →</button>
+              >記事を読む →</span>
             </div>
-          </div>
+          </Link>
         );
       })()}
 
@@ -2189,7 +2190,7 @@ export function DmmBlogPage({ articles: initialArticles = null }) {
           const thumbUrl = extractThumbnail(item.content || item.contentHTML);
           const { showCampaign } = renderCampaign(item.content || item.contentHTML);
           return (
-            <div key={item.id} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+            <Link key={item.id} href={`/dmm/${item.id}`} className="glass-panel hover-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative', textDecoration: 'none', color: 'inherit' }}>
               {showCampaign && (
                 <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'linear-gradient(45deg, #ff0033, var(--accent-color))', color: 'white', padding: '0.4rem 1rem', borderRadius: '50px', fontWeight: 'bold', fontSize: '0.8rem', boxShadow: '0 4px 10px rgba(255,0,51,0.3)', zIndex: 10 }}>
                   🔥 キャンペーン中
@@ -2204,8 +2205,8 @@ export function DmmBlogPage({ articles: initialArticles = null }) {
               )}
               <span style={{ color: 'var(--primary-color)', fontSize: '0.8rem', fontWeight: 'bold' }}>FANZA動画</span>
               <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem', flexGrow: 1 }}>{item.title}</h3>
-              <button className="btn btn-primary" onClick={() => setSelectedArticle(item)} style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem' }}>記事を読む</button>
-            </div>
+              <span className="btn btn-primary" style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', marginTop: '1rem', textAlign: 'center' }}>記事を読む</span>
+            </Link>
           );
         })}
         {articles.length === 0 && <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>現在公開されている記事はありません。</p>}
@@ -4263,6 +4264,10 @@ export function AppLayoutWrapper({ children }) {
             <img src="https://p.dmm.co.jp/p/affiliate/web_service/r18_88_35.gif" width="88" height="35" alt="WEB SERVICE BY FANZA" />
           </a>
         </div>
+        <p style={{ fontSize: '0.8rem', color: '#64748b', maxWidth: '680px', margin: '0 auto 1rem auto', lineHeight: '1.6' }}>
+          【広告・年齢制限に関する表記】<br />
+          当サイトはアフィリエイト広告（DMM.com / FANZA / DLsite 等）を利用して商品を紹介しています。また、18歳未満の方の閲覧は固くお断りいたします（R18）。
+        </p>
         <p>&copy; 2026 次、コレ見よ. All rights reserved.</p>
       </footer>
       <FeedbackWidget />
