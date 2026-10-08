@@ -491,6 +491,17 @@ development_workflow_for_ai:
       - "【最重要】仕様変更追記: 変更点・新規API・新規テーブル等を本ファイル (AI_SHARED_CONTEXT.md) の各ブロックおよび mutation_log に即座に追記更新する"
 
 mutation_log:
+  - date: "2026-10-09"
+    author: "AI Assistant (Antigravity)"
+    type: "RSC_BOUNDARY_RENDER_CAMPAIGN_ISOLATION_AND_5_NEW_ARTICLES_DEPLOYMENT"
+    summary: >
+      動的SSR記事詳細ルート（/dlsite/[id], /dmm/[id]）の500エラー解消および新規5作品の公開・整合性確保。
+      1. サーバー・クライアント境界違反（RSC Boundary）の解消:
+         - 個別詳細サーバーコンポーネント（/dlsite/[id], /dmm/[id]）から 'use client' である src/app/page.js の renderCampaign 関数を直接インポートしていたことによる実行時エラー（Error: Attempted to call renderCampaign() from the server but renderCampaign is on the client）を特定。
+         - renderCampaign を独立したサーバー安全ユーティリティ `src/lib/campaign.js` に分離し、全ルートからの安全なインポートへ統合。
+      2. 新規5作品（DLsite）の本番公開:
+         - RJ01685047, RJ01666292, RJ01671077, RJ01706401, RJ01678831 の5作品を最新品質基準でSupabase posts テーブルへ本番登録（累計42記事へ拡大）。
+         - content_manager.xlsx / .csv から公開完了行を自動クリーンアップ。
   - date: "2026-10-05"
     author: "AI Assistant (Antigravity)"
     type: "UNIFIED_CONTENT_MANAGER_PORTAL_AND_AFFILIATE_AUTO_GENERATION"

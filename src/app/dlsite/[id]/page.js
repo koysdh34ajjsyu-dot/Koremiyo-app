@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
-import { AppLayoutWrapper, SafeHtmlRenderer, renderCampaign } from '../../page';
+import { AppLayoutWrapper, SafeHtmlRenderer } from '../../page';
+import { renderCampaign } from '../../../lib/campaign';
 import { formatPriceWithCurrency } from '../../../lib/currency';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

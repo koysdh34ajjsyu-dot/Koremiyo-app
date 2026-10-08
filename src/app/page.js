@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { supabase } from '../lib/supabase';
+import { renderCampaign } from '../lib/campaign';
 import './globals.css';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -1626,25 +1627,7 @@ function UnifiedDmmDashboard() {
   );
 }
 
-export const renderCampaign = (contentRaw) => {
-  let campaign = null;
-  let cleanContent = contentRaw || '';
-  const match = cleanContent.match(/<!--CAMPAIGN:(.*?)-->/);
-  if (match) {
-    try { campaign = JSON.parse(match[1]); } catch(e){}
-    cleanContent = cleanContent.replace(/<!--CAMPAIGN:.*?-->\n?/g, '');
-  }
-  
-  let showCampaign = false;
-  if (campaign && campaign.discountExpiry) {
-    const expiryDate = new Date(`${campaign.discountExpiry}T23:59:59`);
-    const now = new Date();
-    if (now <= expiryDate) {
-      showCampaign = true;
-    }
-  }
-  return { campaign, showCampaign, cleanContent };
-};
+export { renderCampaign };
 
 
 
